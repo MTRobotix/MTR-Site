@@ -44,7 +44,6 @@ const href = (path: string) => localPath(locale, path);
   </div>
 
   <div class="footer-utility">
-    <span>Rotterdam · Stuttgart · Monterrey</span>
     <span class="copyright">© {new Date().getFullYear()} MTRobotics</span>
   </div>
 </footer>
@@ -113,7 +112,6 @@ const href = (path: string) => localPath(locale, path);
 
   .footer-utility a { color: inherit; text-decoration: none; }
   .footer-utility a:hover { color: var(--color-bg); }
-  .copyright { margin-left: auto; }
 
   @media (max-width: 1024px) {
     .footer-grid { grid-template-columns: repeat(2, 1fr); }
@@ -132,7 +130,5 @@ const href = (path: string) => localPath(locale, path);
       border-bottom: var(--space-hairline) solid var(--color-paper-12);
     }
     .footer-cell:last-child { border-bottom: 0; }
-    .footer-utility { flex-wrap: wrap; gap: 12px; }
-    .copyright { width: 100%; margin-left: 0; }
   }
 </style>

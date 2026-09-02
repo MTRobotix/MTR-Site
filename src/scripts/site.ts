@@ -42,6 +42,28 @@ document.addEventListener('astro:after-swap', () => {
   resetScrollAfterSwap = false;
 });
 
+function setupHeaderScroll(signal: AbortSignal) {
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  if (!header) return;
+
+  const threshold = 24;
+  let ticking = false;
+
+  const update = () => {
+    ticking = false;
+    header.toggleAttribute('data-scrolled', window.scrollY > threshold);
+  };
+
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(update);
+  };
+
+  update();
+  window.addEventListener('scroll', onScroll, { passive: true, signal });
+}
+
 function setupReveal() {
   revealObserver?.disconnect();
   const elements = document.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-grid]');
@@ -600,6 +622,7 @@ function setupPage() {
   pageController = new AbortController();
   const { signal } = pageController;
   setupReveal();
+  setupHeaderScroll(signal);
   setupNavigation(signal);
   setupHomePool(signal);
   setupProductMotion(signal);

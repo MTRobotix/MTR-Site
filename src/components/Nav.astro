@@ -30,7 +30,7 @@ const href = (path: string) => localPath(locale, path);
   <nav class="main-bar" aria-label={copy.primaryNav}>
     <a class="brand-lockup" href={href('/')} aria-label={copy.homeLabel}>
       <span class="brand-mark" aria-hidden="true"></span>
-      <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span>R</span></span>
+      <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span class="brand-r">R</span><span class="brand-suffix">obotics</span></span>
     </a>
 
     <div class="desktop-navigation">
@@ -102,7 +102,7 @@ const href = (path: string) => localPath(locale, path);
     <div class="mobile-panel-header">
       <a class="brand-lockup mobile-brand" href={href('/')} aria-label={copy.homeLabel}>
         <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span>R</span></span>
+        <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span class="brand-r">R</span><span class="brand-suffix">obotics</span></span>
       </a>
       <button class="mobile-close-button" type="button" aria-label={copy.closeMenu} data-mobile-close>
         <X aria-hidden="true" size={24} stroke-width={1.5} />
@@ -191,6 +191,8 @@ const href = (path: string) => localPath(locale, path);
   }
 
   .brand-wordmark {
+    display: inline-flex;
+    align-items: baseline;
     font-family: var(--font-heading);
     font-size: clamp(26px, calc(.625vw + 14px), 30px);
     font-weight: var(--font-heading-weight);
@@ -199,7 +201,22 @@ const href = (path: string) => localPath(locale, path);
   }
 
   .brand-mt { color: var(--color-mark-red); }
-  .brand-wordmark > span:last-child { color: var(--color-bg); }
+  .brand-r,
+  .brand-suffix { color: var(--color-bg); }
+
+  .brand-suffix {
+    display: inline-block;
+    overflow: hidden;
+    max-width: 180px;
+    opacity: 1;
+    white-space: nowrap;
+    transition: max-width var(--motion-rule) var(--motion-ease), opacity var(--motion-label) var(--motion-ease);
+  }
+
+  .site-header[data-scrolled] .brand-suffix {
+    max-width: 0;
+    opacity: 0;
+  }
 
   .desktop-navigation {
     display: flex;
