@@ -1,0 +1,138 @@
+---
+import { products, productsVi } from '../data/products';
+import { localPath, ui, type Locale } from '../data/i18n';
+
+interface Props { locale?: Locale; }
+const { locale = 'en' } = Astro.props;
+const copy = ui[locale];
+const productList = locale === 'vi' ? productsVi : products;
+const href = (path: string) => localPath(locale, path);
+---
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <section class="footer-cell" aria-labelledby="footer-solutions">
+      <h2 id="footer-solutions">{copy.solutions}</h2>
+      <ul>
+        {productList.map((product) => <li><a href={href(`/solutions/${product.slug}`)}>{product.nav}</a></li>)}
+      </ul>
+    </section>
+
+    <section class="footer-cell" aria-labelledby="footer-company">
+      <h2 id="footer-company">{copy.company}</h2>
+      <ul>
+        <li><a href={href('/about')}>{copy.about}</a></li>
+        <li><a href={`${href('/')}#deployments`} data-deployments-link>{copy.deployments}</a></li>
+      </ul>
+    </section>
+
+    <section class="footer-cell" aria-labelledby="footer-contact">
+      <h2 id="footer-contact">{copy.contact}</h2>
+      <ul>
+        <li><a href={href('/request-a-demo')}>{copy.requestDemo}</a></li>
+      </ul>
+    </section>
+
+    <section class="footer-cell" aria-labelledby="footer-legal">
+      <h2 id="footer-legal">{copy.legal}</h2>
+      <ul class="legal-placeholders" aria-label={copy.legal}>
+        <li>{copy.privacyPending}</li>
+        <li>{copy.termsPending}</li>
+        <li>{copy.imprintPending}</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="footer-utility">
+    <span>Rotterdam · Stuttgart · Monterrey</span>
+    <span class="copyright">© {new Date().getFullYear()} MTRobotics</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: var(--space-hairline) solid var(--color-paper-16);
+    background: var(--color-accent-900);
+    color: var(--color-bg);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding-inline: var(--space-page-gutter);
+  }
+
+  .footer-cell {
+    min-width: 0;
+    padding: var(--space-section-compact) 24px;
+    border-right: var(--space-hairline) solid var(--color-paper-12);
+  }
+
+  .footer-cell:first-child { padding-left: 0; }
+  .footer-cell:last-child { padding-right: 0; border-right: 0; }
+
+  .footer-cell h2 {
+    margin-bottom: 16px;
+    color: var(--color-paper-55);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-caption);
+    letter-spacing: .12em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .footer-cell ul { display: grid; gap: var(--space-3); list-style: none; }
+
+  .footer-cell a,
+  .legal-placeholders {
+    color: var(--color-paper-70);
+    font-size: var(--font-size-body-sm);
+    line-height: 1.4;
+  }
+
+  .footer-cell a {
+    text-decoration: none;
+    transition: color var(--motion-state) var(--motion-ease);
+  }
+
+  .footer-cell a:hover { color: var(--color-bg); }
+  .legal-placeholders { color: var(--color-paper-62); }
+
+  .footer-utility {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    padding: 16px var(--space-page-gutter);
+    border-top: var(--space-hairline) solid var(--color-paper-12);
+    color: var(--color-paper-62);
+    font-size: var(--font-size-label);
+    letter-spacing: .14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .footer-utility a { color: inherit; text-decoration: none; }
+  .footer-utility a:hover { color: var(--color-bg); }
+  .copyright { margin-left: auto; }
+
+  @media (max-width: 1024px) {
+    .footer-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-cell:nth-child(2) { border-right: 0; }
+    .footer-cell:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-paper-12); }
+    .footer-cell:nth-child(3) { padding-left: 0; }
+  }
+
+  @media (max-width: 720px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-cell,
+    .footer-cell:nth-child(3) {
+      padding: 28px 0;
+      border-top: 0;
+      border-right: 0;
+      border-bottom: var(--space-hairline) solid var(--color-paper-12);
+    }
+    .footer-cell:last-child { border-bottom: 0; }
+    .footer-utility { flex-wrap: wrap; gap: 12px; }
+    .copyright { width: 100%; margin-left: 0; }
+  }
+</style>

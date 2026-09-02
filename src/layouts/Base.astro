@@ -1,0 +1,96 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { alternatePath, ui, type Locale } from '../data/i18n';
+import '../styles/tokens.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  currentPath: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  locale?: Locale;
+}
+
+const {
+  title,
+  description = 'MTRobotics designs vision inspection cells, AMR fleets, custom integration, and phased retrofits for manufacturing and logistics lines.',
+  currentPath,
+  jsonLd,
+  locale = 'en',
+} = Astro.props;
+const alternateLocale = locale === 'en' ? 'vi' : 'en';
+const alternateHref = alternatePath(locale, currentPath);
+const copy = ui[locale];
+
+const mechanicalEase = 'cubic-bezier(.32,.72,0,1)';
+const pageMotion = {
+  forwards: {
+    old: { name: 'page-out-forward', duration: '260ms', easing: mechanicalEase, fillMode: 'both' },
+    new: { name: 'page-in-forward', duration: '360ms', easing: mechanicalEase, fillMode: 'both' },
+  },
+  backwards: {
+    old: { name: 'page-out-back', duration: '260ms', easing: mechanicalEase, fillMode: 'both' },
+    new: { name: 'page-in-back', duration: '360ms', easing: mechanicalEase, fillMode: 'both' },
+  },
+};
+
+const encodedJsonLd = jsonLd
+  ? JSON.stringify(jsonLd).replaceAll('<', '\\u003c')
+  : undefined;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="alternate" hreflang={alternateLocale} href={alternateHref} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin />
+    {locale === 'vi' && <link rel="preload" href="/fonts/barlow-condensed-600-vietnamese.woff2" as="font" type="font/woff2" crossorigin />}
+    {locale === 'vi' && <link rel="preload" href="/fonts/barlow-400-vietnamese.woff2" as="font" type="font/woff2" crossorigin />}
+    {encodedJsonLd && <script is:inline type="application/ld+json" set:html={encodedJsonLd}></script>}
+    <ClientRouter fallback="animate" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">{copy.skip}</a>
+    <Nav currentPath={currentPath} locale={locale} />
+    <main id="main-content" transition:name="page-content" transition:animate={pageMotion}>
+      <slot />
+    </main>
+    <Footer locale={locale} />
+
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .skip-link {
+    position: fixed;
+    z-index: 1001;
+    top: var(--space-3);
+    left: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    transform: translateY(calc(-100% - var(--space-8)));
+    border: var(--space-hairline) solid var(--color-accent-900);
+    background: var(--color-bg);
+    color: var(--color-accent-900);
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    text-decoration: none;
+    transition: transform var(--motion-state) var(--motion-ease);
+  }
+
+  .skip-link:focus-visible { transform: translateY(0); }
+</style>

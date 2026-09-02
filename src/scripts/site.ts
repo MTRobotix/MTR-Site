@@ -1,0 +1,417 @@
+import { navigate, type TransitionBeforePreparationEvent, type TransitionBeforeSwapEvent } from 'astro:transitions/client';
+
+const routeOrder = [
+  '/',
+  '/solutions/inspection',
+  '/solutions/amr-fleet',
+  '/solutions/integration',
+  '/solutions/retrofit',
+  '/about',
+  '/request-a-demo',
+];
+
+let pageController: AbortController | undefined;
+let revealObserver: IntersectionObserver | undefined;
+let resetScrollAfterSwap = false;
+
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const normalizedPath = (url: URL) => url.pathname.replace(/\/$/, '') || '/';
+const routeKey = (url: URL) => normalizedPath(url).replace(/^\/vi(?=\/|$)/, '') || '/';
+
+document.addEventListener('astro:before-preparation', (rawEvent) => {
+  const event = rawEvent as TransitionBeforePreparationEvent;
+  resetScrollAfterSwap = normalizedPath(event.from) !== normalizedPath(event.to) && !event.to.hash;
+  if (event.navigationType !== 'traverse') {
+    const fromIndex = routeOrder.indexOf(routeKey(event.from));
+    const toIndex = routeOrder.indexOf(routeKey(event.to));
+    if (fromIndex >= 0 && toIndex >= 0 && fromIndex !== toIndex) {
+      event.direction = toIndex > fromIndex ? 'forward' : 'back';
+    }
+  }
+  document.documentElement.dataset.navDirection = event.direction;
+});
+
+document.addEventListener('astro:before-swap', (rawEvent) => {
+  const event = rawEvent as TransitionBeforeSwapEvent;
+  event.newDocument.documentElement.dataset.navDirection = event.direction;
+});
+
+document.addEventListener('astro:after-swap', () => {
+  if (!resetScrollAfterSwap) return;
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  resetScrollAfterSwap = false;
+});
+
+function setupReveal() {
+  revealObserver?.disconnect();
+  const elements = document.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-grid]');
+
+  if (reducedMotion() || !('IntersectionObserver' in window)) {
+    elements.forEach((element) => element.classList.add('is-visible'));
+    return;
+  }
+
+  revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver?.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.12, rootMargin: '0px 0px -40px' },
+  );
+
+  elements.forEach((element) => revealObserver?.observe(element));
+}
+
+function setupNavigation(signal: AbortSignal) {
+  const solutions = document.querySelector<HTMLElement>('[data-solutions]');
+  const trigger = solutions?.querySelector<HTMLButtonElement>('[data-solutions-trigger]');
+  const panel = solutions?.querySelector<HTMLElement>('[data-solutions-panel]');
+  const panelLinks = panel ? Array.from(panel.querySelectorAll<HTMLAnchorElement>('a')) : [];
+
+  const setSolutions = (open: boolean, focusFirst = false) => {
+    if (!trigger || !panel) return;
+    trigger.setAttribute('aria-expanded', String(open));
+    panel.setAttribute('aria-hidden', String(!open));
+    panel.inert = !open;
+    solutions?.toggleAttribute('data-open', open);
+    if (open && focusFirst) panelLinks[0]?.focus();
+  };
+
+  solutions?.addEventListener('pointerenter', () => setSolutions(true), { signal });
+  solutions?.addEventListener('focusout', (event) => {
+    if (!solutions.contains(event.relatedTarget as Node | null)) setSolutions(false);
+  }, { signal });
+
+  trigger?.addEventListener('click', (event) => {
+    const open = event.detail > 0 ? true : trigger.getAttribute('aria-expanded') !== 'true';
+    setSolutions(open);
+  }, { signal });
+  trigger?.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSolutions(true, true);
+    }
+    if (event.key === 'Escape') {
+      setSolutions(false);
+      trigger.focus();
+    }
+  }, { signal });
+
+  panel?.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setSolutions(false);
+      trigger?.focus();
+    }
+  }, { signal });
+
+  panelLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      setSolutions(false);
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      const delay = reducedMotion() ? 0 : 300;
+      const navigationTimer = window.setTimeout(() => void navigate(link.href), delay);
+      signal.addEventListener('abort', () => window.clearTimeout(navigationTimer), { once: true });
+    }, { signal });
+  });
+
+  document.addEventListener('pointerdown', (event) => {
+    if (!solutions?.contains(event.target as Node)) setSolutions(false);
+  }, { signal });
+
+  let deploymentTransitioning = false;
+  document.querySelectorAll<HTMLAnchorElement>('[data-deployments-link]').forEach((link) => {
+    link.addEventListener('click', async (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (routeKey(new URL(window.location.href)) !== '/') return;
+      event.preventDefault();
+      if (deploymentTransitioning) return;
+
+      const main = document.querySelector<HTMLElement>('#main-content');
+      const target = document.querySelector<HTMLElement>('#deployments');
+      if (!main || !target) return;
+      deploymentTransitioning = true;
+
+      const styles = getComputedStyle(document.documentElement);
+      const duration = (token: string) => {
+        const value = styles.getPropertyValue(token).trim();
+        return Number.parseFloat(value) * (value.endsWith('ms') ? 1 : 1000);
+      };
+      const easing = styles.getPropertyValue('--motion-ease').trim();
+      const reduced = reducedMotion();
+      const outgoing = main.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration: duration(reduced ? '--motion-reduced' : '--motion-page-out'), easing, fill: 'forwards' },
+      );
+
+      try {
+        await outgoing.finished;
+        window.location.hash = 'deployments';
+        target.scrollIntoView({ block: 'start', behavior: 'auto' });
+        const distance = styles.getPropertyValue('--space-2').trim();
+        const incoming = main.animate(
+          reduced
+            ? [{ opacity: 0 }, { opacity: 1 }]
+            : [{ opacity: 0, transform: `translateY(${distance})` }, { opacity: 1, transform: 'translateY(0)' }],
+          { duration: duration(reduced ? '--motion-reduced' : '--motion-page-in'), easing, fill: 'forwards' },
+        );
+        outgoing.cancel();
+        await incoming.finished;
+        incoming.cancel();
+      } catch {
+        window.location.hash = 'deployments';
+        target.scrollIntoView({ block: 'start', behavior: 'auto' });
+      } finally {
+        deploymentTransitioning = false;
+      }
+    }, { signal });
+  });
+
+  const mobileOpen = document.querySelector<HTMLButtonElement>('[data-mobile-open]');
+  const mobileClose = document.querySelector<HTMLButtonElement>('[data-mobile-close]');
+  const mobilePanel = document.querySelector<HTMLElement>('[data-mobile-panel]');
+  let returnFocus: HTMLElement | null = null;
+
+  const setMobile = (open: boolean) => {
+    if (!mobilePanel || !mobileOpen) return;
+    if (open) returnFocus = document.activeElement as HTMLElement;
+    mobilePanel.hidden = !open;
+    mobilePanel.setAttribute('aria-hidden', String(!open));
+    mobileOpen.setAttribute('aria-expanded', String(open));
+    document.body.dataset.menuOpen = String(open);
+    if (open) mobileClose?.focus();
+    else returnFocus?.focus();
+  };
+
+  mobileOpen?.addEventListener('click', () => setMobile(true), { signal });
+  mobileClose?.addEventListener('click', () => setMobile(false), { signal });
+  mobilePanel?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setMobile(false), { signal }));
+
+  mobilePanel?.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setMobile(false);
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = Array.from(mobilePanel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  }, { signal });
+}
+
+function setupProductMotion(signal: AbortSignal) {
+  document.querySelectorAll<HTMLElement>('[data-motion-root]').forEach((root) => {
+    const video = root.querySelector<HTMLVideoElement>('video');
+    const button = root.querySelector<HTMLButtonElement>('[data-video-toggle]');
+    const playIcon = button?.querySelector<HTMLElement>('[data-icon-play]');
+    const pauseIcon = button?.querySelector<HTMLElement>('[data-icon-pause]');
+
+    const setPlaying = (playing: boolean) => {
+      root.dataset.playing = String(playing);
+      if (button) {
+        button.setAttribute('aria-label', playing ? button.dataset.pauseLabel ?? 'Pause in-action loop' : button.dataset.playLabel ?? 'Play in-action loop');
+        button.setAttribute('aria-pressed', String(!playing));
+      }
+      if (playIcon) playIcon.hidden = playing;
+      if (pauseIcon) pauseIcon.hidden = !playing;
+    };
+
+    const start = async () => {
+      if (video) {
+        try {
+          await video.play();
+          setPlaying(true);
+        } catch {
+          setPlaying(false);
+        }
+      } else {
+        setPlaying(true);
+      }
+    };
+
+    if (reducedMotion()) {
+      video?.pause();
+      setPlaying(false);
+    } else {
+      void start();
+    }
+
+    button?.addEventListener('click', () => {
+      const playing = root.dataset.playing === 'true';
+      if (playing) {
+        video?.pause();
+        setPlaying(false);
+      } else {
+        void start();
+      }
+    }, { signal });
+
+    video?.addEventListener('pause', () => setPlaying(false), { signal });
+    video?.addEventListener('play', () => setPlaying(true), { signal });
+  });
+
+  const counter = document.querySelector<HTMLElement>('[data-parts-counter]');
+  const endpoint = counter?.dataset.endpoint;
+  if (!counter || !endpoint) return;
+
+  const updateCounter = async () => {
+    try {
+      const response = await fetch(endpoint, { signal, headers: { Accept: 'application/json' } });
+      if (!response.ok) return;
+      const payload = await response.json() as { value?: number };
+      if (Number.isFinite(payload.value)) counter.textContent = Number(payload.value).toLocaleString('en-US');
+    } catch {
+      /* Keep the build-time fallback; the hero never shows a spinner. */
+    }
+  };
+
+  void updateCounter();
+  const counterTimer = window.setInterval(updateCounter, 5000);
+  signal.addEventListener('abort', () => window.clearInterval(counterTimer), { once: true });
+}
+
+function setupDemoForm(signal: AbortSignal) {
+  const form = document.querySelector<HTMLFormElement>('[data-demo-form]');
+  if (!form) return;
+
+  const title = document.querySelector<HTMLElement>('[data-request-title]');
+  const kicker = document.querySelector<HTMLElement>('[data-request-kicker]');
+  const introduction = document.querySelector<HTMLElement>('[data-request-intro]');
+  const success = document.querySelector<HTMLElement>('[data-demo-success]');
+  const status = document.querySelector<HTMLElement>('[data-form-status]');
+  const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const submitLabel = submit?.querySelector<HTMLElement>('[data-submit-label]');
+  const freemailWarning = document.querySelector<HTMLElement>('#email-warning');
+  const scopeGroup = document.querySelector<HTMLElement>('[data-scope-group]');
+  const scopeError = document.querySelector<HTMLElement>('#scope-error');
+  const emailInput = form.elements.namedItem('email') as HTMLInputElement;
+  const freemail = new Set(['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'mail.com']);
+
+  const setError = (input: HTMLInputElement, errorId: string, invalid: boolean) => {
+    const error = document.getElementById(errorId);
+    if (invalid) input.setAttribute('aria-invalid', 'true');
+    else input.removeAttribute('aria-invalid');
+    if (error) error.hidden = !invalid;
+    return !invalid;
+  };
+
+  const validateEmail = (value: string) => /^\S+@\S+\.\S+$/.test(value);
+  const updateFreemailWarning = () => {
+    const value = emailInput.value.trim();
+    const domain = value.split('@')[1]?.toLowerCase();
+    if (freemailWarning) freemailWarning.hidden = !validateEmail(value) || !freemail.has(domain ?? '');
+  };
+
+  const validate = () => {
+    const name = form.elements.namedItem('name') as HTMLInputElement;
+    const company = form.elements.namedItem('company') as HTMLInputElement;
+    const scope = form.querySelector<HTMLInputElement>('input[name="scope"]:checked');
+    const nameValid = setError(name, 'name-error', !name.value.trim());
+    const emailValid = setError(emailInput, 'email-error', !validateEmail(emailInput.value.trim()));
+    const companyValid = setError(company, 'company-error', !company.value.trim());
+    const scopeValid = Boolean(scope);
+
+    if (scopeValid) scopeGroup?.removeAttribute('aria-invalid');
+    else scopeGroup?.setAttribute('aria-invalid', 'true');
+    if (scopeError) scopeError.hidden = scopeValid;
+
+    updateFreemailWarning();
+
+    return nameValid && emailValid && companyValid && scopeValid;
+  };
+
+  form.querySelectorAll<HTMLInputElement>('input[required]').forEach((input) => {
+    input.addEventListener('input', () => {
+      input.removeAttribute('aria-invalid');
+      const describedBy = input.getAttribute('aria-describedby')?.split(' ') ?? [];
+      describedBy.forEach((id) => {
+        const message = document.getElementById(id);
+        if (message?.dataset.kind === 'error') message.hidden = true;
+      });
+      if (input === emailInput) updateFreemailWarning();
+    }, { signal });
+  });
+
+  form.querySelectorAll<HTMLInputElement>('input[name="scope"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      scopeGroup?.removeAttribute('aria-invalid');
+      if (scopeError) scopeError.hidden = true;
+    }, { signal });
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!validate()) {
+      const firstInvalid = form.querySelector<HTMLElement>('[aria-invalid="true"]');
+      if (firstInvalid === scopeGroup) {
+        form.querySelector<HTMLInputElement>('input[name="scope"]')?.focus();
+      } else {
+        firstInvalid?.focus();
+      }
+      return;
+    }
+
+    if (submit) submit.disabled = true;
+    if (submitLabel) submitLabel.textContent = form.dataset.submittingLabel ?? 'Submitting';
+    form.dataset.submitState = 'submitting';
+
+    const endpoint = form.dataset.endpoint;
+    if (endpoint) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: new FormData(form),
+          signal,
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error('Request failed');
+      } catch {
+        form.dataset.submitState = 'error';
+        if (submit) submit.disabled = false;
+        if (submitLabel) submitLabel.textContent = form.dataset.submitLabel ?? 'Request the survey';
+        if (status) {
+          status.hidden = false;
+          status.textContent = form.dataset.errorMessage ?? 'The request could not be sent. Email mtrobotics@gmail.com or call 905 924 5498.';
+          status.focus();
+        }
+        return;
+      }
+    }
+
+    form.dataset.submitState = 'done';
+    form.hidden = true;
+    if (introduction) introduction.hidden = true;
+    if (success) success.hidden = false;
+    if (kicker) kicker.textContent = 'Confirmation';
+    if (title) {
+      title.textContent = 'Survey requested.';
+      title.setAttribute('tabindex', '-1');
+      title.focus({ preventScroll: true });
+    }
+    window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
+  }, { signal });
+}
+
+function setupPage() {
+  pageController?.abort();
+  pageController = new AbortController();
+  const { signal } = pageController;
+  setupReveal();
+  setupNavigation(signal);
+  setupProductMotion(signal);
+  setupDemoForm(signal);
+}
+
+document.addEventListener('astro:page-load', setupPage);

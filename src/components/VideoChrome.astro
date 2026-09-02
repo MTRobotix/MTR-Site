@@ -1,0 +1,146 @@
+---
+import { Pause, Play } from '@lucide/astro';
+import { ui, type Locale } from '../data/i18n';
+
+interface Props {
+  caption: string;
+  duration: string;
+  note: string;
+  locale?: Locale;
+}
+
+const { caption, duration, note, locale = 'en' } = Astro.props;
+const copy = ui[locale];
+---
+
+<div class="media-tags" aria-hidden="true">
+  <span class="action-tag">{copy.inAction}</span>
+  <span class="loop-note">{note}</span>
+</div>
+
+<div class="video-chrome">
+  <span class="video-caption">{caption}</span>
+  <div class="video-controls">
+    <button class="video-toggle" type="button" aria-label={copy.pauseLoop} aria-pressed="false" data-video-toggle data-pause-label={copy.pauseLoop} data-play-label={copy.playLoop}>
+      <span data-icon-play hidden><Play aria-hidden="true" size={15} stroke-width={1.5} /></span>
+      <span data-icon-pause><Pause aria-hidden="true" size={15} stroke-width={1.5} /></span>
+    </button>
+    <div class="scrub-track" aria-hidden="true"><span class="scrub-progress"></span></div>
+    <span class="video-duration">{duration}</span>
+  </div>
+</div>
+
+<style>
+  .media-tags {
+    position: absolute;
+    z-index: 7;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .action-tag {
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-accent-700);
+    color: var(--color-bg);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: .12em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .loop-note {
+    color: var(--color-paper-58);
+    font-size: var(--font-size-label-xs);
+    letter-spacing: .12em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .video-chrome {
+    position: absolute;
+    z-index: 7;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    gap: var(--space-3);
+    padding: 34px 20px 16px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--color-accent-900) 92%, transparent), transparent);
+    color: var(--color-bg);
+  }
+
+  .video-caption {
+    overflow: hidden;
+    color: var(--color-paper-76);
+    font-size: var(--font-size-label);
+    letter-spacing: .1em;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .video-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .video-toggle {
+    display: grid;
+    width: var(--space-control);
+    height: var(--space-control);
+    flex: none;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: var(--color-accent-700);
+    color: var(--color-bg);
+    cursor: pointer;
+    transition: background-color var(--motion-state) var(--motion-ease);
+  }
+
+  .video-toggle:hover { background: var(--color-accent-600); }
+  .video-toggle:active { background: var(--color-accent-700); }
+  .video-toggle span { display: grid; place-items: center; }
+  .video-toggle svg { stroke-width: 1.5; }
+
+  .scrub-track {
+    height: 2px;
+    flex: 1;
+    overflow: hidden;
+    background: var(--color-paper-20);
+  }
+
+  .scrub-progress {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: var(--color-accent-300);
+    animation: progress var(--clip-duration, 24s) var(--motion-ease) infinite;
+  }
+
+  :global([data-playing='false']) .scrub-progress { animation-play-state: paused; }
+
+  .video-duration {
+    flex: none;
+    color: var(--color-paper-70);
+    font-size: var(--font-size-caption);
+    letter-spacing: .08em;
+    line-height: 1;
+  }
+
+  @media (max-width: 720px) {
+    .media-tags { top: 14px; left: 14px; }
+    .loop-note { display: none; }
+    .video-chrome { padding: 30px 14px 14px; }
+    .video-caption { font-size: 9.5px; }
+  }
+</style>

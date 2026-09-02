@@ -1,0 +1,252 @@
+---
+import Base from '../layouts/Base.astro';
+import CornerMarks from '../components/CornerMarks.astro';
+import { aboutContent, aboutContentVi } from '../data/site';
+import { localPath, type Locale } from '../data/i18n';
+
+interface Props { locale?: Locale; }
+const { locale = 'en' } = Astro.props;
+const content = locale === 'vi' ? aboutContentVi : aboutContent;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'MTRobotics',
+  foundingDate: '2019',
+  numberOfEmployees: 52,
+  location: ['Rotterdam', 'Stuttgart', 'Monterrey'],
+};
+---
+
+<Base
+  title={locale === 'vi' ? 'Về chúng tôi — MTRobotics' : 'About us — MTRobotics'}
+  description={locale === 'vi' ? 'MTRobotics là đơn vị tích hợp robot gồm 52 nhân sự với các đội kỹ thuật tại Rotterdam, Stuttgart và Monterrey.' : 'MTRobotics is a 52-person robotics integrator with engineering teams in Rotterdam, Stuttgart, and Monterrey.'}
+  currentPath={localPath(locale, '/about')}
+  locale={locale}
+  jsonLd={organization}
+>
+  <section class="about-hero">
+    <div class="hero-statement">
+      <span class="eyebrow">{content.kicker}</span>
+      <h1>{content.title}</h1>
+    </div>
+    <div class="hero-intro"><p>{content.intro}</p></div>
+  </section>
+
+  <section class="number-register" aria-label="Company register" data-reveal-grid>
+    {content.register.map((item) => (
+      <div class="register-cell">
+        <strong>{item.value}</strong>
+        <span>{item.label}</span>
+      </div>
+    ))}
+  </section>
+
+  <section class="leadership-section" aria-labelledby="leadership-heading">
+    <header class="section-header" data-reveal>
+      <h2 id="leadership-heading">{locale === 'vi' ? 'Ban lãnh đạo' : 'Leadership'}</h2>
+      <span>{locale === 'vi' ? 'Chân dung hai tông màu nhấn' : 'Portraits duotoned to the accent'}</span>
+    </header>
+    <div class="leadership-grid" data-reveal-grid>
+      {content.leaders.filter((leader) => leader.enabled).map((leader) => (
+        <article class="leader">
+          <figure class="portrait blueprint duotone" aria-label={`${locale === 'vi' ? 'Chân dung' : 'Portrait of'} ${leader.name}`}>
+            <span class="placeholder-label">[ {locale === 'vi' ? 'Chân dung' : 'Portrait'} — {leader.name} ]</span>
+            <CornerMarks />
+          </figure>
+          <h3>{leader.name}</h3>
+          <p>{leader.role}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="milestones-section" aria-labelledby="milestones-heading">
+    <h2 id="milestones-heading" data-reveal>{locale === 'vi' ? 'Các mốc phát triển' : 'Milestones'}</h2>
+    <ol class="milestone-grid" data-reveal-grid>
+      {content.milestones.map((milestone, index) => (
+        <li class:list={{ future: index === content.milestones.length - 1 }}>
+          <span class="milestone-marker" aria-hidden="true"></span>
+          <strong>{milestone.year}</strong>
+          <p>{milestone.note}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .about-hero {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    border-bottom: var(--space-hairline) solid var(--color-divider);
+    background: var(--color-bg);
+  }
+
+  .hero-statement,
+  .hero-intro {
+    padding: clamp(64px, calc(5vw - 32px), 96px) var(--space-page-gutter) clamp(56px, calc(3.75vw - 16px), 80px);
+  }
+
+  .hero-statement { border-right: var(--space-hairline) solid var(--color-divider); }
+  .hero-statement .eyebrow { display: block; margin-bottom: 26px; color: var(--color-accent-700); letter-spacing: .2em; }
+
+  .hero-statement h1 {
+    max-width: 24ch;
+    font-size: var(--font-size-display-md);
+    letter-spacing: -.028em;
+    line-height: .98;
+  }
+
+  .hero-intro { display: flex; align-items: flex-end; }
+
+  .hero-intro p {
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    font-size: var(--font-size-body-lg);
+    line-height: 1.65;
+  }
+
+  .number-register {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: var(--space-hairline) solid var(--color-divider);
+    background: var(--color-bg);
+  }
+
+  .register-cell {
+    display: grid;
+    gap: 12px;
+    padding: 30px 24px 28px;
+    border-right: var(--space-hairline) solid var(--color-divider);
+  }
+
+  .register-cell:first-child { padding-left: var(--space-page-gutter); }
+  .register-cell:last-child { padding-right: var(--space-page-gutter); border-right: 0; }
+
+  .register-cell strong {
+    color: var(--color-accent-700);
+    font-family: var(--font-heading);
+    font-size: clamp(50px, calc(1.25vw + 26px), 58px);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: -.03em;
+    line-height: .9;
+  }
+
+  .register-cell span {
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    font-size: var(--font-size-label);
+    letter-spacing: .12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .leadership-section {
+    padding: 48px var(--space-page-gutter) 40px;
+    border-bottom: var(--space-hairline) solid var(--color-divider);
+    background: var(--color-bg);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: 24px;
+  }
+
+  .section-header h2,
+  .milestones-section h2 { font-size: var(--font-size-heading-lg); }
+
+  .section-header span {
+    color: color-mix(in srgb, var(--color-text) 50%, transparent);
+    font-size: var(--font-size-label);
+    letter-spacing: .14em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .leadership-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+
+  .portrait {
+    display: flex;
+    height: clamp(230px, calc(10.9375vw + 20px), 300px);
+    align-items: flex-end;
+    padding: 14px;
+    background-color: var(--color-surface);
+    background-image: repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-text) 8%, transparent) 0 var(--space-hairline), transparent var(--space-hairline) 9px);
+  }
+
+  .portrait .placeholder-label { position: relative; z-index: 4; color: color-mix(in srgb, var(--color-text) 52%, transparent); }
+  .leader h3 { margin-top: 14px; font-size: var(--font-size-heading-xs); }
+  .leader p { margin-top: var(--space-1); color: color-mix(in srgb, var(--color-text) 58%, transparent); font-size: var(--font-size-small); line-height: 1.5; }
+
+  .milestones-section { padding: 20px var(--space-page-gutter) var(--space-section); background: var(--color-bg); }
+  .milestones-section h2 { margin-bottom: 22px; }
+
+  .milestone-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-top: var(--space-hairline) solid var(--color-text);
+    list-style: none;
+  }
+
+  .milestone-grid li {
+    position: relative;
+    padding: 20px 20px 26px;
+    border-right: var(--space-hairline) solid var(--color-divider);
+  }
+
+  .milestone-grid li:first-child { padding-left: 0; }
+  .milestone-grid li:last-child { padding-right: 0; border-right: 0; }
+
+  .milestone-marker {
+    display: block;
+    width: 9px;
+    height: 9px;
+    margin: -24px 0 20px;
+    background: var(--color-accent);
+  }
+
+  .milestone-grid li.future .milestone-marker { background: var(--color-accent-300); }
+  .milestone-grid strong { font-family: var(--font-heading); font-size: var(--font-size-heading-sm); font-weight: var(--font-heading-weight); }
+  .milestone-grid li.future strong { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+  .milestone-grid p { margin-top: var(--space-2); color: color-mix(in srgb, var(--color-text) 62%, transparent); font-size: var(--font-size-ui); line-height: 1.6; }
+
+  @media (max-width: 1024px) {
+    .about-hero { grid-template-columns: 1fr; }
+    .hero-statement { border-right: 0; border-bottom: var(--space-hairline) solid var(--color-divider); }
+    .hero-statement,
+    .hero-intro { padding: 52px var(--space-page-gutter); }
+    .number-register { grid-template-columns: repeat(2, 1fr); }
+    .register-cell:nth-child(2) { border-right: 0; }
+    .register-cell:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-divider); }
+    .register-cell:nth-child(3) { padding-left: var(--space-page-gutter); }
+    .leadership-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+    .milestone-grid { grid-template-columns: repeat(3, 1fr); row-gap: 44px; }
+  }
+
+  @media (max-width: 720px) {
+    .hero-statement,
+    .hero-intro { padding: 36px var(--space-mobile-gutter); }
+    .hero-statement h1 { font-size: 48px; }
+    .number-register { grid-template-columns: 1fr; }
+    .register-cell,
+    .register-cell:first-child,
+    .register-cell:nth-child(3),
+    .register-cell:last-child {
+      padding: 24px var(--space-mobile-gutter);
+      border-top: var(--space-hairline) solid var(--color-divider);
+      border-right: 0;
+    }
+    .register-cell:first-child { border-top: 0; }
+    .section-header { align-items: flex-start; flex-direction: column; }
+    .leadership-section { padding-block: 36px; }
+    .leadership-grid { grid-template-columns: 1fr; }
+    .portrait { height: 300px; }
+    .milestones-section { padding-top: 36px; }
+    .milestone-grid { grid-template-columns: 1fr; row-gap: 36px; }
+    .milestone-grid li,
+    .milestone-grid li:first-child,
+    .milestone-grid li:last-child { padding-right: 0; padding-left: 0; border-right: 0; }
+  }
+</style>

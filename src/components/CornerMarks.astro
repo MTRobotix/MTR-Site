@@ -1,0 +1,12 @@
+---
+interface Props {
+  light?: boolean;
+}
+
+const { light = false } = Astro.props;
+---
+
+<i class:list={['corner', 'tl', { light }]}></i>
+<i class:list={['corner', 'tr', { light }]}></i>
+<i class:list={['corner', 'bl', { light }]}></i>
+<i class:list={['corner', 'br', { light }]}></i>

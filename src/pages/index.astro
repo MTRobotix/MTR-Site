@@ -1,0 +1,324 @@
+---
+import Base from '../layouts/Base.astro';
+import CornerMarks from '../components/CornerMarks.astro';
+import { homeContent, homeContentVi } from '../data/site';
+import { localPath, type Locale } from '../data/i18n';
+
+interface Props { locale?: Locale; }
+const { locale = 'en' } = Astro.props;
+const content = locale === 'vi' ? homeContentVi : homeContent;
+const currentPath = localPath(locale, '/');
+const href = (path: string) => localPath(locale, path);
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'MTRobotics',
+  foundingDate: '2019',
+  location: ['Rotterdam', 'Stuttgart', 'Monterrey'],
+};
+---
+
+<Base
+  title={locale === 'vi' ? 'MTRobotics — Dây chuyền vận hành đúng theo thông số của bạn.' : 'MTRobotics — The line you have, running the way you specced it.'}
+  description={locale === 'vi' ? 'MTRobotics thiết kế trạm kiểm tra, đội robot và phần tích hợp cho dây chuyền sản xuất và logistics.' : 'MTRobotics designs inspection cells, robot fleets, and the integration between them for manufacturing and logistics lines.'}
+  currentPath={currentPath}
+  locale={locale}
+  jsonLd={organization}
+>
+  <section class="home-hero">
+    <h1>{content.title}</h1>
+    <div class="hero-grid">
+      <p>{content.intro}</p>
+      <div class="hero-actions">
+        <a class="btn btn-paper blueprint" href={href('/request-a-demo')}>
+          {locale === 'vi' ? 'Đặt lịch khảo sát dây chuyền' : 'Book a line survey'}
+          <CornerMarks light />
+        </a>
+        <a class="btn btn-secondary-dark" href={href('/about')}>{locale === 'vi' ? 'Về MTRobotics' : 'About MTRobotics'}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="schematic-section" aria-labelledby="schematic-title">
+    <header class="schematic-header" data-reveal>
+      <h2 id="schematic-title">{content.schematicTitle}</h2>
+      <span>{locale === 'vi' ? 'Sơ đồ — không dùng ảnh' : 'Schematic — no photography'}</span>
+    </header>
+
+    <div class="schematic-frame blueprint" data-reveal>
+      <div class="schematic-grid" data-reveal-grid>
+        {content.schematic.map((line) => (
+          <article class="schematic-cell">
+            <div class="cell-register" aria-hidden="true">
+              <span>{line.num}</span><i></i><b></b>
+            </div>
+            <h3>{line.title}</h3>
+            <p>{line.body}</p>
+            <ul>
+              {line.specs.map((spec) => <li><span aria-hidden="true">→</span> {spec}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <CornerMarks />
+    </div>
+  </section>
+
+  <section class="solution-register" aria-labelledby="solution-register-title">
+    <header class="register-intro" data-reveal>
+      <span class="eyebrow">{locale === 'vi' ? 'Phạm vi kỹ thuật' : 'Engineering scopes'}</span>
+      <h2 id="solution-register-title">{content.solutionsTitle}</h2>
+      <p>{content.solutionsIntro}</p>
+    </header>
+    <div class="solution-link-grid" data-reveal-grid>
+      {content.solutionLinks.map((solution) => (
+        <a class="solution-link" href={href(`/solutions/${solution.slug}`)}>
+          <span>{solution.num}</span>
+          <h3>{solution.title}</h3>
+          <p>{solution.body}</p>
+          <strong>{locale === 'vi' ? 'Xem giải pháp →' : 'View solution →'}</strong>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="process-section" aria-labelledby="process-title">
+    <h2 id="process-title" data-reveal>{content.processTitle}</h2>
+    <ol data-reveal-grid>
+      {content.process.map((step) => (
+        <li><span>{step.num}</span><div><h3>{step.title}</h3><p>{step.body}</p></div></li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="proof-strip" id="deployments" aria-label={locale === 'vi' ? 'Danh mục triển khai' : 'Deployment register'} data-reveal>
+    <p>{content.proof}</p>
+    <div class="client-marks" aria-label={locale === 'vi' ? 'Logo khách hàng đang chờ tài sản' : 'Client marks pending client assets'}>
+      {content.clientMarks.map((mark) => <span>{mark}</span>)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .home-hero {
+    padding: var(--space-section-roomy) var(--space-page-gutter) clamp(70px, calc(4.6875vw - 20px), 100px);
+    background: var(--color-accent-900);
+    color: var(--color-bg);
+  }
+
+  .home-hero h1 {
+    max-width: 20ch;
+    color: var(--color-bg);
+    font-size: var(--font-size-display-home);
+    letter-spacing: -.035em;
+    line-height: .9;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 6fr 4fr;
+    align-items: end;
+    gap: clamp(60px, 3.125vw, 80px);
+    margin-top: clamp(52px, calc(3.125vw - 8px), 72px);
+  }
+
+  .hero-grid p {
+    max-width: 56ch;
+    color: var(--color-paper-82);
+    font-size: var(--font-size-body-lead);
+    line-height: 1.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .schematic-section {
+    padding: var(--space-section) var(--space-page-gutter) 20px;
+    background: var(--color-bg);
+  }
+
+  .schematic-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: 26px;
+  }
+
+  .schematic-header h2 { font-size: clamp(30px, calc(.625vw + 18px), 34px); }
+
+  .schematic-header span {
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    font-size: var(--font-size-label);
+    letter-spacing: .14em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .schematic-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+
+  .schematic-cell {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 34px 30px 40px;
+  }
+
+  .schematic-cell + .schematic-cell { border-left: var(--space-hairline) solid var(--color-divider); }
+
+  .cell-register {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .cell-register span {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    place-items: center;
+    border: var(--space-hairline) solid var(--color-accent);
+    color: var(--color-accent-700);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-label-lg);
+    font-weight: var(--font-heading-weight);
+    line-height: 1;
+  }
+
+  .cell-register i { height: var(--space-hairline); flex: 1; background: var(--color-divider); }
+  .cell-register b { width: 7px; height: 7px; flex: none; background: var(--color-accent); }
+
+  .schematic-cell h3 { margin-bottom: var(--space-2); font-size: var(--font-size-heading-md); }
+
+  .schematic-cell p {
+    color: color-mix(in srgb, var(--color-text) 66%, transparent);
+    font-size: var(--font-size-body-sm);
+    line-height: 1.65;
+  }
+
+  .schematic-cell ul {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: 22px;
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    font-size: var(--font-size-detail);
+    line-height: 1.5;
+    list-style: none;
+  }
+
+  .schematic-cell li span { color: var(--color-accent-700); }
+
+  .solution-register {
+    display: grid;
+    grid-template-columns: 4fr 8fr;
+    border-top: var(--space-hairline) solid var(--color-divider);
+    border-bottom: var(--space-hairline) solid var(--color-divider);
+    background: var(--color-bg);
+  }
+
+  .register-intro {
+    padding: var(--space-section) var(--space-page-gutter);
+    border-right: var(--space-hairline) solid var(--color-divider);
+  }
+
+  .register-intro .eyebrow { display: block; margin-bottom: var(--space-6); color: var(--color-accent-700); }
+  .register-intro h2 { max-width: 16ch; font-size: var(--font-size-heading-lg); }
+  .register-intro p { max-width: 52ch; margin-top: var(--space-5); color: color-mix(in srgb, var(--color-text) 68%, transparent); line-height: 1.65; }
+
+  .solution-link-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+
+  .solution-link {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: var(--space-7);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color var(--motion-state) var(--motion-ease);
+  }
+
+  .solution-link:nth-child(odd) { border-right: var(--space-hairline) solid var(--color-divider); }
+  .solution-link:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-divider); }
+  .solution-link:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+  .solution-link > span { color: var(--color-accent-700); font-family: var(--font-heading); font-size: var(--font-size-label-lg); }
+  .solution-link h3 { margin-top: var(--space-5); font-size: var(--font-size-heading-sm); }
+  .solution-link p { margin-top: var(--space-2); color: color-mix(in srgb, var(--color-text) 66%, transparent); font-size: var(--font-size-body-sm); line-height: 1.6; }
+  .solution-link strong { margin-top: auto; padding-top: var(--space-6); color: var(--color-accent-700); font-family: var(--font-heading); font-size: var(--font-size-body-sm); }
+
+  .process-section { padding: var(--space-section) var(--space-page-gutter); background: var(--color-bg); }
+  .process-section > h2 { margin-bottom: var(--space-6); font-size: var(--font-size-heading-lg); }
+  .process-section ol { display: grid; grid-template-columns: repeat(3, 1fr); border-top: var(--space-hairline) solid var(--color-text); list-style: none; }
+  .process-section li { display: grid; grid-template-columns: var(--space-7) 1fr; gap: var(--space-4); padding: var(--space-6); border-right: var(--space-hairline) solid var(--color-divider); }
+  .process-section li:first-child { padding-left: 0; }
+  .process-section li:last-child { border-right: 0; }
+  .process-section li > span { color: var(--color-accent-700); font-family: var(--font-heading); }
+  .process-section h3 { font-size: var(--font-size-heading-xs); }
+  .process-section p { margin-top: var(--space-2); color: color-mix(in srgb, var(--color-text) 66%, transparent); font-size: var(--font-size-body-sm); line-height: 1.6; }
+
+  .proof-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 44px var(--space-page-gutter);
+    background: var(--color-bg);
+    scroll-margin-top: calc(var(--space-nav-utility-height) + var(--space-nav-main-height));
+  }
+
+  .proof-strip p { color: color-mix(in srgb, var(--color-text) 68%, transparent); font-size: var(--font-size-body); }
+
+  .client-marks {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+  }
+
+  .client-marks span {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: .14em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1024px) {
+    .home-hero h1 { font-size: 72px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
+    .hero-actions { justify-content: flex-start; }
+    .schematic-grid { grid-template-columns: 1fr; }
+    .schematic-cell + .schematic-cell { border-top: var(--space-hairline) solid var(--color-divider); border-left: 0; }
+    .proof-strip { align-items: flex-start; flex-direction: column; }
+    .solution-register { grid-template-columns: 1fr; }
+    .register-intro { border-right: 0; border-bottom: var(--space-hairline) solid var(--color-divider); }
+    .process-section ol { grid-template-columns: 1fr; }
+    .process-section li { padding-left: 0; border-right: 0; border-bottom: var(--space-hairline) solid var(--color-divider); }
+    .process-section li:last-child { border-bottom: 0; }
+  }
+
+  @media (max-width: 720px) {
+    .home-hero { padding-block: 40px 44px; }
+    .home-hero h1 { font-size: 52px; }
+    .hero-grid { gap: 28px; margin-top: 32px; }
+    .hero-grid p { font-size: 15.5px; }
+    .hero-actions { align-items: stretch; flex-direction: column; }
+    .schematic-section { padding-block: 36px 16px; }
+    .schematic-header { align-items: flex-start; flex-direction: column; gap: var(--space-2); }
+    .schematic-cell { padding: 28px 22px 32px; }
+    .proof-strip { padding-block: 36px; }
+    .client-marks { flex-wrap: wrap; gap: 18px; }
+    .solution-link-grid { grid-template-columns: 1fr; }
+    .solution-link,
+    .solution-link:nth-child(odd),
+    .solution-link:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-divider); border-right: 0; }
+    .solution-link:first-child { border-top: 0; }
+  }
+</style>

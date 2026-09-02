@@ -1,0 +1,691 @@
+---
+import { Pause, Play } from '@lucide/astro';
+import type { Product } from '../data/products';
+import CornerMarks from './CornerMarks.astro';
+import VideoChrome from './VideoChrome.astro';
+import { localPath, ui, type Locale } from '../data/i18n';
+
+interface Props {
+  product: Product;
+  locale?: Locale;
+}
+
+const { product, locale = 'en' } = Astro.props;
+const copy = ui[locale];
+const demoHref = localPath(locale, '/request-a-demo');
+const heroCopy = locale === 'vi' ? {
+  bookLine: 'Đặt lịch khảo sát dây chuyền', cellSpec: 'Thông số trạm', partsToday: 'Chi tiết đã phân loại hôm nay, mọi địa điểm',
+  book: 'Đặt lịch khảo sát', fleetSpec: 'Thông số đội xe', talk: 'Trao đổi với kỹ sư', plan: 'Lập kế hoạch giai đoạn', commissioning: 'Kế hoạch nghiệm thu',
+  fleetRegister: '412 thiết bị trực tuyến · 27 địa điểm', route: 'Kế hoạch tuyến · thiết bị 041 · 1.500 kg', downtime: '0 giờ dừng sản xuất', phase: 'giai đoạn trung bình 9 ngày',
+} : {
+  bookLine: 'Book a line survey', cellSpec: 'Cell specification', partsToday: 'Parts graded today, all sites',
+  book: 'Book a survey', fleetSpec: 'Fleet specification', talk: 'Talk to an engineer', plan: 'Plan a phase', commissioning: 'Commissioning plan',
+  fleetRegister: '412 units online · 27 sites', route: 'Route plan · unit 041 · 1,500 kg', downtime: '0 hrs production downtime', phase: '9-day mean phase',
+};
+---
+
+{product.slug === 'inspection' && (
+  <section class="product-hero hero-inspection" id="in-action" data-motion-root data-playing="true">
+    {product.video.assetReady ? (
+      <video muted loop playsinline preload="metadata" poster={product.video.poster} aria-label={product.video.caption}>
+        <source src={product.video.src} type="video/mp4" />
+      </video>
+    ) : (
+      <div class="media-placeholder steel-placeholder" role="img" aria-label={product.video.placeholder}>
+        <span class="placeholder-label">{product.video.placeholder}</span>
+      </div>
+    )}
+
+    <div class="inspection-hud" aria-hidden="true">
+      <span class="scan-line"></span>
+      <span class="lock-box box-one"><span>{locale === 'vi' ? 'Chi tiết 4482 · Đạt' : 'Part 4482 · Pass'}</span></span>
+      <span class="lock-box box-two"><span>{locale === 'vi' ? 'Chi tiết 4483 · Đạt' : 'Part 4483 · Pass'}</span></span>
+      <span class="lock-box reject-box"><span>{locale === 'vi' ? 'Chi tiết 4484 · Loại 0.61' : 'Part 4484 · Reject 0.61'}</span></span>
+      <span class="reject-stamp">{locale === 'vi' ? 'Loại' : 'Reject'}</span>
+    </div>
+
+    <div class="inspection-content">
+      <span class="eyebrow hero-kicker">{product.kicker}</span>
+      <h1>{product.title}</h1>
+      <p class="hero-blurb">{product.blurb}</p>
+      <div class="inspection-bottom">
+        <div class="hero-actions">
+          <a class="btn btn-paper blueprint" href={demoHref}>
+            {heroCopy.bookLine}
+            <CornerMarks light />
+          </a>
+          <a class="btn btn-secondary-dark" href="#product-specification">{heroCopy.cellSpec}</a>
+        </div>
+        <div class="parts-counter">
+          <span>{heroCopy.partsToday}</span>
+          <strong data-parts-counter data-endpoint="">38,204</strong>
+        </div>
+      </div>
+    </div>
+
+    <VideoChrome caption={product.video.caption} duration={product.video.duration} note={product.video.note} locale={locale} />
+  </section>
+)}
+
+{product.slug === 'amr-fleet' && (
+  <section class="product-hero split-hero hero-amr" id="in-action" data-motion-root data-playing="true">
+    <div class="split-copy">
+      <span class="eyebrow hero-kicker">{product.kicker}</span>
+      <h1>{product.title}</h1>
+      <p class="hero-blurb">{product.blurb}</p>
+      <div class="fleet-strip" aria-hidden="true">
+        {Array.from({ length: 12 }).map(() => <span></span>)}
+      </div>
+      <span class="fleet-register">{heroCopy.fleetRegister}</span>
+      <div class="hero-actions split-actions">
+        <a class="btn btn-paper blueprint" href={demoHref}>
+          {heroCopy.book}
+          <CornerMarks light />
+        </a>
+        <a class="btn btn-secondary-dark" href="#product-specification">{heroCopy.fleetSpec}</a>
+      </div>
+    </div>
+
+    <div class="media-pane amr-media">
+      {product.video.assetReady ? (
+        <video muted loop playsinline preload="metadata" poster={product.video.poster} aria-label={product.video.caption}>
+          <source src={product.video.src} type="video/mp4" />
+        </video>
+      ) : (
+        <div class="media-placeholder steel-placeholder" role="img" aria-label={product.video.placeholder}>
+          <span class="placeholder-label">{product.video.placeholder}</span>
+        </div>
+      )}
+      <div class="route-overlay" aria-hidden="true">
+        <svg class="route-map" viewBox="0 0 700 520" preserveAspectRatio="none">
+          <polyline class="route-line" points="20,470 240,470 240,240 560,240 560,90 690,90"></polyline>
+          <circle cx="20" cy="470" r="5"></circle>
+          <circle cx="240" cy="240" r="5"></circle>
+          <circle cx="560" cy="240" r="5"></circle>
+          <circle cx="690" cy="90" r="5"></circle>
+        </svg>
+        <span class="unit-marker"></span>
+        <span class="route-label">{heroCopy.route}</span>
+      </div>
+      <VideoChrome caption={product.video.caption} duration={product.video.duration} note={product.video.note} locale={locale} />
+    </div>
+  </section>
+)}
+
+{product.slug === 'integration' && (
+  <section class="product-hero split-hero hero-integration" id="in-action" data-motion-root data-playing="true">
+    <div class="split-copy">
+      <span class="eyebrow hero-kicker">{product.kicker}</span>
+      <h1>{product.title}</h1>
+      <p class="hero-blurb">{product.blurb}</p>
+      <div class="hero-actions split-actions">
+        <a class="btn btn-paper blueprint" href={demoHref}>
+          {heroCopy.talk}
+          <CornerMarks light />
+        </a>
+      </div>
+    </div>
+
+    <div class="media-pane integration-media">
+      {product.video.assetReady && (
+        <video muted loop playsinline preload="metadata" poster={product.video.poster} aria-label={product.video.caption}>
+          <source src={product.video.src} type="video/mp4" />
+        </video>
+      )}
+      <div class="signal-spine" aria-hidden="true"><span></span></div>
+      <div class="triptych" aria-hidden="true">
+        <div class:list={['triptych-row', { 'steel-placeholder': !product.video.assetReady }]}>
+          <span>01 · [ {locale === 'vi' ? 'Đấu dây đầu trạm' : 'Cell head wiring'} ]</span><strong>OPC-UA</strong>
+        </div>
+        <div class:list={['triptych-row', { 'steel-placeholder': !product.video.assetReady }]}>
+          <span>02 · [ {locale === 'vi' ? 'Đầu nối tủ PLC' : 'PLC cabinet terminations'} ]</span><strong>Profinet</strong>
+        </div>
+        <div class:list={['triptych-row', { 'steel-placeholder': !product.video.assetReady }]}>
+          <span>03 · [ {locale === 'vi' ? 'Bảng MES nhận trạm' : 'MES dashboard accepting the cell'} ]</span><strong>REST</strong>
+        </div>
+      </div>
+      <VideoChrome caption={product.video.caption} duration={product.video.duration} note={product.video.note} locale={locale} />
+    </div>
+  </section>
+)}
+
+{product.slug === 'retrofit' && (
+  <section class="product-hero hero-retrofit" id="in-action" data-motion-root data-playing="true">
+    {product.video.assetReady && (
+      <video muted loop playsinline preload="metadata" poster={product.video.poster} aria-label={product.video.caption}>
+        <source src={product.video.src} type="video/mp4" />
+      </video>
+    )}
+    <div class="retrofit-paper retrofit-stripes">
+      <div class="retrofit-content">
+        <span class="eyebrow paper-kicker">{product.kicker}</span>
+        <h1>{product.title}</h1>
+        <p>{product.blurb}</p>
+        <div class="retrofit-bottom">
+          <div class="hero-actions">
+            <a class="btn btn-primary blueprint" href={demoHref}>
+              {heroCopy.plan}
+              <CornerMarks />
+            </a>
+            <a class="btn btn-secondary" href="#product-specification">{heroCopy.commissioning}</a>
+          </div>
+          <span class="retrofit-register">{heroCopy.downtime}<br />{heroCopy.phase}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="retrofit-steel steel-placeholder" aria-hidden="true">
+      <div class="retrofit-content">
+        <span class="eyebrow">{product.kicker}</span>
+        <div class="retrofit-title-copy">{product.title}</div>
+        <p>{product.blurb}</p>
+        <span class="retrofit-media-note">{product.video.placeholder}</span>
+      </div>
+    </div>
+
+    <button class="retrofit-toggle" type="button" aria-label={copy.pauseLoop} aria-pressed="false" data-video-toggle data-pause-label={copy.pauseLoop} data-play-label={copy.playLoop}>
+      <span data-icon-play hidden><Play aria-hidden="true" size={15} stroke-width={1.5} /></span>
+      <span data-icon-pause><Pause aria-hidden="true" size={15} stroke-width={1.5} /></span>
+    </button>
+  </section>
+)}
+
+<style>
+  .product-hero {
+    position: relative;
+    min-height: var(--space-product-hero-height);
+    overflow: hidden;
+    border-bottom: var(--space-hairline) solid var(--color-divider);
+  }
+
+  .product-hero video,
+  .media-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .media-placeholder {
+    display: flex;
+    align-items: flex-end;
+    padding: 18px 22px 80px;
+  }
+
+  .steel-placeholder {
+    background-color: var(--color-accent-900);
+    background-image: repeating-linear-gradient(135deg, var(--color-paper-12) 0 var(--space-hairline), transparent var(--space-hairline) 12px);
+    color: var(--color-paper-45);
+  }
+
+  .hero-kicker { color: var(--color-accent-300); }
+
+  .hero-blurb {
+    color: var(--color-paper-78);
+    font-size: var(--font-size-body-md);
+    line-height: 1.65;
+  }
+
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+  .hero-inspection {
+    --clip-duration: 24s;
+    background: var(--color-accent-900);
+    color: var(--color-bg);
+  }
+
+  .inspection-hud {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .scan-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: var(--color-accent-300);
+    box-shadow: 0 0 18px var(--color-accent-400);
+    animation: scan-x 4.2s var(--motion-ease) infinite;
+  }
+
+  .lock-box {
+    position: absolute;
+    width: clamp(150px, 8vw, 200px);
+    height: clamp(104px, 5.5vw, 138px);
+    border: var(--space-hairline) solid var(--color-accent-300);
+    opacity: 0;
+    animation: box-lock 4.2s var(--motion-ease) infinite;
+  }
+
+  .lock-box span {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    color: var(--color-accent-300);
+    font-size: var(--font-size-micro);
+    letter-spacing: .14em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .box-one { top: 33%; left: 10%; }
+  .box-two { top: 58%; left: 36%; animation-delay: 1.1s; }
+  .reject-box {
+    top: 29%;
+    left: 60%;
+    width: clamp(132px, 7vw, 178px);
+    height: clamp(96px, 5vw, 128px);
+    border-color: var(--color-bg);
+    animation-delay: 2.2s;
+  }
+
+  .reject-box span { color: var(--color-bg); }
+
+  .reject-stamp {
+    position: absolute;
+    top: 56%;
+    right: 11%;
+    color: var(--color-accent-300);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-display-sm);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: .12em;
+    line-height: 1;
+    text-transform: uppercase;
+    animation: reject-stamp 4.2s var(--motion-ease) infinite;
+  }
+
+  .inspection-content {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    min-height: var(--space-product-hero-height);
+    flex-direction: column;
+    padding: 50px var(--space-page-gutter) 82px;
+    pointer-events: none;
+  }
+
+  .inspection-content > * { pointer-events: auto; }
+
+  .inspection-content h1 {
+    max-width: 17ch;
+    margin-top: 26px;
+    color: var(--color-bg);
+    font-size: var(--font-size-display-lg);
+    letter-spacing: -.03em;
+    line-height: .94;
+  }
+
+  .inspection-content .hero-blurb {
+    max-width: 46ch;
+    margin-top: 20px;
+  }
+
+  .inspection-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: auto;
+  }
+
+  .parts-counter {
+    display: grid;
+    gap: var(--space-2);
+    text-align: right;
+  }
+
+  .parts-counter span {
+    color: var(--color-paper-55);
+    font-size: var(--font-size-label-xs);
+    letter-spacing: .16em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .parts-counter strong {
+    color: var(--color-bg);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: -.015em;
+    line-height: 1;
+  }
+
+  .split-hero {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    background: var(--color-accent-900);
+    color: var(--color-bg);
+  }
+
+  .split-copy {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 50px 34px 40px var(--space-page-gutter);
+    border-right: var(--space-hairline) solid var(--color-paper-20);
+  }
+
+  .split-copy h1 {
+    margin-top: 24px;
+    color: var(--color-bg);
+    font-size: var(--font-size-display-sm);
+    letter-spacing: -.03em;
+    line-height: .98;
+  }
+
+  .split-copy .hero-blurb { margin-top: 22px; }
+  .split-actions { margin-top: auto; padding-top: var(--space-8); }
+
+  .media-pane {
+    position: relative;
+    min-width: 0;
+    min-height: var(--space-product-hero-height);
+    overflow: hidden;
+  }
+
+  .hero-amr { --clip-duration: 31s; }
+
+  .fleet-strip {
+    display: grid;
+    max-width: 290px;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 5px;
+    margin-top: 30px;
+  }
+
+  .fleet-strip span {
+    height: 13px;
+    background: var(--color-accent-300);
+    animation: cell-blink 2.6s var(--motion-ease) infinite;
+  }
+
+  .fleet-strip span:nth-child(2) { animation-delay: .13s; }
+  .fleet-strip span:nth-child(3) { animation-delay: .26s; }
+  .fleet-strip span:nth-child(4) { animation-delay: .39s; }
+  .fleet-strip span:nth-child(5) { animation-delay: .52s; }
+  .fleet-strip span:nth-child(6) { animation-delay: .65s; }
+  .fleet-strip span:nth-child(7) { animation-delay: .78s; }
+  .fleet-strip span:nth-child(8) { animation-delay: .91s; }
+  .fleet-strip span:nth-child(9) { animation-delay: 1.04s; }
+  .fleet-strip span:nth-child(10) { animation-delay: 1.17s; }
+  .fleet-strip span:nth-child(11) { animation-delay: 1.3s; }
+  .fleet-strip span:nth-child(12) { animation-delay: 1.43s; }
+
+  .fleet-register,
+  .route-label,
+  .retrofit-register,
+  .retrofit-media-note {
+    font-size: var(--font-size-label-xs);
+    letter-spacing: .14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .fleet-register { margin-top: var(--space-3); color: var(--color-paper-55); }
+
+  .route-overlay { position: absolute; z-index: 3; inset: 0; }
+  .route-map { width: 100%; height: 100%; }
+
+  .route-line {
+    fill: none;
+    stroke: var(--color-accent-400);
+    stroke-width: 2;
+    stroke-dasharray: 1100;
+    stroke-dashoffset: 1100;
+    animation: route-draw 6s var(--motion-ease) infinite;
+  }
+
+  .route-map circle { fill: var(--color-bg); }
+
+  .unit-marker {
+    position: absolute;
+    top: 90.4%;
+    left: 2.8%;
+    width: 22px;
+    height: 22px;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--color-bg);
+    background: var(--color-paper-20);
+    animation: unit-ride 6s var(--motion-ease) infinite;
+  }
+
+  .route-label { position: absolute; top: 22px; left: 22px; color: var(--color-accent-300); }
+
+  @keyframes unit-ride {
+    0% { top: 90.4%; left: 2.8%; }
+    22% { top: 90.4%; left: 34.3%; }
+    40% { top: 46.2%; left: 34.3%; }
+    62% { top: 46.2%; left: 80%; }
+    80% { top: 17.3%; left: 80%; }
+    100% { top: 17.3%; left: 98.5%; }
+  }
+
+  .hero-integration { --clip-duration: 18s; }
+  .hero-integration .split-copy h1 { font-size: clamp(54px, calc(2.5vw + 6px), 70px); }
+
+  .integration-media > video { z-index: 0; }
+
+  .signal-spine {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    bottom: 0;
+    left: 34px;
+    width: var(--space-hairline);
+    background: var(--color-paper-34);
+  }
+
+  .signal-spine span {
+    position: absolute;
+    top: 0;
+    left: -3px;
+    width: 7px;
+    height: 7px;
+    background: var(--color-accent-300);
+    animation: signal-pulse 3.2s var(--motion-ease) infinite;
+  }
+
+  .triptych {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+    gap: var(--space-hairline);
+    background: var(--color-paper-20);
+  }
+
+  .triptych-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    padding: 18px 22px 18px 62px;
+    color: var(--color-paper-62);
+    font-size: var(--font-size-label);
+    letter-spacing: .14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    animation: reveal-up 460ms var(--motion-ease) both;
+  }
+
+  .triptych-row:nth-child(2) { animation-delay: .18s; }
+  .triptych-row:nth-child(3) { animation-delay: .36s; }
+  .triptych-row strong { color: var(--color-accent-300); font-size: var(--font-size-label-xs); font-weight: 400; }
+
+  .hero-retrofit {
+    --clip-duration: 42s;
+    min-height: var(--space-product-hero-height);
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .hero-retrofit > video { z-index: 0; }
+
+  .retrofit-paper,
+  .retrofit-steel {
+    position: absolute;
+    inset: 0;
+  }
+
+  .retrofit-paper { z-index: 1; background-color: var(--color-bg); }
+
+  .retrofit-stripes {
+    background-image: repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-text) 7%, transparent) 0 var(--space-hairline), transparent var(--space-hairline) 11px);
+  }
+
+  .retrofit-content {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    padding: 50px var(--space-page-gutter) 40px;
+  }
+
+  .paper-kicker { color: var(--color-accent-700); }
+
+  .retrofit-content h1,
+  .retrofit-title-copy {
+    max-width: 18ch;
+    margin-top: 26px;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-display-xl);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: -.03em;
+    line-height: .94;
+    text-wrap: balance;
+  }
+
+  .retrofit-content p {
+    max-width: 46ch;
+    margin-top: 24px;
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    font-size: var(--font-size-body-lg);
+    line-height: 1.65;
+  }
+
+  .retrofit-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: auto;
+  }
+
+  .retrofit-register { color: color-mix(in srgb, var(--color-text) 48%, transparent); text-align: right; }
+
+  .retrofit-steel {
+    z-index: 3;
+    clip-path: inset(0 100% 0 0);
+    background-color: var(--color-accent-900);
+    color: var(--color-bg);
+    animation: field-slide 7s var(--motion-ease) infinite;
+    pointer-events: none;
+  }
+
+  .retrofit-steel .eyebrow { color: var(--color-accent-300); }
+  .retrofit-steel p { color: var(--color-paper-78); }
+  .retrofit-media-note { margin-top: auto; color: var(--color-paper-55); }
+
+  .retrofit-toggle {
+    position: absolute;
+    z-index: 7;
+    right: var(--space-page-gutter);
+    bottom: 40px;
+    display: grid;
+    width: var(--space-control);
+    height: var(--space-control);
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    cursor: pointer;
+  }
+
+  .retrofit-toggle span { display: grid; place-items: center; }
+  .retrofit-toggle svg { stroke-width: 1.5; }
+
+  [data-playing='false'] .scan-line,
+  [data-playing='false'] .lock-box,
+  [data-playing='false'] .reject-stamp,
+  [data-playing='false'] .fleet-strip span,
+  [data-playing='false'] .route-line,
+  [data-playing='false'] .unit-marker,
+  [data-playing='false'] .signal-spine span,
+  [data-playing='false'] .triptych-row,
+  [data-playing='false'] .retrofit-steel { animation-play-state: paused; }
+
+  @media (max-width: 1024px) {
+    .product-hero { min-height: 0; }
+    .inspection-content { min-height: 620px; }
+    .split-hero { grid-template-columns: 1fr; }
+    .split-copy {
+      min-height: 420px;
+      padding: 48px var(--space-page-gutter) 40px;
+      border-right: 0;
+      border-bottom: var(--space-hairline) solid var(--color-paper-20);
+    }
+    .media-pane { min-height: 460px; }
+    .retrofit-paper,
+    .retrofit-steel { position: relative; min-height: 600px; }
+    .retrofit-steel { position: absolute; }
+  }
+
+  @media (max-width: 720px) {
+    .inspection-content {
+      min-height: 670px;
+      padding: 36px var(--space-mobile-gutter) 92px;
+    }
+    .inspection-content h1 { margin-top: 22px; font-size: 52px; }
+    .inspection-content .hero-blurb { font-size: 14.5px; }
+    .inspection-bottom { align-items: flex-start; flex-direction: column; gap: 24px; }
+    .parts-counter { text-align: left; }
+    .parts-counter strong { font-size: 34px; }
+    .lock-box { width: 112px; height: 78px; }
+    .box-one { left: 8%; }
+    .box-two { top: 56%; left: 42%; }
+    .reject-box { top: 33%; left: 58%; width: 104px; height: 74px; }
+    .reject-stamp { top: 48%; right: 6%; font-size: 36px; }
+    .split-copy { min-height: 460px; padding: 36px var(--space-mobile-gutter); }
+    .split-copy h1,
+    .hero-integration .split-copy h1 { font-size: 48px; }
+    .split-copy .hero-blurb { font-size: 14.5px; }
+    .media-pane { min-height: 420px; }
+    .fleet-strip { grid-template-columns: repeat(6, 1fr); }
+    .route-label { top: 16px; left: 16px; }
+    .triptych-row { padding-left: 52px; }
+    .triptych-row > span { max-width: 22ch; }
+    .retrofit-paper,
+    .retrofit-steel { min-height: 640px; }
+    .retrofit-content { padding: 36px var(--space-mobile-gutter) 40px; }
+    .retrofit-content h1,
+    .retrofit-title-copy { margin-top: 22px; font-size: 52px; }
+    .retrofit-content p { font-size: 14.5px; }
+    .retrofit-bottom { align-items: flex-start; flex-direction: column; gap: 24px; }
+    .retrofit-register { text-align: left; }
+    .retrofit-toggle { right: var(--space-mobile-gutter); bottom: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scan-line { left: 42%; transform: none; animation: none; }
+    .lock-box { opacity: 1; transform: none; animation: none; }
+    .reject-stamp { opacity: 0; animation: none; }
+    .fleet-strip span { opacity: .72; animation: none; }
+    .route-line { stroke-dashoffset: 0; animation: none; }
+    .unit-marker { top: 17.3%; left: 98.5%; animation: none; }
+    .signal-spine span { top: 50%; opacity: 1; animation: none; }
+    .triptych-row { clip-path: inset(0); animation: none; }
+    .retrofit-steel { clip-path: inset(0 54% 0 0); animation: none; }
+  }
+</style>
