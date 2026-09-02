@@ -19,21 +19,18 @@ const href = (path: string) => localPath(locale, path);
 ---
 
 <header class="site-header" data-site-header>
-  <div class="utility-strip" aria-label={copy.utilityLabel}>
-    <span class="utility-locations">Rotterdam · Stuttgart · Monterrey</span>
-    <div class="utility-right">
-      <span class="utility-language" aria-label="English / Tiếng Việt">
-        <a href={locale === 'en' ? currentPath : alternatePath(locale, currentPath)} aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
-        <span aria-hidden="true">/</span>
-        <a href={locale === 'vi' ? currentPath : alternatePath(locale, currentPath)} aria-current={locale === 'vi' ? 'page' : undefined}>VI</a>
-      </span>
-    </div>
+  <div class="utility-strip" aria-label="Language selection / Chọn ngôn ngữ">
+    <span class="utility-language" aria-label="English / Tiếng Việt">
+      <a href={locale === 'en' ? currentPath : alternatePath(locale, currentPath)} aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+      <span aria-hidden="true">/</span>
+      <a href={locale === 'vi' ? currentPath : alternatePath(locale, currentPath)} aria-current={locale === 'vi' ? 'page' : undefined}>VI</a>
+    </span>
   </div>
 
   <nav class="main-bar" aria-label={copy.primaryNav}>
     <a class="brand-lockup" href={href('/')} aria-label={copy.homeLabel}>
       <span class="brand-mark" aria-hidden="true"></span>
-      <span class="brand-wordmark">MTR</span>
+      <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span>R</span></span>
     </a>
 
     <div class="desktop-navigation">
@@ -105,7 +102,7 @@ const href = (path: string) => localPath(locale, path);
     <div class="mobile-panel-header">
       <a class="brand-lockup mobile-brand" href={href('/')} aria-label={copy.homeLabel}>
         <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-wordmark">MTR</span>
+        <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span>R</span></span>
       </a>
       <button class="mobile-close-button" type="button" aria-label={copy.closeMenu} data-mobile-close>
         <X aria-hidden="true" size={24} stroke-width={1.5} />
@@ -116,13 +113,22 @@ const href = (path: string) => localPath(locale, path);
       <a class="mobile-link" href={href('/')} aria-current={routePath === '/' ? 'page' : undefined}>
         <span aria-hidden="true">00</span><span>{copy.home}</span>
       </a>
-      <span class="mobile-section-label">{copy.solutions}</span>
-      {productList.map((product) => (
-        <a class="mobile-link" href={href(`/solutions/${product.slug}`)} aria-current={activeSlug === product.slug ? 'page' : undefined}>
-          <span aria-hidden="true">{product.num}</span>
-          <span>{product.nav}</span>
-        </a>
-      ))}
+      <div class="mobile-solutions" data-mobile-solutions>
+        <button class="mobile-solutions-trigger" type="button" aria-expanded="false" aria-controls="mobile-solutions-list" data-mobile-solutions-trigger>
+          <span aria-hidden="true">01–04</span>
+          <span class="mobile-solutions-label">{copy.solutions}<ChevronDown aria-hidden="true" size={18} stroke-width={1.5} /></span>
+        </button>
+        <div class="mobile-solutions-panel" id="mobile-solutions-list" aria-hidden="true" inert data-mobile-solutions-panel>
+          <div class="mobile-solutions-inner">
+            {productList.map((product) => (
+              <a class="mobile-link mobile-solution-link" href={href(`/solutions/${product.slug}`)} aria-current={activeSlug === product.slug ? 'page' : undefined}>
+                <span aria-hidden="true">{product.num}</span>
+                <span>{product.nav}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
       <a class="mobile-link mobile-link-top" href={href('/about')} aria-current={routePath === '/about' ? 'page' : undefined}><span aria-hidden="true">05</span><span>{copy.about}</span></a>
     </nav>
 
@@ -145,6 +151,7 @@ const href = (path: string) => localPath(locale, path);
   .utility-strip {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     height: var(--space-nav-utility-height);
     gap: 26px;
     padding-inline: var(--space-nav-gutter);
@@ -155,21 +162,6 @@ const href = (path: string) => localPath(locale, path);
     line-height: 1;
     text-transform: uppercase;
   }
-
-  .utility-right {
-    display: flex;
-    align-items: center;
-    gap: 26px;
-    margin-left: auto;
-  }
-
-  .utility-item {
-    color: inherit;
-    text-decoration: none;
-    transition: color var(--motion-state) var(--motion-ease);
-  }
-
-  .utility-item:hover { color: var(--color-bg); }
 
   .utility-language { display: inline-flex; gap: var(--space-2); }
   .utility-language a { color: inherit; text-decoration: none; }
@@ -205,6 +197,9 @@ const href = (path: string) => localPath(locale, path);
     letter-spacing: .18em;
     line-height: 1;
   }
+
+  .brand-mt { color: var(--color-mark-red); }
+  .brand-wordmark > span:last-child { color: var(--color-bg); }
 
   .desktop-navigation {
     display: flex;
@@ -413,15 +408,8 @@ const href = (path: string) => localPath(locale, path);
   .mobile-close-button { display: grid; }
   .mobile-nav { display: grid; }
 
-  .mobile-section-label {
-    padding: var(--space-8) 0 var(--space-3);
-    color: var(--color-paper-45);
-    font-size: var(--font-size-label-xs);
-    letter-spacing: .18em;
-    text-transform: uppercase;
-  }
-
-  .mobile-link {
+  .mobile-link,
+  .mobile-solutions-trigger {
     display: grid;
     grid-template-columns: 30px 1fr;
     gap: var(--space-3);
@@ -435,7 +423,47 @@ const href = (path: string) => localPath(locale, path);
     text-decoration: none;
   }
 
-  .mobile-link > :first-child {
+  .mobile-solutions-trigger {
+    width: 100%;
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .mobile-solutions-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .mobile-solutions-label svg {
+    flex: none;
+    transition: transform var(--motion-rule) var(--motion-ease);
+  }
+
+  .mobile-solutions[data-open] .mobile-solutions-label svg { transform: translateY(var(--space-1)); }
+
+  .mobile-solutions-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows var(--motion-rule) var(--motion-ease), opacity var(--motion-label) var(--motion-ease);
+  }
+
+  .mobile-solutions[data-open] .mobile-solutions-panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .mobile-solutions-inner { min-height: 0; overflow: hidden; }
+  .mobile-solution-link { padding-left: var(--space-6); }
+
+  .mobile-link > :first-child,
+  .mobile-solutions-trigger > :first-child {
     color: var(--color-paper-45);
     font-family: var(--font-body);
     font-size: var(--font-size-label-xs);
@@ -486,5 +514,6 @@ const href = (path: string) => localPath(locale, path);
   @media (prefers-reduced-motion: reduce) {
     .product-tab::after { transition: none; }
     .nav-link svg { transform: none !important; }
+    .mobile-solutions-panel { transition: none; }
   }
 </style>

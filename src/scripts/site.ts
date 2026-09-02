@@ -174,7 +174,18 @@ function setupNavigation(signal: AbortSignal) {
   const mobileOpen = document.querySelector<HTMLButtonElement>('[data-mobile-open]');
   const mobileClose = document.querySelector<HTMLButtonElement>('[data-mobile-close]');
   const mobilePanel = document.querySelector<HTMLElement>('[data-mobile-panel]');
+  const mobileSolutions = document.querySelector<HTMLElement>('[data-mobile-solutions]');
+  const mobileSolutionsTrigger = mobileSolutions?.querySelector<HTMLButtonElement>('[data-mobile-solutions-trigger]');
+  const mobileSolutionsPanel = mobileSolutions?.querySelector<HTMLElement>('[data-mobile-solutions-panel]');
   let returnFocus: HTMLElement | null = null;
+
+  const setMobileSolutions = (open: boolean) => {
+    if (!mobileSolutionsTrigger || !mobileSolutionsPanel) return;
+    mobileSolutionsTrigger.setAttribute('aria-expanded', String(open));
+    mobileSolutionsPanel.setAttribute('aria-hidden', String(!open));
+    mobileSolutionsPanel.inert = !open;
+    mobileSolutions?.toggleAttribute('data-open', open);
+  };
 
   const setMobile = (open: boolean) => {
     if (!mobilePanel || !mobileOpen) return;
@@ -184,9 +195,15 @@ function setupNavigation(signal: AbortSignal) {
     mobileOpen.setAttribute('aria-expanded', String(open));
     document.body.dataset.menuOpen = String(open);
     if (open) mobileClose?.focus();
-    else returnFocus?.focus();
+    else {
+      setMobileSolutions(false);
+      returnFocus?.focus();
+    }
   };
 
+  mobileSolutionsTrigger?.addEventListener('click', () => {
+    setMobileSolutions(mobileSolutionsTrigger.getAttribute('aria-expanded') !== 'true');
+  }, { signal });
   mobileOpen?.addEventListener('click', () => setMobile(true), { signal });
   mobileClose?.addEventListener('click', () => setMobile(false), { signal });
   mobilePanel?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setMobile(false), { signal }));
@@ -194,11 +211,17 @@ function setupNavigation(signal: AbortSignal) {
   mobilePanel?.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       event.preventDefault();
+      if (mobileSolutionsTrigger?.getAttribute('aria-expanded') === 'true') {
+        setMobileSolutions(false);
+        mobileSolutionsTrigger.focus();
+        return;
+      }
       setMobile(false);
       return;
     }
     if (event.key !== 'Tab') return;
-    const focusable = Array.from(mobilePanel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+    const focusable = Array.from(mobilePanel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'))
+      .filter((element) => !element.closest('[inert]') && element.offsetParent !== null);
     const first = focusable[0];
     const last = focusable.at(-1);
     if (event.shiftKey && document.activeElement === first) {
@@ -209,6 +232,174 @@ function setupNavigation(signal: AbortSignal) {
       first?.focus();
     }
   }, { signal });
+}
+
+type PoolParticle = { ox: number; oy: number; x: number; y: number; vx: number; vy: number };
+
+function setupHomePool(signal: AbortSignal) {
+  const root = document.querySelector<HTMLElement>('[data-home-pool]');
+  const cursor = root?.querySelector<HTMLElement>('[data-pool-cursor]');
+  const canvas = root?.querySelector<HTMLCanvasElement>('[data-pool-canvas]');
+  const ctx = canvas?.getContext('2d');
+  if (!root || !cursor || !canvas || !ctx) return;
+
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim();
+  const rgb = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(bg);
+  const [r, g, b] = rgb ? [rgb[1], rgb[2], rgb[3]].map((hex) => Number.parseInt(hex, 16)) : [242, 242, 243];
+
+  const spacing = 30;
+  const pointerRadius = 150;
+  const pointerForce = 2.6;
+  const dragForce = 0.07;
+  const springK = 0.009;
+  const damping = 0.82;
+
+  let particles: PoolParticle[] = [];
+  let width = 0;
+  let height = 0;
+  let hasPointer = false;
+  let overControl = false;
+  let pointerX = 0;
+  let pointerY = 0;
+  let previousX = 0;
+  let previousY = 0;
+  let velocityX = 0;
+  let velocityY = 0;
+  let animationFrame = 0;
+
+  const buildGrid = () => {
+    const bounds = root.getBoundingClientRect();
+    width = bounds.width;
+    height = bounds.height;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const cols = Math.min(90, Math.max(2, Math.round(width / spacing)));
+    const rows = Math.min(50, Math.max(2, Math.round(height / spacing)));
+    const stepX = width / cols;
+    const stepY = height / rows;
+    const next: PoolParticle[] = [];
+    for (let row = 0; row <= rows; row += 1) {
+      for (let col = 0; col <= cols; col += 1) {
+        const ox = col * stepX;
+        const oy = row * stepY;
+        next.push({ ox, oy, x: ox, y: oy, vx: 0, vy: 0 });
+      }
+    }
+    particles = next;
+  };
+
+  const draw = () => {
+    ctx.clearRect(0, 0, width, height);
+    particles.forEach((p) => {
+      const dx = p.x - p.ox;
+      const dy = p.y - p.oy;
+      const factor = Math.min(1, Math.hypot(dx, dy) / 60);
+      const alpha = 0.16 + factor * 0.62;
+      const size = 1.6 + factor * 1.6;
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(3)})`;
+      ctx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
+    });
+  };
+
+  const tick = () => {
+    animationFrame = 0;
+    let unsettled = false;
+
+    particles.forEach((p) => {
+      let ax = (p.ox - p.x) * springK;
+      let ay = (p.oy - p.y) * springK;
+
+      if (hasPointer) {
+        const dx = p.x - pointerX;
+        const dy = p.y - pointerY;
+        const dist = Math.hypot(dx, dy) || 0.001;
+        if (dist < pointerRadius) {
+          const falloff = 1 - dist / pointerRadius;
+          const push = falloff * falloff * pointerForce;
+          ax += (dx / dist) * push;
+          ay += (dy / dist) * push;
+          ax += velocityX * falloff * dragForce;
+          ay += velocityY * falloff * dragForce;
+        }
+      }
+
+      p.vx = (p.vx + ax) * damping;
+      p.vy = (p.vy + ay) * damping;
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (Math.abs(p.x - p.ox) > 0.05 || Math.abs(p.y - p.oy) > 0.05 || Math.abs(p.vx) > 0.02 || Math.abs(p.vy) > 0.02) {
+        unsettled = true;
+      }
+    });
+
+    draw();
+    if (unsettled || hasPointer) animationFrame = window.requestAnimationFrame(tick);
+  };
+
+  const queueFrame = () => {
+    if (!animationFrame) animationFrame = window.requestAnimationFrame(tick);
+  };
+
+  const updatePointer = (event: PointerEvent) => {
+    const bounds = root.getBoundingClientRect();
+    const nextX = event.clientX - bounds.left;
+    const nextY = event.clientY - bounds.top;
+
+    if (!hasPointer) {
+      previousX = nextX;
+      previousY = nextY;
+    }
+
+    velocityX = nextX - previousX;
+    velocityY = nextY - previousY;
+    pointerX = nextX;
+    pointerY = nextY;
+    previousX = nextX;
+    previousY = nextY;
+    hasPointer = true;
+    overControl = Boolean((event.target as Element).closest('a, button'));
+
+    if (finePointer) {
+      root.toggleAttribute('data-pointer-active', !overControl);
+      cursor.style.transform = `translate3d(${nextX}px, ${nextY}px, 0) translate(-50%, -50%)`;
+    }
+    queueFrame();
+  };
+
+  const settle = () => {
+    hasPointer = false;
+    overControl = false;
+    root.removeAttribute('data-pointer-active');
+    queueFrame();
+  };
+
+  buildGrid();
+  draw();
+
+  if (reducedMotion()) return;
+
+  root.addEventListener('pointerenter', updatePointer, { signal });
+  root.addEventListener('pointermove', updatePointer, { signal });
+  root.addEventListener('pointerleave', settle, { signal });
+  root.addEventListener('pointercancel', settle, { signal });
+  root.addEventListener('pointerup', (event) => {
+    if (event.pointerType !== 'mouse') settle();
+  }, { signal });
+  window.addEventListener('resize', () => {
+    buildGrid();
+    if (!animationFrame) draw();
+  }, { signal });
+
+  signal.addEventListener('abort', () => {
+    if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    root.removeAttribute('data-pointer-active');
+    cursor.style.removeProperty('transform');
+  }, { once: true });
 }
 
 function setupProductMotion(signal: AbortSignal) {
@@ -410,6 +601,7 @@ function setupPage() {
   const { signal } = pageController;
   setupReveal();
   setupNavigation(signal);
+  setupHomePool(signal);
   setupProductMotion(signal);
   setupDemoForm(signal);
 }

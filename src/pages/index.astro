@@ -26,16 +26,23 @@ const organization = {
   locale={locale}
   jsonLd={organization}
 >
-  <section class="home-hero">
-    <h1>{content.title}</h1>
-    <div class="hero-grid">
-      <p>{content.intro}</p>
-      <div class="hero-actions">
-        <a class="btn btn-paper blueprint" href={href('/request-a-demo')}>
-          {locale === 'vi' ? 'Đặt lịch khảo sát dây chuyền' : 'Book a line survey'}
-          <CornerMarks light />
-        </a>
-        <a class="btn btn-secondary-dark" href={href('/about')}>{locale === 'vi' ? 'Về MTRobotics' : 'About MTRobotics'}</a>
+  <section class="home-hero" data-home-pool>
+    <div class="hero-field" aria-hidden="true">
+      <canvas class="hero-field-canvas" data-pool-canvas></canvas>
+    </div>
+    <span class="hero-pool-cursor" aria-hidden="true" data-pool-cursor><i></i></span>
+
+    <div class="hero-content">
+      <h1>{content.title}</h1>
+      <div class="hero-grid">
+        <p>{content.intro}</p>
+        <div class="hero-actions">
+          <a class="btn btn-paper blueprint" href={href('/request-a-demo')}>
+            {locale === 'vi' ? 'Đặt lịch khảo sát dây chuyền' : 'Book a line survey'}
+            <CornerMarks light />
+          </a>
+          <a class="btn btn-secondary-dark" href={href('/about')}>{locale === 'vi' ? 'Về MTRobotics' : 'About MTRobotics'}</a>
+        </div>
       </div>
     </div>
   </section>
@@ -67,8 +74,10 @@ const organization = {
 
   <section class="solution-register" aria-labelledby="solution-register-title">
     <header class="register-intro" data-reveal>
-      <span class="eyebrow">{locale === 'vi' ? 'Phạm vi kỹ thuật' : 'Engineering scopes'}</span>
-      <h2 id="solution-register-title">{content.solutionsTitle}</h2>
+      <div>
+        <span class="eyebrow">{locale === 'vi' ? 'Phạm vi kỹ thuật' : 'Engineering scopes'}</span>
+        <h2 id="solution-register-title">{content.solutionsTitle}</h2>
+      </div>
       <p>{content.solutionsIntro}</p>
     </header>
     <div class="solution-link-grid" data-reveal-grid>
@@ -102,10 +111,85 @@ const organization = {
 
 <style>
   .home-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     padding: var(--space-section-roomy) var(--space-page-gutter) clamp(70px, calc(4.6875vw - 20px), 100px);
     background: var(--color-accent-900);
     color: var(--color-bg);
+    touch-action: pan-y;
   }
+
+  .home-hero[data-pointer-active] { cursor: none; }
+  .home-hero a { cursor: pointer; }
+
+  .hero-content {
+    position: relative;
+    z-index: 3;
+  }
+
+  .hero-field {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hero-field-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-pool-cursor {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    display: block;
+    width: var(--space-8);
+    height: var(--space-8);
+    transform: translate3d(-100%, -100%, 0);
+    border: var(--space-hairline) solid var(--color-paper-82);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-state) var(--motion-ease);
+  }
+
+  .hero-pool-cursor::before,
+  .hero-pool-cursor::after {
+    position: absolute;
+    content: '';
+    background: var(--color-paper-82);
+  }
+
+  .hero-pool-cursor::before {
+    top: 50%;
+    left: var(--space-2);
+    width: calc(100% - (var(--space-2) * 2));
+    height: var(--space-hairline);
+  }
+
+  .hero-pool-cursor::after {
+    top: var(--space-2);
+    left: 50%;
+    width: var(--space-hairline);
+    height: calc(100% - (var(--space-2) * 2));
+  }
+
+  .hero-pool-cursor i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--space-2);
+    height: var(--space-2);
+    background: var(--color-bg);
+    font-style: normal;
+    transform: translate(-50%, -50%);
+  }
+
+  .home-hero[data-pointer-active] .hero-pool-cursor { opacity: 1; }
 
   .home-hero h1 {
     max-width: 20ch;
@@ -159,7 +243,7 @@ const organization = {
     text-transform: uppercase;
   }
 
-  .schematic-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .schematic-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
   .schematic-cell {
     display: flex;
@@ -216,45 +300,47 @@ const organization = {
 
   .solution-register {
     display: grid;
-    grid-template-columns: 4fr 8fr;
     border-top: var(--space-hairline) solid var(--color-divider);
     border-bottom: var(--space-hairline) solid var(--color-divider);
     background: var(--color-bg);
   }
 
   .register-intro {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    align-items: end;
+    gap: var(--space-8);
     padding: var(--space-section) var(--space-page-gutter);
-    border-right: var(--space-hairline) solid var(--color-divider);
+    border-bottom: var(--space-hairline) solid var(--color-divider);
   }
 
   .register-intro .eyebrow { display: block; margin-bottom: var(--space-6); color: var(--color-accent-700); }
   .register-intro h2 { max-width: 16ch; font-size: var(--font-size-heading-lg); }
-  .register-intro p { max-width: 52ch; margin-top: var(--space-5); color: color-mix(in srgb, var(--color-text) 68%, transparent); line-height: 1.65; }
+  .register-intro p { max-width: 52ch; color: color-mix(in srgb, var(--color-text) 68%, transparent); line-height: 1.65; }
 
-  .solution-link-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .solution-link-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
   .solution-link {
     display: flex;
     min-width: 0;
     flex-direction: column;
-    padding: var(--space-7);
+    padding: var(--space-8);
     color: inherit;
     text-decoration: none;
     transition: background-color var(--motion-state) var(--motion-ease);
   }
 
-  .solution-link:nth-child(odd) { border-right: var(--space-hairline) solid var(--color-divider); }
-  .solution-link:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-divider); }
+  .solution-link + .solution-link { border-left: var(--space-hairline) solid var(--color-divider); }
   .solution-link:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
   .solution-link > span { color: var(--color-accent-700); font-family: var(--font-heading); font-size: var(--font-size-label-lg); }
-  .solution-link h3 { margin-top: var(--space-5); font-size: var(--font-size-heading-sm); }
+  .solution-link h3 { margin-top: var(--space-6); font-size: var(--font-size-heading-sm); }
   .solution-link p { margin-top: var(--space-2); color: color-mix(in srgb, var(--color-text) 66%, transparent); font-size: var(--font-size-body-sm); line-height: 1.6; }
   .solution-link strong { margin-top: auto; padding-top: var(--space-6); color: var(--color-accent-700); font-family: var(--font-heading); font-size: var(--font-size-body-sm); }
 
   .process-section { padding: var(--space-section) var(--space-page-gutter); background: var(--color-bg); }
   .process-section > h2 { margin-bottom: var(--space-6); font-size: var(--font-size-heading-lg); }
   .process-section ol { display: grid; grid-template-columns: repeat(3, 1fr); border-top: var(--space-hairline) solid var(--color-text); list-style: none; }
-  .process-section li { display: grid; grid-template-columns: var(--space-7) 1fr; gap: var(--space-4); padding: var(--space-6); border-right: var(--space-hairline) solid var(--color-divider); }
+  .process-section li { display: grid; grid-template-columns: var(--space-8) 1fr; gap: var(--space-4); padding: var(--space-6); border-right: var(--space-hairline) solid var(--color-divider); }
   .process-section li:first-child { padding-left: 0; }
   .process-section li:last-child { border-right: 0; }
   .process-section li > span { color: var(--color-accent-700); font-family: var(--font-heading); }
@@ -290,15 +376,21 @@ const organization = {
     white-space: nowrap;
   }
 
+  @media (max-width: 1199px) {
+    .solution-link-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .solution-link + .solution-link { border-left: 0; }
+    .solution-link:nth-child(even) { border-left: var(--space-hairline) solid var(--color-divider); }
+    .solution-link:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-divider); }
+  }
+
   @media (max-width: 1024px) {
-    .home-hero h1 { font-size: 72px; }
+    .home-hero h1 { font-size: var(--font-size-display-sm); }
     .hero-grid { grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
     .hero-actions { justify-content: flex-start; }
     .schematic-grid { grid-template-columns: 1fr; }
     .schematic-cell + .schematic-cell { border-top: var(--space-hairline) solid var(--color-divider); border-left: 0; }
     .proof-strip { align-items: flex-start; flex-direction: column; }
-    .solution-register { grid-template-columns: 1fr; }
-    .register-intro { border-right: 0; border-bottom: var(--space-hairline) solid var(--color-divider); }
+    .register-intro { grid-template-columns: 1fr; align-items: start; }
     .process-section ol { grid-template-columns: 1fr; }
     .process-section li { padding-left: 0; border-right: 0; border-bottom: var(--space-hairline) solid var(--color-divider); }
     .process-section li:last-child { border-bottom: 0; }
@@ -306,7 +398,7 @@ const organization = {
 
   @media (max-width: 720px) {
     .home-hero { padding-block: 40px 44px; }
-    .home-hero h1 { font-size: 52px; }
+    .home-hero h1 { font-size: var(--font-size-h1); }
     .hero-grid { gap: 28px; margin-top: 32px; }
     .hero-grid p { font-size: 15.5px; }
     .hero-actions { align-items: stretch; flex-direction: column; }
@@ -316,9 +408,16 @@ const organization = {
     .proof-strip { padding-block: 36px; }
     .client-marks { flex-wrap: wrap; gap: 18px; }
     .solution-link-grid { grid-template-columns: 1fr; }
-    .solution-link,
-    .solution-link:nth-child(odd),
-    .solution-link:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-divider); border-right: 0; }
+    .solution-link:nth-child(n) { border-top: var(--space-hairline) solid var(--color-divider); border-left: 0; }
     .solution-link:first-child { border-top: 0; }
+  }
+
+  @media (hover: none) {
+    .hero-pool-cursor { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-hero { cursor: auto; }
+    .hero-pool-cursor { display: none; }
   }
 </style>

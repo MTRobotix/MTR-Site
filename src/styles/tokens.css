@@ -74,6 +74,9 @@
   --color-accent-2-800: #314457;
   --color-accent-2-900: #1f2d3a;
 
+  /* Owner-directed logo exception: red is restricted to the MT lettermark. */
+  --color-mark-red: #ff6259;
+
   /* Reversed-field roles prevent component-level literal colors. */
   --color-paper-90: color-mix(in srgb, var(--color-bg) 90%, transparent);
   --color-paper-85: color-mix(in srgb, var(--color-bg) 85%, transparent);
