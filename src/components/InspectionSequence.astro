@@ -1,0 +1,159 @@
+---
+import { getImage } from 'astro:assets';
+import detectionSource from '../assets/inspection-detections.png';
+import type { Locale } from '../data/i18n';
+
+interface Props {
+  label: string;
+  locale?: Locale;
+}
+
+const { label, locale = 'en' } = Astro.props;
+
+// The canvas needs a plain URL, so the asset goes through getImage rather than
+// <Image>; without it the raw 2.9 MB screenshot would ship untouched.
+const detections = await getImage({ src: detectionSource, format: 'webp', quality: 76 });
+
+const phases = locale === 'vi'
+  ? ['Đẳng cự', 'Xoay quanh trạm', 'Nhìn từ trên', 'Lao qua cảm biến', 'Khung nhận dạng']
+  : ['Isometric', 'Orbit', 'Top view', 'Sensor dive', 'Detection view'];
+---
+
+<div class="cell-sequence" data-cell-sequence>
+  <canvas
+    class="cell-canvas"
+    role="img"
+    aria-label={label}
+    data-sequence-canvas
+    data-detections={detections.src}
+    data-phases={JSON.stringify(phases)}></canvas>
+  <span class="cell-phase" aria-hidden="true" data-sequence-phase>{phases[0]}</span>
+  <div class="cell-scrim" aria-hidden="true"></div>
+</div>
+
+<style>
+  .cell-sequence {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background: var(--color-accent-900);
+  }
+
+  .cell-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Keeps the hero headline legible over whichever beat is on screen. */
+  .cell-scrim {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    background:
+      linear-gradient(to right, color-mix(in srgb, var(--color-accent-900) 88%, transparent) 0%, color-mix(in srgb, var(--color-accent-900) 48%, transparent) 30%, transparent 54%),
+      linear-gradient(to top, color-mix(in srgb, var(--color-accent-900) 84%, transparent) 0%, color-mix(in srgb, var(--color-accent-900) 34%, transparent) 24%, transparent 46%);
+    pointer-events: none;
+  }
+
+  .cell-phase {
+    position: absolute;
+    z-index: 3;
+    top: 20px;
+    right: 20px;
+    padding: var(--space-1) var(--space-2);
+    border: var(--space-hairline) solid var(--color-paper-20);
+    color: var(--color-accent-300);
+    font-size: var(--font-size-label-xs);
+    letter-spacing: .16em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 720px) {
+    .cell-phase { top: 14px; right: 14px; }
+    /* Portrait stacks the copy over the cell, so the shading runs top and
+       bottom instead of left to right. */
+    .cell-scrim {
+      background:
+        linear-gradient(to bottom, color-mix(in srgb, var(--color-accent-900) 80%, transparent) 0%, color-mix(in srgb, var(--color-accent-900) 34%, transparent) 34%, transparent 56%),
+        linear-gradient(to top, color-mix(in srgb, var(--color-accent-900) 88%, transparent) 0%, color-mix(in srgb, var(--color-accent-900) 40%, transparent) 30%, transparent 62%);
+    }
+  }
+</style>
+
+<script>
+  import { createSequence, type SequenceHandle } from '../scripts/inspection-sequence';
+
+  let handles: SequenceHandle[] = [];
+
+  function teardown() {
+    handles.forEach((handle) => handle.destroy());
+    handles = [];
+  }
+
+  function setup() {
+    teardown();
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.querySelectorAll<HTMLElement>('[data-cell-sequence]').forEach((root) => {
+      const canvas = root.querySelector<HTMLCanvasElement>('[data-sequence-canvas]');
+      if (!canvas) return;
+
+      const readout = root.querySelector<HTMLElement>('[data-sequence-phase]');
+      let phases: string[] = [];
+      try {
+        phases = JSON.parse(canvas.dataset.phases ?? '[]') as string[];
+      } catch {
+        phases = [];
+      }
+
+      const handle = createSequence(canvas, {
+        detections: canvas.dataset.detections,
+        reduced,
+        onPhase: (index) => {
+          const name = phases[index];
+          if (readout && name) readout.textContent = name;
+        },
+      });
+      handles.push(handle);
+      if (reduced) return;
+
+      // The hero's existing play/pause control owns `data-playing`; mirror it
+      // rather than adding a second set of transport buttons.
+      const motionRoot = root.closest<HTMLElement>('[data-motion-root]');
+      let wanted = motionRoot?.dataset.playing !== 'false';
+      let onScreen = true;
+      const apply = () => handle.setPlaying(wanted && onScreen);
+
+      let mutation: MutationObserver | undefined;
+      if (motionRoot) {
+        mutation = new MutationObserver(() => {
+          wanted = motionRoot.dataset.playing !== 'false';
+          apply();
+        });
+        mutation.observe(motionRoot, { attributes: true, attributeFilter: ['data-playing'] });
+      }
+
+      const visibility = new IntersectionObserver(
+        (entries) => {
+          onScreen = entries.some((entry) => entry.isIntersecting);
+          apply();
+        },
+        { threshold: 0 },
+      );
+      visibility.observe(root);
+
+      const inner = handle.destroy;
+      handle.destroy = () => {
+        mutation?.disconnect();
+        visibility.disconnect();
+        inner.call(handle);
+      };
+      apply();
+    });
+  }
+
+  document.addEventListener('astro:page-load', setup);
+  document.addEventListener('astro:before-swap', teardown);
+</script>

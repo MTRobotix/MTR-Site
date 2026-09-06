@@ -31,11 +31,11 @@ export const products: Product[] = [
     video: {
       src: '/videos/inspection-loop.mp4',
       poster: '/videos/inspection-poster.jpg',
-      caption: '[ In-action video — cell grading parts at line speed, overhead ]',
+      caption: 'Cell fly-through — isometric, orbit, top view, sensor dive, detection view',
       duration: '00:24',
       durationSeconds: 24,
-      note: 'Loop · muted · defect HUD drawn in page',
-      placeholder: '[ Full-bleed in-action video, 1920×1080 — client asset pending ]',
+      note: 'Loop · muted · rendered in page',
+      placeholder: '[ Fallback only — the hero renders the cell fly-through in page ]',
       assetReady: false,
     },
     specs: [
@@ -148,7 +148,7 @@ const viProductCopy: Record<Product['slug'], Pick<Product, 'kicker' | 'title' | 
     kicker: 'Sản phẩm 01 — Trạm kiểm tra thị giác',
     title: 'Phân loại từng chi tiết trong 0,4 giây.',
     blurb: 'Trạm sáu camera với suy luận tại thiết bị, nhóm lỗi được huấn luyện từ thùng sản phẩm loại và cập nhật khi đổi ca mà không dừng dây chuyền.',
-    video: { caption: '[ Video vận hành — trạm phân loại chi tiết ở tốc độ dây chuyền, góc nhìn trên cao ]', note: 'Lặp · tắt tiếng · HUD lỗi vẽ trên trang', placeholder: '[ Video vận hành toàn khung, 1920×1080 — đang chờ tài sản khách hàng ]' },
+    video: { caption: 'Bay quanh trạm — đẳng cự, xoay, nhìn từ trên, lao qua cảm biến, khung nhận dạng', note: 'Lặp · tắt tiếng · dựng trực tiếp trên trang', placeholder: '[ Video vận hành toàn khung, 1920×1080 — đang chờ tài sản khách hàng ]' },
     specs: [
       { label: 'Độ bao phủ lỗi', value: '99.2', unit: '%' },
       { label: 'Chu kỳ tăng thêm', value: '0.4', unit: 's' },

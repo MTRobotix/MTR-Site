@@ -463,19 +463,6 @@ textarea.input { min-height: clamp(100px, calc(3.125vw + 40px), 120px); resize: 
 @keyframes page-out-back { to { opacity: 0; } }
 @keyframes page-in-back { from { opacity: 0; transform: translateY(var(--space-2)); } }
 @keyframes progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes scan-x { from { transform: translateX(0); } to { transform: translateX(100vw); } }
-
-@keyframes box-lock {
-  0%, 8% { opacity: 0; transform: scale(.92); }
-  14%, 52% { opacity: 1; transform: scale(1); }
-  60%, 100% { opacity: 0; transform: scale(1.04); }
-}
-
-@keyframes reject-stamp {
-  0%, 60% { opacity: 0; transform: scale(1.3); }
-  66%, 86% { opacity: 1; transform: scale(1); }
-  94%, 100% { opacity: 0; transform: scale(1); }
-}
 
 @keyframes route-draw { 0% { stroke-dashoffset: 1100; } 55%, 100% { stroke-dashoffset: 0; } }
 

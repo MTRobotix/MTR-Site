@@ -2,6 +2,7 @@
 import { Pause, Play } from '@lucide/astro';
 import type { Product } from '../data/products';
 import CornerMarks from './CornerMarks.astro';
+import InspectionSequence from './InspectionSequence.astro';
 import VideoChrome from './VideoChrome.astro';
 import { localPath, ui, type Locale } from '../data/i18n';
 
@@ -26,23 +27,7 @@ const heroCopy = locale === 'vi' ? {
 
 {product.slug === 'inspection' && (
   <section class="product-hero hero-inspection" id="in-action" data-motion-root data-playing="true">
-    {product.video.assetReady ? (
-      <video muted loop playsinline preload="metadata" poster={product.video.poster} aria-label={product.video.caption}>
-        <source src={product.video.src} type="video/mp4" />
-      </video>
-    ) : (
-      <div class="media-placeholder steel-placeholder" role="img" aria-label={product.video.placeholder}>
-        <span class="placeholder-label">{product.video.placeholder}</span>
-      </div>
-    )}
-
-    <div class="inspection-hud" aria-hidden="true">
-      <span class="scan-line"></span>
-      <span class="lock-box box-one"><span>{locale === 'vi' ? 'Chi tiết 4482 · Đạt' : 'Part 4482 · Pass'}</span></span>
-      <span class="lock-box box-two"><span>{locale === 'vi' ? 'Chi tiết 4483 · Đạt' : 'Part 4483 · Pass'}</span></span>
-      <span class="lock-box reject-box"><span>{locale === 'vi' ? 'Chi tiết 4484 · Loại 0.61' : 'Part 4484 · Reject 0.61'}</span></span>
-      <span class="reject-stamp">{locale === 'vi' ? 'Loại' : 'Reject'}</span>
-    </div>
+    <InspectionSequence label={product.video.caption} locale={locale} />
 
     <div class="inspection-content">
       <span class="eyebrow hero-kicker">{product.kicker}</span>
@@ -233,72 +218,6 @@ const heroCopy = locale === 'vi' ? {
     --clip-duration: 24s;
     background: var(--color-accent-900);
     color: var(--color-bg);
-  }
-
-  .inspection-hud {
-    position: absolute;
-    z-index: 2;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .scan-line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 2px;
-    background: var(--color-accent-300);
-    box-shadow: 0 0 18px var(--color-accent-400);
-    animation: scan-x 4.2s var(--motion-ease) infinite;
-  }
-
-  .lock-box {
-    position: absolute;
-    width: clamp(150px, 8vw, 200px);
-    height: clamp(104px, 5.5vw, 138px);
-    border: var(--space-hairline) solid var(--color-accent-300);
-    opacity: 0;
-    animation: box-lock 4.2s var(--motion-ease) infinite;
-  }
-
-  .lock-box span {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 0;
-    color: var(--color-accent-300);
-    font-size: var(--font-size-micro);
-    letter-spacing: .14em;
-    line-height: 1;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .box-one { top: 33%; left: 10%; }
-  .box-two { top: 58%; left: 36%; animation-delay: 1.1s; }
-  .reject-box {
-    top: 29%;
-    left: 60%;
-    width: clamp(132px, 7vw, 178px);
-    height: clamp(96px, 5vw, 128px);
-    border-color: var(--color-bg);
-    animation-delay: 2.2s;
-  }
-
-  .reject-box span { color: var(--color-bg); }
-
-  .reject-stamp {
-    position: absolute;
-    top: 56%;
-    right: 11%;
-    color: var(--color-accent-300);
-    font-family: var(--font-heading);
-    font-size: var(--font-size-display-sm);
-    font-weight: var(--font-heading-weight);
-    letter-spacing: .12em;
-    line-height: 1;
-    text-transform: uppercase;
-    animation: reject-stamp 4.2s var(--motion-ease) infinite;
   }
 
   .inspection-content {
@@ -616,9 +535,6 @@ const heroCopy = locale === 'vi' ? {
   .retrofit-toggle span { display: grid; place-items: center; }
   .retrofit-toggle svg { stroke-width: 1.5; }
 
-  [data-playing='false'] .scan-line,
-  [data-playing='false'] .lock-box,
-  [data-playing='false'] .reject-stamp,
   [data-playing='false'] .fleet-strip span,
   [data-playing='false'] .route-line,
   [data-playing='false'] .unit-marker,
@@ -652,11 +568,6 @@ const heroCopy = locale === 'vi' ? {
     .inspection-bottom { align-items: flex-start; flex-direction: column; gap: 24px; }
     .parts-counter { text-align: left; }
     .parts-counter strong { font-size: 34px; }
-    .lock-box { width: 112px; height: 78px; }
-    .box-one { left: 8%; }
-    .box-two { top: 56%; left: 42%; }
-    .reject-box { top: 33%; left: 58%; width: 104px; height: 74px; }
-    .reject-stamp { top: 48%; right: 6%; font-size: 36px; }
     .split-copy { min-height: 460px; padding: 36px var(--space-mobile-gutter); }
     .split-copy h1,
     .hero-integration .split-copy h1 { font-size: 48px; }
@@ -678,9 +589,6 @@ const heroCopy = locale === 'vi' ? {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .scan-line { left: 42%; transform: none; animation: none; }
-    .lock-box { opacity: 1; transform: none; animation: none; }
-    .reject-stamp { opacity: 0; animation: none; }
     .fleet-strip span { opacity: .72; animation: none; }
     .route-line { stroke-dashoffset: 0; animation: none; }
     .unit-marker { top: 17.3%; left: 98.5%; animation: none; }
