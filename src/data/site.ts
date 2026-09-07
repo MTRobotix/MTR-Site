@@ -29,8 +29,7 @@ export const homeContent = {
   solutionLinks: [
     { slug: 'inspection', num: '01', title: 'Inspect', body: 'Grade parts with 2D and 3D measurement to <1 mm tolerance, diverting defects before assembly.' },
     { slug: 'amr-fleet', num: '02', title: 'Move', body: 'Route mixed mobile robots downstream through the floor plan already in use.' },
-    { slug: 'integration', num: '03', title: 'Connect', body: 'Join the inspection cell and fleet to PLC, MES and WMS interfaces.' },
-    { slug: 'retrofit', num: '04', title: 'Phase', body: 'Commission inspection cells and robot zones around the production calendar.' },
+    { slug: 'retrofit', num: '03', title: 'Phase', body: 'Commission inspection cells and robot zones around the production calendar.' },
   ],
   processTitle: 'From line survey to handover',
   process: [
@@ -56,8 +55,7 @@ export const homeContentVi = {
   solutionLinks: [
     { slug: 'inspection', num: '01', title: 'Kiểm tra', body: 'Đo 2D và 3D với dung sai <1 mm, phân loại chi tiết trong 0,4 giây và chuyển hướng lỗi.' },
     { slug: 'amr-fleet', num: '02', title: 'Vận chuyển', body: 'Điều phối robot di động ở hạ nguồn trên mặt bằng nhà xưởng đang sử dụng.' },
-    { slug: 'integration', num: '03', title: 'Kết nối', body: 'Nối trạm kiểm tra thị giác và đội robot với PLC, MES và WMS.' },
-    { slug: 'retrofit', num: '04', title: 'Phân kỳ', body: 'Nghiệm thu trạm thị giác và khu vực robot theo lịch sản xuất.' },
+    { slug: 'retrofit', num: '03', title: 'Phân kỳ', body: 'Nghiệm thu trạm thị giác và khu vực robot theo lịch sản xuất.' },
   ],
   processTitle: 'Từ khảo sát dây chuyền đến bàn giao',
   process: [

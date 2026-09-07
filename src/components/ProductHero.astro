@@ -15,11 +15,11 @@ const copy = ui[locale];
 const demoHref = localPath(locale, '/request-a-demo');
 const heroCopy = locale === 'vi' ? {
   bookLine: 'Đặt lịch khảo sát dây chuyền', cellSpec: 'Thông số trạm', partsToday: 'Chi tiết đã phân loại hôm nay, mọi địa điểm',
-  book: 'Đặt lịch khảo sát', fleetSpec: 'Thông số đội xe', talk: 'Trao đổi với kỹ sư', plan: 'Lập kế hoạch giai đoạn', commissioning: 'Kế hoạch nghiệm thu',
+  book: 'Đặt lịch khảo sát', fleetSpec: 'Thông số đội xe', plan: 'Lập kế hoạch giai đoạn', commissioning: 'Kế hoạch nghiệm thu',
   fleetRegister: '412 thiết bị trực tuyến · 27 địa điểm', route: 'Kế hoạch tuyến · thiết bị 041 · 1.500 kg', downtime: '0 giờ dừng sản xuất', phase: 'giai đoạn trung bình 9 ngày',
 } : {
   bookLine: 'Book a line survey', cellSpec: 'Cell specification', partsToday: 'Parts graded today, all sites',
-  book: 'Book a survey', fleetSpec: 'Fleet specification', talk: 'Talk to an engineer', plan: 'Plan a phase', commissioning: 'Commissioning plan',
+  book: 'Book a survey', fleetSpec: 'Fleet specification', plan: 'Plan a phase', commissioning: 'Commissioning plan',
   fleetRegister: '412 units online · 27 sites', route: 'Route plan · unit 041 · 1,500 kg', downtime: '0 hrs production downtime', phase: '9-day mean phase',
 };
 ---
@@ -106,43 +106,6 @@ const heroCopy = locale === 'vi' ? {
         </svg>
         <span class="unit-marker"></span>
         <span class="route-label">{heroCopy.route}</span>
-      </div>
-      <VideoChrome caption={product.video.caption} duration={product.video.duration} note={product.video.note} locale={locale} />
-    </div>
-  </section>
-)}
-
-{product.slug === 'integration' && (
-  <section class="product-hero split-hero hero-integration" id="in-action" data-motion-root data-playing="true">
-    <div class="split-copy">
-      <span class="eyebrow hero-kicker">{product.kicker}</span>
-      <h1>{product.title}</h1>
-      <p class="hero-blurb">{product.blurb}</p>
-      <div class="hero-actions split-actions">
-        <a class="btn btn-paper blueprint" href={demoHref}>
-          {heroCopy.talk}
-          <CornerMarks light />
-        </a>
-      </div>
-    </div>
-
-    <div class="media-pane integration-media">
-      {product.video.assetReady && (
-        <video muted loop playsinline preload="metadata" poster={product.video.poster} aria-label={product.video.caption}>
-          <source src={product.video.src} type="video/mp4" />
-        </video>
-      )}
-      <div class="signal-spine" aria-hidden="true"><span></span></div>
-      <div class="triptych" aria-hidden="true">
-        <div class:list={['triptych-row', { 'steel-placeholder': !product.video.assetReady }]}>
-          <span>01 · [ {locale === 'vi' ? 'Đấu dây đầu trạm' : 'Cell head wiring'} ]</span><strong>OPC-UA</strong>
-        </div>
-        <div class:list={['triptych-row', { 'steel-placeholder': !product.video.assetReady }]}>
-          <span>02 · [ {locale === 'vi' ? 'Đầu nối tủ PLC' : 'PLC cabinet terminations'} ]</span><strong>Profinet</strong>
-        </div>
-        <div class:list={['triptych-row', { 'steel-placeholder': !product.video.assetReady }]}>
-          <span>03 · [ {locale === 'vi' ? 'Bảng MES nhận trạm' : 'MES dashboard accepting the cell'} ]</span><strong>REST</strong>
-        </div>
       </div>
       <VideoChrome caption={product.video.caption} duration={product.video.duration} note={product.video.note} locale={locale} />
     </div>
@@ -470,60 +433,6 @@ const heroCopy = locale === 'vi' ? {
     100% { top: 17.3%; left: 98.5%; }
   }
 
-  .hero-integration { --clip-duration: 18s; }
-  .hero-integration .split-copy h1 { font-size: clamp(54px, calc(2.5vw + 6px), 70px); }
-
-  .integration-media > video { z-index: 0; }
-
-  .signal-spine {
-    position: absolute;
-    z-index: 5;
-    top: 0;
-    bottom: 0;
-    left: 34px;
-    width: var(--space-hairline);
-    background: var(--color-paper-34);
-  }
-
-  .signal-spine span {
-    position: absolute;
-    top: 0;
-    left: -3px;
-    width: 7px;
-    height: 7px;
-    background: var(--color-accent-300);
-    animation: signal-pulse 3.2s var(--motion-ease) infinite;
-  }
-
-  .triptych {
-    position: absolute;
-    z-index: 3;
-    inset: 0;
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
-    gap: var(--space-hairline);
-    background: var(--color-paper-20);
-  }
-
-  .triptych-row {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-6);
-    padding: 18px 22px 18px 62px;
-    color: var(--color-paper-62);
-    font-size: var(--font-size-label);
-    letter-spacing: .14em;
-    line-height: 1.4;
-    text-transform: uppercase;
-    animation: reveal-up 460ms var(--motion-ease) both;
-  }
-
-  .triptych-row:nth-child(2) { animation-delay: .18s; }
-  .triptych-row:nth-child(3) { animation-delay: .36s; }
-  .triptych-row strong { color: var(--color-accent-300); font-size: var(--font-size-label-xs); font-weight: 400; }
-
   .hero-retrofit {
     --clip-duration: 42s;
     min-height: var(--space-product-hero-height);
@@ -622,8 +531,6 @@ const heroCopy = locale === 'vi' ? {
   [data-playing='false'] .fleet-strip span,
   [data-playing='false'] .route-line,
   [data-playing='false'] .unit-marker,
-  [data-playing='false'] .signal-spine span,
-  [data-playing='false'] .triptych-row,
   [data-playing='false'] .retrofit-steel { animation-play-state: paused; }
 
   @media (max-width: 1024px) {
@@ -658,14 +565,11 @@ const heroCopy = locale === 'vi' ? {
     .reject-box { top: 33%; left: 58%; width: 104px; height: 74px; }
     .reject-stamp { top: 48%; right: 6%; font-size: 36px; }
     .split-copy { min-height: 460px; padding: 36px var(--space-mobile-gutter); }
-    .split-copy h1,
-    .hero-integration .split-copy h1 { font-size: 48px; }
+    .split-copy h1 { font-size: 48px; }
     .split-copy .hero-blurb { font-size: 14.5px; }
     .media-pane { min-height: 420px; }
     .fleet-strip { grid-template-columns: repeat(6, 1fr); }
     .route-label { top: 16px; left: 16px; }
-    .triptych-row { padding-left: 52px; }
-    .triptych-row > span { max-width: 22ch; }
     .retrofit-paper,
     .retrofit-steel { min-height: 640px; }
     .retrofit-content { padding: 36px var(--space-mobile-gutter) 40px; }
@@ -684,8 +588,6 @@ const heroCopy = locale === 'vi' ? {
     .fleet-strip span { opacity: .72; animation: none; }
     .route-line { stroke-dashoffset: 0; animation: none; }
     .unit-marker { top: 17.3%; left: 98.5%; animation: none; }
-    .signal-spine span { top: 50%; opacity: 1; animation: none; }
-    .triptych-row { clip-path: inset(0); animation: none; }
     .retrofit-steel { clip-path: inset(0 54% 0 0); animation: none; }
   }
 </style>

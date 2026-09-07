@@ -1,6 +1,6 @@
 export interface Product {
-  slug: 'inspection' | 'amr-fleet' | 'integration' | 'retrofit';
-  num: '01' | '02' | '03' | '04';
+  slug: 'inspection' | 'amr-fleet' | 'retrofit';
+  num: '01' | '02' | '03';
   nav: string;
   kicker: string;
   title: string;
@@ -84,40 +84,10 @@ export const products: Product[] = [
     figure: '[ Product shot — tugger crossing a dock lane, low angle ]',
   },
   {
-    slug: 'integration',
-    num: '03',
-    nav: 'Custom integration',
-    kicker: 'Product 03 — Custom integration',
-    title: 'We own the last mile of the install.',
-    blurb: 'Our engineers write the PLC, MES and WMS glue and stay on site until the acceptance test passes. You take delivery of a commissioned cell, not a crate and a manual.',
-    video: {
-      src: '/videos/integration-loop.mp4',
-      poster: '/videos/integration-poster.jpg',
-      caption: '[ In-action video — engineer wiring the cell into the PLC cabinet ]',
-      duration: '00:18',
-      durationSeconds: 18,
-      note: 'Loop · muted · signal pulse drawn in page',
-      placeholder: '[ Three in-action video strips, 1920×1080 — client assets pending ]',
-      assetReady: false,
-    },
-    specs: [
-      { label: 'Survey to handover', value: '11', unit: 'days' },
-      { label: 'Lines commissioned', value: '27', unit: '' },
-      { label: 'Acceptance pass 1st run', value: '94', unit: '%' },
-    ],
-    rows: [
-      { key: 'Protocols', value: 'OPC-UA, Modbus TCP, Profinet, REST' },
-      { key: 'Deliverables', value: 'I/O schedule, FAT + SAT reports, as-built drawings' },
-      { key: 'Team on site', value: 'Two controls engineers, one vision engineer' },
-      { key: 'Handover', value: 'Operator training, 30-day hypercare' },
-    ],
-    figure: '[ Diagram — signal path from cell to PLC to MES ]',
-  },
-  {
     slug: 'retrofit',
-    num: '04',
-    nav: 'Retrofit & commissioning',
-    kicker: 'Product 04 — Retrofit & commissioning',
+    num: '03',
+    nav: 'Automation Integration',
+    kicker: 'Product 03 — Automation Integration',
     title: 'Autonomy into a plant that never stops.',
     blurb: 'Phased commissioning around your production calendar. Cells go in between shifts and the fleet grows one zone at a time — no downtime window to negotiate.',
     video: {
@@ -184,26 +154,8 @@ const viProductCopy: Record<Product['slug'], Pick<Product, 'kicker' | 'title' | 
     ],
     figure: '[ Hình sản phẩm — xe kéo đi qua làn bến hàng, góc máy thấp ]',
   },
-  integration: {
-    kicker: 'Sản phẩm 03 — Tích hợp theo yêu cầu',
-    title: 'Chúng tôi chịu trách nhiệm đến bước cuối của lắp đặt.',
-    blurb: 'Kỹ sư của chúng tôi viết phần kết nối PLC, MES và WMS, đồng thời ở lại hiện trường đến khi kiểm thử nghiệm thu đạt yêu cầu. Bạn nhận một trạm đã nghiệm thu, không phải một kiện hàng kèm hướng dẫn.',
-    video: { caption: '[ Video vận hành — kỹ sư đấu nối trạm vào tủ PLC ]', note: 'Lặp · tắt tiếng · xung tín hiệu vẽ trên trang', placeholder: '[ Ba dải video vận hành, 1920×1080 — đang chờ tài sản khách hàng ]' },
-    specs: [
-      { label: 'Từ khảo sát đến bàn giao', value: '11', unit: 'ngày' },
-      { label: 'Dây chuyền đã nghiệm thu', value: '27', unit: '' },
-      { label: 'Đạt ngay lần nghiệm thu đầu', value: '94', unit: '%' },
-    ],
-    rows: [
-      { key: 'Giao thức', value: 'OPC-UA, Modbus TCP, Profinet, REST' },
-      { key: 'Hồ sơ bàn giao', value: 'Bảng I/O, báo cáo FAT + SAT, bản vẽ hoàn công' },
-      { key: 'Đội hiện trường', value: 'Hai kỹ sư điều khiển, một kỹ sư thị giác' },
-      { key: 'Bàn giao', value: 'Đào tạo vận hành, hỗ trợ tăng cường 30 ngày' },
-    ],
-    figure: '[ Sơ đồ — tuyến tín hiệu từ trạm đến PLC và MES ]',
-  },
   retrofit: {
-    kicker: 'Sản phẩm 04 — Nâng cấp và nghiệm thu',
+    kicker: 'Sản phẩm 03 — Nâng cấp và nghiệm thu',
     title: 'Đưa tự động hóa vào nhà máy không thể dừng.',
     blurb: 'Nghiệm thu theo giai đoạn quanh lịch sản xuất. Trạm được lắp giữa các ca và đội xe mở rộng từng khu vực — không cần thương lượng một khoảng dừng dây chuyền.',
     video: { caption: '[ Video vận hành — nghiệm thu ca đêm, tua nhanh thời gian ]', note: 'Lặp · tắt tiếng · trường hai tông màu vẽ trên trang', placeholder: '[ Video tua nhanh vận hành, 1920×1080 — đang chờ tài sản khách hàng ]' },

@@ -4,7 +4,6 @@ const routeOrder = [
   '/',
   '/solutions/inspection',
   '/solutions/amr-fleet',
-  '/solutions/integration',
   '/solutions/retrofit',
   '/about',
   '/request-a-demo',
