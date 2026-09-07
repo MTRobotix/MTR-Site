@@ -510,6 +510,7 @@ function setupDemoForm(signal: AbortSignal) {
   const scopeGroup = document.querySelector<HTMLElement>('[data-scope-group]');
   const scopeError = document.querySelector<HTMLElement>('#scope-error');
   const emailInput = form.elements.namedItem('email') as HTMLInputElement;
+  const requestIdInput = form.elements.namedItem('request-id') as HTMLInputElement;
   const freemail = new Set(['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'mail.com']);
 
   const setError = (input: HTMLInputElement, errorId: string, invalid: boolean) => {
@@ -581,26 +582,26 @@ function setupDemoForm(signal: AbortSignal) {
     form.dataset.submitState = 'submitting';
 
     const endpoint = form.dataset.endpoint;
-    if (endpoint) {
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          body: new FormData(form),
-          signal,
-          headers: { Accept: 'application/json' },
-        });
-        if (!response.ok) throw new Error('Request failed');
-      } catch {
-        form.dataset.submitState = 'error';
-        if (submit) submit.disabled = false;
-        if (submitLabel) submitLabel.textContent = form.dataset.submitLabel ?? 'Request the survey';
-        if (status) {
-          status.hidden = false;
-          status.textContent = form.dataset.errorMessage ?? 'The request could not be sent. Email mtrobotics@gmail.com or call 905 924 5498.';
-          status.focus();
-        }
-        return;
+    try {
+      if (!endpoint) throw new Error('Form endpoint is missing');
+      if (!requestIdInput.value) requestIdInput.value = crypto.randomUUID();
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: new FormData(form),
+        signal,
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error('Request failed');
+    } catch {
+      form.dataset.submitState = 'error';
+      if (submit) submit.disabled = false;
+      if (submitLabel) submitLabel.textContent = form.dataset.submitLabel ?? 'Request the survey';
+      if (status) {
+        status.hidden = false;
+        status.textContent = form.dataset.errorMessage ?? 'The request could not be sent. Email mtrobotix@gmail.com or call 905 924 5498.';
+        status.focus();
       }
+      return;
     }
 
     form.dataset.submitState = 'done';
