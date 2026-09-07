@@ -18,6 +18,7 @@ export interface Product {
   specs: { label: string; value: string; unit: string }[];
   rows: { key: string; value: string }[];
   figure: string;
+  figureImage?: string;
 }
 
 export const products: Product[] = [
@@ -52,6 +53,7 @@ export const products: Product[] = [
       { key: 'Enclosure', value: 'IP65 industrial housing, IEC 61496 light-curtain compatible' },
     ],
     figure: '[ Technical drawing — 2D and 3D vision inspection cell over a moving conveyor ]',
+    figureImage: '/images/inspection-cell.jpg',
   },
   {
     slug: 'amr-fleet',
