@@ -21,8 +21,8 @@ const href = (path: string) => localPath(locale, path);
     <section class="footer-cell" aria-labelledby="footer-company">
       <h2 id="footer-company">{copy.company}</h2>
       <ul>
+        <li><a href={href('/')}>{copy.home}</a></li>
         <li><a href={href('/about')}>{copy.about}</a></li>
-        <li><a href={`${href('/')}#deployments`} data-deployments-link>{copy.deployments}</a></li>
       </ul>
     </section>
 
@@ -30,15 +30,6 @@ const href = (path: string) => localPath(locale, path);
       <h2 id="footer-contact">{copy.contact}</h2>
       <ul>
         <li><a href={href('/request-a-demo')}>{copy.requestDemo}</a></li>
-      </ul>
-    </section>
-
-    <section class="footer-cell" aria-labelledby="footer-legal">
-      <h2 id="footer-legal">{copy.legal}</h2>
-      <ul class="legal-placeholders" aria-label={copy.legal}>
-        <li>{copy.privacyPending}</li>
-        <li>{copy.termsPending}</li>
-        <li>{copy.imprintPending}</li>
       </ul>
     </section>
   </div>
@@ -57,7 +48,7 @@ const href = (path: string) => localPath(locale, path);
 
   .footer-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     padding-inline: var(--space-page-gutter);
   }
 
@@ -82,20 +73,15 @@ const href = (path: string) => localPath(locale, path);
 
   .footer-cell ul { display: grid; gap: var(--space-3); list-style: none; }
 
-  .footer-cell a,
-  .legal-placeholders {
+  .footer-cell a {
     color: var(--color-paper-70);
     font-size: var(--font-size-body-sm);
     line-height: 1.4;
-  }
-
-  .footer-cell a {
     text-decoration: none;
     transition: color var(--motion-state) var(--motion-ease);
   }
 
   .footer-cell a:hover { color: var(--color-bg); }
-  .legal-placeholders { color: var(--color-paper-62); }
 
   .footer-utility {
     display: flex;

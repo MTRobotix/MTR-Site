@@ -144,54 +144,6 @@ function setupNavigation(signal: AbortSignal) {
     if (!solutions?.contains(event.target as Node)) setSolutions(false);
   }, { signal });
 
-  let deploymentTransitioning = false;
-  document.querySelectorAll<HTMLAnchorElement>('[data-deployments-link]').forEach((link) => {
-    link.addEventListener('click', async (event) => {
-      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      if (routeKey(new URL(window.location.href)) !== '/') return;
-      event.preventDefault();
-      if (deploymentTransitioning) return;
-
-      const main = document.querySelector<HTMLElement>('#main-content');
-      const target = document.querySelector<HTMLElement>('#deployments');
-      if (!main || !target) return;
-      deploymentTransitioning = true;
-
-      const styles = getComputedStyle(document.documentElement);
-      const duration = (token: string) => {
-        const value = styles.getPropertyValue(token).trim();
-        return Number.parseFloat(value) * (value.endsWith('ms') ? 1 : 1000);
-      };
-      const easing = styles.getPropertyValue('--motion-ease').trim();
-      const reduced = reducedMotion();
-      const outgoing = main.animate(
-        [{ opacity: 1 }, { opacity: 0 }],
-        { duration: duration(reduced ? '--motion-reduced' : '--motion-page-out'), easing, fill: 'forwards' },
-      );
-
-      try {
-        await outgoing.finished;
-        window.location.hash = 'deployments';
-        target.scrollIntoView({ block: 'start', behavior: 'auto' });
-        const distance = styles.getPropertyValue('--space-2').trim();
-        const incoming = main.animate(
-          reduced
-            ? [{ opacity: 0 }, { opacity: 1 }]
-            : [{ opacity: 0, transform: `translateY(${distance})` }, { opacity: 1, transform: 'translateY(0)' }],
-          { duration: duration(reduced ? '--motion-reduced' : '--motion-page-in'), easing, fill: 'forwards' },
-        );
-        outgoing.cancel();
-        await incoming.finished;
-        incoming.cancel();
-      } catch {
-        window.location.hash = 'deployments';
-        target.scrollIntoView({ block: 'start', behavior: 'auto' });
-      } finally {
-        deploymentTransitioning = false;
-      }
-    }, { signal });
-  });
-
   const mobileOpen = document.querySelector<HTMLButtonElement>('[data-mobile-open]');
   const mobileClose = document.querySelector<HTMLButtonElement>('[data-mobile-close]');
   const mobilePanel = document.querySelector<HTMLElement>('[data-mobile-panel]');
