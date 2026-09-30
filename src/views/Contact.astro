@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactBlock from '../components/ContactBlock.astro';
+import { contact } from '../data/content';
+import { COMPANY, type Locale } from '../data/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = contact[locale];
+---
+
+<Base title={c.title} description={c.description} locale={locale} page="contact">
+  <section class="page-hero">
+    <div class="shell">
+      <div class="page-hero-copy narrow">
+        <p class="kicker">{c.kicker}</p>
+        <h1>{c.h1}</h1>
+        <p class="lead">{c.lead}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell two-col">
+      <div class="panel">
+        <ContactBlock locale={locale} />
+        <a class="btn" href={COMPANY.linkedin} rel="noopener" target="_blank">{c.linkedinLabel}</a>
+      </div>
+      <div class="panel">
+        <h2 class="block-title">{c.includeTitle}</h2>
+        <ul class="ticks">
+          {c.include.map((i) => <li>{i}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow {
+    max-width: 52rem;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .panel .block-title {
+    margin-bottom: 0;
+  }
+</style>

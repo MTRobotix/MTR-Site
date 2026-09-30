@@ -1,120 +1,106 @@
 ---
-import { products, productsVi } from '../data/products';
-import { localPath, ui, type Locale } from '../data/i18n';
+import { COMPANY, localPath, ui, type Locale } from '../data/i18n';
+import Wordmark from './Wordmark.astro';
 
-interface Props { locale?: Locale; }
-const { locale = 'en' } = Astro.props;
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
 const copy = ui[locale];
-const productList = locale === 'vi' ? productsVi : products;
-const href = (path: string) => localPath(locale, path);
+const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="footer-grid">
-    <section class="footer-cell" aria-labelledby="footer-solutions">
-      <h2 id="footer-solutions">{copy.solutions}</h2>
-      <ul>
-        {productList.map((product) => <li><a href={href(`/solutions/${product.slug}`)}>{product.nav}</a></li>)}
-      </ul>
-    </section>
-
-    <section class="footer-cell" aria-labelledby="footer-company">
-      <h2 id="footer-company">{copy.company}</h2>
-      <ul>
-        <li><a href={href('/')}>{copy.home}</a></li>
-        <li><a href={href('/about')}>{copy.about}</a></li>
-      </ul>
-    </section>
-
-    <section class="footer-cell" aria-labelledby="footer-contact">
-      <h2 id="footer-contact">{copy.contact}</h2>
-      <ul>
-        <li><a href={href('/request-a-demo')}>{copy.requestDemo}</a></li>
-      </ul>
-    </section>
+  <div class="shell footer-grid">
+    <div class="footer-brand">
+      <Wordmark size="sm" />
+      <p>{copy.footerTagline}</p>
+    </div>
+    <nav aria-label={copy.footerProducts}>
+      <p class="footer-head">{copy.footerProducts}</p>
+      <a href={localPath(locale, 'mtrq')}>{copy.nav.mtrq}</a>
+      <a href={localPath(locale, 'amr')}>{copy.nav.amr}</a>
+      <a href={localPath(locale, 'arm')}>{copy.nav.arm}</a>
+    </nav>
+    <nav aria-label={copy.footerCompany}>
+      <p class="footer-head">{copy.footerCompany}</p>
+      <a href={localPath(locale, 'about')}>{copy.nav.about}</a>
+      <a href={localPath(locale, 'contact')}>{copy.nav.contact}</a>
+      <a href={COMPANY.linkedin} rel="noopener" target="_blank">LinkedIn</a>
+    </nav>
+    <div>
+      <p class="footer-head">{copy.footerContact}</p>
+      <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+      {COMPANY.phones.map((p) => <a href={`tel:${p.tel}`}>{p.display}</a>)}
+      <p class="footer-muted">{COMPANY.locations.map((l) => l.short).join(' · ')}</p>
+    </div>
   </div>
-
-  <div class="footer-utility">
-    <span class="copyright">© {new Date().getFullYear()} MTRobotics</span>
+  <div class="shell footer-base">
+    <p>© {year} {COMPANY.name}. {copy.rights}</p>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    border-top: var(--space-hairline) solid var(--color-paper-16);
-    background: var(--color-accent-900);
-    color: var(--color-bg);
+    margin-top: var(--space-8);
+    border-top: 1px solid var(--color-line);
+    background: var(--color-bg-soft);
+    font-size: var(--text-sm);
   }
 
   .footer-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    padding-inline: var(--space-page-gutter);
+    grid-template-columns: 1.4fr 1fr 1fr 1.3fr;
+    gap: var(--space-6);
+    padding-block: var(--space-7) var(--space-6);
   }
 
-  .footer-cell {
-    min-width: 0;
-    padding: var(--space-section-compact) 24px;
-    border-right: var(--space-hairline) solid var(--color-paper-12);
-  }
-
-  .footer-cell:first-child { padding-left: 0; }
-  .footer-cell:last-child { padding-right: 0; border-right: 0; }
-
-  .footer-cell h2 {
-    margin-bottom: 16px;
-    color: var(--color-paper-55);
-    font-family: var(--font-heading);
-    font-size: var(--font-size-caption);
-    letter-spacing: .12em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
-  .footer-cell ul { display: grid; gap: var(--space-3); list-style: none; }
-
-  .footer-cell a {
-    color: var(--color-paper-70);
-    font-size: var(--font-size-body-sm);
-    line-height: 1.4;
-    text-decoration: none;
-    transition: color var(--motion-state) var(--motion-ease);
-  }
-
-  .footer-cell a:hover { color: var(--color-bg); }
-
-  .footer-utility {
+  .footer-grid > * {
     display: flex;
-    align-items: center;
-    gap: 26px;
-    padding: 16px var(--space-page-gutter);
-    border-top: var(--space-hairline) solid var(--color-paper-12);
-    color: var(--color-paper-62);
-    font-size: var(--font-size-label);
-    letter-spacing: .14em;
-    line-height: 1.4;
-    text-transform: uppercase;
+    flex-direction: column;
+    gap: var(--space-2);
   }
 
-  .footer-utility a { color: inherit; text-decoration: none; }
-  .footer-utility a:hover { color: var(--color-bg); }
-
-  @media (max-width: 1024px) {
-    .footer-grid { grid-template-columns: repeat(2, 1fr); }
-    .footer-cell:nth-child(2) { border-right: 0; }
-    .footer-cell:nth-child(n + 3) { border-top: var(--space-hairline) solid var(--color-paper-12); }
-    .footer-cell:nth-child(3) { padding-left: 0; }
+  .footer-brand p {
+    margin-top: var(--space-2);
+    color: var(--color-text-muted);
   }
 
-  @media (max-width: 720px) {
-    .footer-grid { grid-template-columns: 1fr; }
-    .footer-cell,
-    .footer-cell:nth-child(3) {
-      padding: 28px 0;
-      border-top: 0;
-      border-right: 0;
-      border-bottom: var(--space-hairline) solid var(--color-paper-12);
+  .footer-head {
+    margin-bottom: var(--space-1);
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .footer-grid a {
+    width: fit-content;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .footer-grid a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .footer-muted,
+  .footer-base {
+    color: var(--color-text-faint);
+  }
+
+  .footer-base {
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-xs);
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .footer-cell:last-child { border-bottom: 0; }
+
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
   }
 </style>

@@ -1,0 +1,110 @@
+---
+import Base from '../layouts/Base.astro';
+import Stats from '../components/Stats.astro';
+import Steps from '../components/Steps.astro';
+import ProductCards from '../components/ProductCards.astro';
+import ContactBlock from '../components/ContactBlock.astro';
+import { home } from '../data/content';
+import { localPath, type Locale } from '../data/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = home[locale];
+---
+
+<Base title={c.title} description={c.description} locale={locale} page="home">
+  <section class="hero">
+    <div class="shell hero-grid">
+      <div class="hero-copy">
+        <p class="kicker">{c.kicker}</p>
+        <h1>{c.h1}</h1>
+        <p class="lead">{c.lead}</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href={localPath(locale, 'mtrq')}>{c.ctaPrimary}</a>
+          <a class="btn" href={localPath(locale, 'contact')}>{c.ctaSecondary}</a>
+        </div>
+      </div>
+      <figure class="hero-media">
+        <div class="frame">
+          <img src="/images/mtr-q/mtr-q-cell.webp" alt={c.heroCaption} width="1800" height="1440" fetchpriority="high" />
+        </div>
+      </figure>
+    </div>
+    <div class="shell">
+      <Stats locale={locale} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-head">
+        <p class="kicker">{c.productsKicker}</p>
+        <h2>{c.productsTitle}</h2>
+      </div>
+      <ProductCards locale={locale} />
+    </div>
+  </section>
+
+  <section class="section section-soft">
+    <div class="shell">
+      <div class="section-head">
+        <p class="kicker">{c.stepsKicker}</p>
+        <h2>{c.stepsTitle}</h2>
+      </div>
+      <Steps locale={locale} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell two-col">
+      <div class="section-head" data-reveal>
+        <h2>{c.contactTitle}</h2>
+        <p class="lead">{c.contactLead}</p>
+      </div>
+      <div data-reveal>
+        <ContactBlock locale={locale} />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: center;
+    margin-bottom: var(--space-7);
+  }
+
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .hero-copy .kicker {
+    margin-bottom: 0;
+  }
+
+  .hero-media {
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      padding-top: var(--space-5);
+    }
+
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+  }
+</style>

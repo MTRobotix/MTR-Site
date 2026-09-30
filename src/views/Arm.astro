@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro';
+import { arm } from '../data/content';
+import { ui, type Locale } from '../data/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = arm[locale];
+---
+
+<Base title={c.title} description={c.description} locale={locale} page="arm" image="/images/robot-arm/robot-arm-hero.jpg">
+  <section class="page-hero">
+    <div class="shell page-hero-grid">
+      <div class="page-hero-copy">
+        <span class="badge">{ui[locale].wip}</span>
+        <h1>{c.h1}</h1>
+        <p class="lead">{c.lead}</p>
+        <p class="note">{c.note}</p>
+      </div>
+      <figure>
+        <div class="frame">
+          <img src="/images/robot-arm/robot-arm-hero.jpg" alt={c.gallery[0].alt} fetchpriority="high" />
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <h2 class="block-title">{c.factsTitle}</h2>
+      <dl class="facts" data-reveal>
+        {
+          c.facts.map((f) => (
+            <div>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell gallery">
+      {
+        c.gallery.map((g) => (
+          <div class="frame" data-reveal>
+            <img src={g.src} alt={g.alt} loading="lazy" />
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .note {
+    color: var(--color-text-faint);
+    font-size: var(--text-sm);
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .gallery img {
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 720px) {
+    .gallery {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

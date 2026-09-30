@@ -1,536 +1,223 @@
 ---
-import { ChevronDown, Menu, X } from '@lucide/astro';
-import CornerMarks from './CornerMarks.astro';
-import { products, productsVi } from '../data/products';
-import { alternatePath, localPath, ui, type Locale } from '../data/i18n';
+import { Menu, X } from '@lucide/astro';
+import { localPath, ui, type Locale, type RouteKey } from '../data/i18n';
+import Wordmark from './Wordmark.astro';
 
 interface Props {
-  currentPath: string;
-  locale?: Locale;
+  locale: Locale;
+  page: RouteKey;
 }
 
-const { currentPath, locale = 'en' } = Astro.props;
+const { locale, page } = Astro.props;
 const copy = ui[locale];
-const productList = locale === 'vi' ? productsVi : products;
-const routePath = locale === 'vi' ? currentPath.replace(/^\/vi/, '') || '/' : currentPath;
-const isProductPage = routePath.startsWith('/solutions/');
-const activeSlug = isProductPage ? routePath.replace('/solutions/', '') : '';
-const href = (path: string) => localPath(locale, path);
+const links: { key: RouteKey; label: string }[] = [
+  { key: 'mtrq', label: copy.nav.mtrq },
+  { key: 'amr', label: copy.nav.amr },
+  { key: 'arm', label: copy.nav.arm },
+  { key: 'about', label: copy.nav.about },
+];
 ---
 
 <header class="site-header" data-site-header>
-  <div class="utility-strip" aria-label="Language selection / Chọn ngôn ngữ">
-    <span class="utility-language" aria-label="English / Tiếng Việt">
-      <a href={locale === 'en' ? currentPath : alternatePath(locale, currentPath)} aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
-      <span aria-hidden="true">/</span>
-      <a href={locale === 'vi' ? currentPath : alternatePath(locale, currentPath)} aria-current={locale === 'vi' ? 'page' : undefined}>VI</a>
-    </span>
-  </div>
-
-  <nav class="main-bar" aria-label={copy.primaryNav}>
-    <a class="brand-lockup" href={href('/')} aria-label={copy.homeLabel}>
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span class="brand-r">R</span><span class="brand-suffix">obotics</span></span>
+  <div class="shell header-bar">
+    <a href={localPath(locale, 'home')} class="brand" aria-label={copy.homeLabel}>
+      <Wordmark />
     </a>
 
-    <div class="desktop-navigation">
-      <a class:list={['nav-link', { active: routePath === '/' }]} href={href('/')} aria-current={routePath === '/' ? 'page' : undefined}>{copy.home}</a>
-
-      <div class="solutions-menu" data-solutions>
-        <button
-          class:list={['nav-link', { active: isProductPage }]}
-          type="button"
-          aria-expanded="false"
-          aria-controls="solutions-panel"
-          data-solutions-trigger
-        >
-          <span>{copy.solutions}</span>
-          <ChevronDown aria-hidden="true" size={12} stroke-width={1.5} />
-        </button>
-
-        <div class="solutions-panel blueprint" id="solutions-panel" data-solutions-panel aria-hidden="true" inert>
-          {productList.map((product) => (
-            <a
-              href={href(`/solutions/${product.slug}`)}
-              class:list={['solutions-row', { active: activeSlug === product.slug }]}
-              aria-current={activeSlug === product.slug ? 'page' : undefined}
-            >
-              <span>{product.nav}</span>
-              <span class="solutions-number" aria-hidden="true">{product.num}</span>
-            </a>
-          ))}
-          <CornerMarks light />
-        </div>
-      </div>
-
-      <a class:list={['nav-link', { active: routePath === '/about' }]} href={href('/about')} aria-current={routePath === '/about' ? 'page' : undefined}>{copy.about}</a>
-    </div>
-
-    <a
-      class:list={['nav-cta', 'blueprint', { active: routePath === '/request-a-demo' }]}
-      href={href('/request-a-demo')}
-      aria-current={routePath === '/request-a-demo' ? 'page' : undefined}
-    >
-      <span>{copy.requestDemo}</span>
-      <CornerMarks light />
-    </a>
-
-    <button class="mobile-menu-button" type="button" aria-label={copy.openMenu} aria-expanded="false" aria-controls="mobile-navigation" data-mobile-open>
-      <Menu aria-hidden="true" size={24} stroke-width={1.5} />
-    </button>
-  </nav>
-
-  {isProductPage && (
-    <nav class="product-bar" aria-label={copy.productSolutions}>
-      <span class="product-bar-label">{copy.solutions}</span>
-      <div class="product-tabs">
-        {productList.map((product) => (
-          <a
-            class:list={['product-tab', { active: activeSlug === product.slug }]}
-            href={href(`/solutions/${product.slug}`)}
-            aria-current={activeSlug === product.slug ? 'page' : undefined}
-          >
-            <span class="product-number" aria-hidden="true">{product.num}</span>
-            <span>{product.nav}</span>
+    <nav class="nav-links" aria-label={copy.primaryNav}>
+      {
+        links.map((l) => (
+          <a href={localPath(locale, l.key)} aria-current={page === l.key ? 'page' : undefined}>
+            {l.label}
           </a>
-        ))}
-      </div>
+        ))
+      }
     </nav>
-  )}
 
-  <div class="mobile-panel" id="mobile-navigation" role="dialog" aria-modal="true" aria-label={copy.siteNav} aria-hidden="true" data-mobile-panel hidden>
-    <div class="mobile-panel-header">
-      <a class="brand-lockup mobile-brand" href={href('/')} aria-label={copy.homeLabel}>
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-wordmark" aria-hidden="true"><span class="brand-mt">MT</span><span class="brand-r">R</span><span class="brand-suffix">obotics</span></span>
+    <div class="header-actions">
+      <div class="lang" role="group" aria-label={copy.language}>
+        <a href={localPath('en', page)} hreflang="en" lang="en" aria-current={locale === 'en' ? 'true' : undefined} data-lang="en">EN</a>
+        <a href={localPath('vi', page)} hreflang="vi" lang="vi" aria-current={locale === 'vi' ? 'true' : undefined} data-lang="vi">VI</a>
+      </div>
+      <a href={localPath(locale, 'contact')} class="btn btn-primary header-cta" aria-current={page === 'contact' ? 'page' : undefined}>
+        {copy.nav.contact}
       </a>
-      <button class="mobile-close-button" type="button" aria-label={copy.closeMenu} data-mobile-close>
-        <X aria-hidden="true" size={24} stroke-width={1.5} />
+      <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
+        <span class="icon-open"><Menu size={22} stroke-width={1.5} aria-hidden="true" /></span>
+        <span class="icon-close"><X size={22} stroke-width={1.5} aria-hidden="true" /></span>
+        <span class="visually-hidden" data-label-open>{copy.openMenu}</span>
+        <span class="visually-hidden" data-label-close hidden>{copy.closeMenu}</span>
       </button>
     </div>
+  </div>
 
-    <nav class="mobile-nav" aria-label={copy.mobileNav}>
-      <a class="mobile-link" href={href('/')} aria-current={routePath === '/' ? 'page' : undefined}>
-        <span aria-hidden="true">00</span><span>{copy.home}</span>
-      </a>
-      <div class="mobile-solutions" data-mobile-solutions>
-        <button class="mobile-solutions-trigger" type="button" aria-expanded="false" aria-controls="mobile-solutions-list" data-mobile-solutions-trigger>
-          <span aria-hidden="true">01–04</span>
-          <span class="mobile-solutions-label">{copy.solutions}<ChevronDown aria-hidden="true" size={18} stroke-width={1.5} /></span>
-        </button>
-        <div class="mobile-solutions-panel" id="mobile-solutions-list" aria-hidden="true" inert data-mobile-solutions-panel>
-          <div class="mobile-solutions-inner">
-            {productList.map((product) => (
-              <a class="mobile-link mobile-solution-link" href={href(`/solutions/${product.slug}`)} aria-current={activeSlug === product.slug ? 'page' : undefined}>
-                <span aria-hidden="true">{product.num}</span>
-                <span>{product.nav}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-      <a class="mobile-link mobile-link-top" href={href('/about')} aria-current={routePath === '/about' ? 'page' : undefined}><span aria-hidden="true">05</span><span>{copy.about}</span></a>
+  <div class="mobile-menu" id="mobile-menu" hidden data-menu>
+    <nav class="shell" aria-label={copy.primaryNav}>
+      {
+        links.map((l) => (
+          <a href={localPath(locale, l.key)} aria-current={page === l.key ? 'page' : undefined}>
+            {l.label}
+          </a>
+        ))
+      }
+      <a href={localPath(locale, 'contact')} class="btn btn-primary">{copy.nav.contact}</a>
     </nav>
-
-    <a class="mobile-panel-cta blueprint" href={href('/request-a-demo')}>
-      {copy.requestDemo}
-      <CornerMarks light />
-    </a>
   </div>
 </header>
 
 <style>
   .site-header {
     position: sticky;
-    z-index: 100;
     top: 0;
-    background: var(--color-accent-900);
-    color: var(--color-bg);
+    z-index: 100;
+    background: var(--color-bg);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
   }
 
-  .utility-strip {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    height: var(--space-nav-utility-height);
-    gap: 26px;
-    padding-inline: var(--space-nav-gutter);
-    border-bottom: var(--space-hairline) solid var(--color-paper-16);
-    color: var(--color-paper-58);
-    font-size: var(--font-size-label);
-    letter-spacing: .14em;
-    line-height: 1;
-    text-transform: uppercase;
+  .site-header[data-scrolled] {
+    border-bottom-color: var(--color-line);
+    box-shadow: var(--shadow-sm);
   }
 
-  .utility-language { display: inline-flex; gap: var(--space-2); }
-  .utility-language a { color: inherit; text-decoration: none; }
-  .utility-language a:hover,
-  .utility-language a[aria-current='page'] { color: var(--color-bg); }
-
-  .main-bar {
-    display: flex;
-    align-items: stretch;
-    height: var(--space-nav-main-height);
-  }
-
-  .brand-lockup {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 30px 0 var(--space-nav-gutter);
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .brand-mark {
-    width: var(--space-mark-size);
-    height: var(--space-mark-size);
-    flex: none;
-    background: var(--color-accent-400);
-  }
-
-  .brand-wordmark {
-    display: inline-flex;
-    align-items: baseline;
-    font-family: var(--font-heading);
-    font-size: clamp(26px, calc(.625vw + 14px), 30px);
-    font-weight: var(--font-heading-weight);
-    letter-spacing: .18em;
-    line-height: 1;
-  }
-
-  .brand-mt { color: var(--color-mark-red); }
-  .brand-r,
-  .brand-suffix { color: var(--color-bg); }
-
-  .brand-suffix {
-    display: inline-block;
-    overflow: hidden;
-    max-width: 180px;
-    opacity: 1;
-    white-space: nowrap;
-    transition: max-width var(--motion-rule) var(--motion-ease), opacity var(--motion-label) var(--motion-ease);
-  }
-
-  .site-header[data-scrolled] .brand-suffix {
-    max-width: 0;
-    opacity: 0;
-  }
-
-  .desktop-navigation {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    margin-left: auto;
-    padding-inline: 34px;
-  }
-
-  .solutions-menu { position: relative; }
-
-  .nav-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0 0 3px;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    background: transparent;
-    color: var(--color-paper-76);
-    cursor: pointer;
-    font-family: var(--font-heading);
-    font-size: var(--font-size-nav);
-    font-weight: var(--font-heading-weight);
-    letter-spacing: .09em;
-    line-height: 1;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: color var(--motion-state) var(--motion-ease), border-color var(--motion-state) var(--motion-ease);
-  }
-
-  .nav-link svg { stroke-width: 1.5; transition: transform var(--motion-rule) var(--motion-ease); }
-  .solutions-menu[data-open] .nav-link svg { transform: translateY(2px); }
-  .nav-link:hover { color: var(--color-bg); }
-  .nav-link.active { border-bottom-color: var(--color-bg); color: var(--color-bg); }
-
-  .solutions-panel {
-    position: absolute;
-    z-index: 20;
-    top: calc(100% + 12px);
-    left: -14px;
-    width: clamp(278px, 19vw, 300px);
-    padding-block: var(--space-2);
-    transform: translateY(calc(var(--space-2) * -1));
-    border-color: var(--color-paper-34);
-    background: var(--color-accent-900);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition:
-      opacity var(--motion-label) var(--motion-ease),
-      transform var(--motion-label) var(--motion-ease),
-      visibility 0ms var(--motion-label);
-  }
-
-  .solutions-menu[data-open] .solutions-panel {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transition-delay: 0ms;
-  }
-
-  .solutions-row {
+  .header-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
-    padding: 11px 16px;
-    color: var(--color-paper-82);
-    font-size: var(--font-size-body-sm);
-    line-height: 1.3;
+    gap: var(--space-5);
+    min-height: var(--header-h);
+  }
+
+  .brand {
+    display: inline-flex;
     text-decoration: none;
-    transition: background-color 180ms var(--motion-ease), color 180ms var(--motion-ease);
   }
 
-  .solutions-row:hover,
-  .solutions-row.active { background: var(--color-paper-12); color: var(--color-bg); }
-
-  .solutions-number {
-    color: var(--color-paper-62);
-    font-size: var(--font-size-label-xs);
-    letter-spacing: .12em;
+  .nav-links {
+    display: flex;
+    gap: var(--space-1);
   }
 
-  .nav-cta {
+  .nav-links a {
     position: relative;
-    display: flex;
-    align-items: center;
-    padding-inline: 32px;
-    border: 0;
-    background: var(--color-bg);
-    color: var(--color-accent-900);
-    font-family: var(--font-heading);
-    font-size: var(--font-size-nav);
-    font-weight: var(--font-heading-weight);
-    letter-spacing: .09em;
-    line-height: 1;
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text-muted);
+    font-weight: 500;
     text-decoration: none;
-    text-transform: uppercase;
-    transition: background-color var(--motion-state) var(--motion-ease);
+    transition: color var(--dur-fast) var(--ease);
   }
 
-  .nav-cta:hover { background: var(--color-accent-200); }
-  .nav-cta.active { background: var(--color-accent-200); }
-
-  .product-bar {
-    display: flex;
-    align-items: stretch;
-    padding-inline: var(--space-nav-gutter);
-    overflow-x: auto;
-    border-top: var(--space-hairline) solid var(--color-paper-16);
-    scrollbar-width: none;
+  .nav-links a:hover,
+  .nav-links a[aria-current='page'] {
+    color: var(--color-text);
   }
 
-  .product-bar::-webkit-scrollbar { display: none; }
-
-  .product-bar-label {
-    display: flex;
-    align-items: center;
-    padding-right: 24px;
-    color: var(--color-paper-70);
-    font-size: var(--font-size-label-xs);
-    letter-spacing: .18em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
-  .product-tabs { display: flex; align-items: stretch; }
-
-  .product-tab {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 13px 22px;
-    color: var(--color-paper-70);
-    font-family: var(--font-heading);
-    font-size: var(--font-size-body-sm);
-    font-weight: var(--font-heading-weight);
-    letter-spacing: .07em;
-    line-height: 1;
-    text-decoration: none;
-    text-transform: uppercase;
-    white-space: nowrap;
-    transition: color var(--motion-label) var(--motion-ease);
-  }
-
-  .product-tab::after {
-    position: absolute;
-    right: 22px;
-    bottom: 0;
-    left: 22px;
-    height: 2px;
+  /* Active page: short underline, no fill. */
+  .nav-links a[aria-current='page']::after {
     content: '';
-    transform: scaleX(0);
-    transform-origin: left;
-    background: var(--color-bg);
-    transition: transform var(--motion-rule) var(--motion-ease);
+    position: absolute;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: 0;
+    height: 2px;
+    border-radius: var(--radius-pill);
+    background: var(--color-ink);
   }
 
-  .product-tab:hover,
-  .product-tab.active { color: var(--color-bg); }
-  .product-tab.active::after { transform: scaleX(1); }
-
-  .product-number {
-    font-family: var(--font-body);
-    font-size: var(--font-size-micro);
-    opacity: .55;
-  }
-
-  .mobile-menu-button,
-  .mobile-close-button {
-    display: none;
-    place-items: center;
-    width: 54px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--color-bg);
-    cursor: pointer;
-  }
-
-  .mobile-menu-button svg,
-  .mobile-close-button svg { stroke-width: 1.5; }
-
-  .mobile-panel {
-    position: fixed;
-    z-index: 200;
-    inset: 0;
-    padding: 0 var(--space-mobile-gutter) var(--space-mobile-gutter);
-    overflow-y: auto;
-    background: var(--color-accent-900);
-    color: var(--color-bg);
-  }
-
-  .mobile-panel-header {
+  .header-actions {
     display: flex;
-    align-items: stretch;
-    justify-content: space-between;
-    height: var(--space-nav-main-height);
-    border-bottom: var(--space-hairline) solid var(--color-paper-16);
+    align-items: center;
+    gap: var(--space-3);
   }
 
-  .mobile-brand { padding-left: 0; }
-  .mobile-close-button { display: grid; }
-  .mobile-nav { display: grid; }
+  .lang {
+    display: inline-flex;
+    padding: 3px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+  }
 
-  .mobile-link,
-  .mobile-solutions-trigger {
-    display: grid;
-    grid-template-columns: 30px 1fr;
-    gap: var(--space-3);
-    padding: var(--space-4) 0;
-    border-bottom: var(--space-hairline) solid var(--color-paper-12);
-    color: var(--color-paper-82);
-    font-family: var(--font-heading);
-    font-size: var(--font-size-heading-sm);
-    font-weight: var(--font-heading-weight);
-    letter-spacing: .05em;
+  .lang a {
+    min-width: 2.4rem;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-align: center;
     text-decoration: none;
   }
 
-  .mobile-solutions-trigger {
-    width: 100%;
-    border-top: 0;
-    border-right: 0;
-    border-left: 0;
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
+  .lang a[aria-current='true'] {
+    background: var(--color-ink);
+    color: var(--color-on-ink);
   }
 
-  .mobile-solutions-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-  }
-
-  .mobile-solutions-label svg {
-    flex: none;
-    transition: transform var(--motion-rule) var(--motion-ease);
-  }
-
-  .mobile-solutions[data-open] .mobile-solutions-label svg { transform: translateY(var(--space-1)); }
-
-  .mobile-solutions-panel {
-    display: grid;
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transition: grid-template-rows var(--motion-rule) var(--motion-ease), opacity var(--motion-label) var(--motion-ease);
-  }
-
-  .mobile-solutions[data-open] .mobile-solutions-panel {
-    grid-template-rows: 1fr;
-    opacity: 1;
-  }
-
-  .mobile-solutions-inner { min-height: 0; overflow: hidden; }
-  .mobile-solution-link { padding-left: var(--space-6); }
-
-  .mobile-link > :first-child,
-  .mobile-solutions-trigger > :first-child {
-    color: var(--color-paper-45);
-    font-family: var(--font-body);
-    font-size: var(--font-size-label-xs);
-  }
-
-  .mobile-link[aria-current='page'] { color: var(--color-bg); }
-  .mobile-link-top { margin-top: var(--space-6); border-top: var(--space-hairline) solid var(--color-paper-16); }
-
-  .mobile-panel-cta {
-    display: flex;
+  .menu-toggle {
+    display: none;
     align-items: center;
     justify-content: center;
-    min-height: 52px;
-    margin-top: 48px;
-    border-color: var(--color-bg);
+    width: var(--hit);
+    height: var(--hit);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .icon-close {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded='true'] .icon-open {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded='true'] .icon-close {
+    display: inline-flex;
+  }
+
+  .icon-open {
+    display: inline-flex;
+  }
+
+  .mobile-menu {
+    border-top: 1px solid var(--color-line);
     background: var(--color-bg);
-    color: var(--color-accent-900);
-    font-family: var(--font-heading);
-    font-size: var(--font-size-button);
-    font-weight: var(--font-heading-weight);
-    letter-spacing: .09em;
+    box-shadow: var(--shadow-md);
+  }
+
+  .mobile-menu nav {
+    display: flex;
+    flex-direction: column;
+    padding-block: var(--space-3) var(--space-5);
+  }
+
+  .mobile-menu a:not(.btn) {
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--text-lead);
+    font-weight: 500;
     text-decoration: none;
-    text-transform: uppercase;
   }
 
-  @media (max-width: 1024px) {
-    .desktop-navigation { gap: 24px; padding-inline: 20px; }
-    .nav-cta { padding-inline: 20px; }
-    .brand-lockup { padding-right: 20px; }
+  .mobile-menu a[aria-current='page'] {
+    color: var(--color-accent);
   }
 
-  @media (max-width: 720px) {
-    .utility-strip { display: none; }
-    .desktop-navigation { display: none; }
-    .brand-lockup { padding: 0 16px 0 var(--space-mobile-gutter); }
-    .brand-wordmark { font-size: 24px; }
-    .nav-cta {
-      margin-left: auto;
-      padding-inline: 16px;
-      font-size: 13px;
+  .mobile-menu .btn {
+    margin-top: var(--space-5);
+  }
+
+  @media (max-width: 900px) {
+    .nav-links,
+    .header-cta {
+      display: none;
     }
-    .nav-cta .corner { display: none; }
-    .mobile-menu-button { display: grid; }
-    .product-bar { padding-inline: var(--space-mobile-gutter); }
-    .product-bar-label { display: none; }
-  }
 
-  @media (prefers-reduced-motion: reduce) {
-    .product-tab::after { transition: none; }
-    .nav-link svg { transform: none !important; }
-    .mobile-solutions-panel { transition: none; }
+    .menu-toggle {
+      display: inline-flex;
+    }
   }
 </style>

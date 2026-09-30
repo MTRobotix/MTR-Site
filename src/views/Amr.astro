@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { amr } from '../data/content';
+import { ui, type Locale } from '../data/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = amr[locale];
+---
+
+<Base title={c.title} description={c.description} locale={locale} page="amr" image="/images/sensq/sensq-platform.jpg">
+  <section class="page-hero">
+    <div class="shell page-hero-grid">
+      <div class="page-hero-copy">
+        <p class="kicker">{c.kicker}</p>
+        <span class="badge badge-soon">{ui[locale].comingSoon}</span>
+        <h1>{c.h1}</h1>
+        <p class="lead">{c.lead}</p>
+      </div>
+      <figure>
+        <div class="frame">
+          <img src="/images/sensq/sensq-platform.jpg" alt={c.imageCaption} fetchpriority="high" />
+        </div>
+        <figcaption class="caption">{c.imageCaption}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell two-col">
+      <div data-reveal>
+        <h2 class="block-title">{c.overviewTitle}</h2>
+        <p class="lead">{c.overview}</p>
+      </div>
+      <div data-reveal>
+        <h2 class="block-title">{c.specsTitle}</h2>
+        <dl class="facts">
+          {
+            c.specs.map((s) => (
+              <div>
+                <dt>{s.label}</dt>
+                <dd>{s.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand locale={locale} title={c.ctaTitle} lead={c.ctaLead} cta={c.cta} />
+</Base>

@@ -1,0 +1,97 @@
+---
+import { ArrowRight } from '@lucide/astro';
+import { products } from '../data/content';
+import { localPath, ui, type Locale } from '../data/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const copy = ui[locale];
+---
+
+<ul class="cards">
+  {
+    products[locale].map((p) => (
+      <li data-reveal>
+        <a class="card" href={localPath(locale, p.key)}>
+          <div class="card-media">
+            <img src={p.image} alt={p.alt} loading="lazy" width="800" height="600" />
+          </div>
+          <div class="card-body">
+            {p.status === 'wip' && <span class="badge">{copy.wip}</span>}
+            {p.status === 'soon' && <span class="badge badge-soon">{copy.comingSoon}</span>}
+            <h3>{p.name}</h3>
+            <p>{p.summary}</p>
+            <span class="text-link">
+              {copy.learnMore} <ArrowRight size={16} stroke-width={1.5} aria-hidden="true" />
+            </span>
+          </div>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .cards {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    text-decoration: none;
+    transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+
+  .card:hover {
+    border-color: var(--color-line-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .card-media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-bg-soft);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+    padding: var(--space-5);
+  }
+
+  .card-body p {
+    color: var(--color-text-muted);
+  }
+
+  .card-body .text-link {
+    margin-top: auto;
+    padding-top: var(--space-2);
+  }
+
+  @media (max-width: 900px) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

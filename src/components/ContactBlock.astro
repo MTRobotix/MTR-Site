@@ -1,0 +1,90 @@
+---
+import { Mail, MapPin, Phone } from '@lucide/astro';
+import { COMPANY, type Locale } from '../data/i18n';
+import { contact } from '../data/content';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = contact[locale];
+---
+
+<ul class="contact-list">
+  <li>
+    <Mail size={20} stroke-width={1.5} aria-hidden="true" />
+    <div>
+      <p class="label">{c.emailLabel}</p>
+      <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+    </div>
+  </li>
+  <li>
+    <Phone size={20} stroke-width={1.5} aria-hidden="true" />
+    <div>
+      <p class="label">{c.phoneLabel}</p>
+      {
+        COMPANY.phones.map((p) => (
+          <a href={`tel:${p.tel}`}>
+            {p.display} <span class="muted">· {p.label[locale]}</span>
+          </a>
+        ))
+      }
+    </div>
+  </li>
+  <li>
+    <MapPin size={20} stroke-width={1.5} aria-hidden="true" />
+    <div>
+      <p class="label">{c.whereLabel}</p>
+      {COMPANY.locations.map((l) => <p>{l[locale]}</p>)}
+    </div>
+  </li>
+</ul>
+
+<style>
+  .contact-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .contact-list li {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  .contact-list :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--color-accent);
+  }
+
+  .contact-list div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .contact-list a {
+    width: fit-content;
+    font-size: var(--text-lead);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .contact-list a:hover {
+    text-decoration: underline;
+  }
+
+  .muted {
+    color: var(--color-text-faint);
+    font-size: var(--text-sm);
+    font-weight: 400;
+  }
+</style>

@@ -1,44 +1,39 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import { alternatePath, ui, type Locale } from '../data/i18n';
-import '../styles/tokens.css';
+import { COMPANY, SITE_URL, localPath, ui, type Locale, type RouteKey } from '../data/i18n';
+import '../styles/global.css';
 
 interface Props {
   title: string;
-  description?: string;
-  currentPath: string;
-  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
-  locale?: Locale;
+  description: string;
+  locale: Locale;
+  page: RouteKey;
+  image?: string;
 }
 
-const {
-  title,
-  description = 'MTRobotics designs vision inspection cells, AMR fleets, custom integration, and phased retrofits for manufacturing and logistics lines.',
-  currentPath,
-  jsonLd,
-  locale = 'en',
-} = Astro.props;
-const alternateLocale = locale === 'en' ? 'vi' : 'en';
-const alternateHref = alternatePath(locale, currentPath);
+const { title, description, locale, page, image = '/images/mtr-q/og-image.jpg' } = Astro.props;
 const copy = ui[locale];
+const url = (l: Locale) => new URL(localPath(l, page), SITE_URL).href;
+const canonical = url(locale);
+const ogImage = new URL(image, SITE_URL).href;
 
-const mechanicalEase = 'cubic-bezier(.32,.72,0,1)';
-const pageMotion = {
-  forwards: {
-    old: { name: 'page-out-forward', duration: '260ms', easing: mechanicalEase, fillMode: 'both' },
-    new: { name: 'page-in-forward', duration: '360ms', easing: mechanicalEase, fillMode: 'both' },
-  },
-  backwards: {
-    old: { name: 'page-out-back', duration: '260ms', easing: mechanicalEase, fillMode: 'both' },
-    new: { name: 'page-in-back', duration: '360ms', easing: mechanicalEase, fillMode: 'both' },
-  },
+// Company facts for search engines (Google knowledge panel, rich results).
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: COMPANY.name,
+  alternateName: ['MTR', 'MTRobotics'],
+  url: SITE_URL,
+  logo: new URL('/favicon.svg', SITE_URL).href,
+  email: COMPANY.email,
+  telephone: COMPANY.phones.map((p) => p.tel),
+  address: [
+    { '@type': 'PostalAddress', addressLocality: 'Ho Chi Minh City', addressCountry: 'VN' },
+    { '@type': 'PostalAddress', addressLocality: 'Toronto', addressRegion: 'ON', addressCountry: 'CA' },
+  ],
+  sameAs: [COMPANY.linkedin],
 };
-
-const encodedJsonLd = jsonLd
-  ? JSON.stringify(jsonLd).replaceAll('<', '\\u003c')
-  : undefined;
 ---
 
 <!doctype html>
@@ -46,29 +41,33 @@ const encodedJsonLd = jsonLd
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={url('en')} />
+    <link rel="alternate" hreflang="vi" href={url('vi')} />
+    <link rel="alternate" hreflang="x-default" href={url('en')} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={COMPANY.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <link rel="alternate" hreflang={alternateLocale} href={alternateHref} />
-    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={locale === 'vi' ? 'vi_VN' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#faf9f6" />
+    <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml" />
     <link rel="preload" href="/fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin />
-    {locale === 'vi' && <link rel="preload" href="/fonts/barlow-condensed-600-vietnamese.woff2" as="font" type="font/woff2" crossorigin />}
-    {locale === 'vi' && <link rel="preload" href="/fonts/barlow-400-vietnamese.woff2" as="font" type="font/woff2" crossorigin />}
-    {encodedJsonLd && <script is:inline type="application/ld+json" set:html={encodedJsonLd}></script>}
-    <ClientRouter fallback="animate" />
+    {page === 'home' && <script is:inline type="application/ld+json" set:html={JSON.stringify(orgJsonLd).replaceAll('<', '\\u003c')} />}
   </head>
   <body>
-    <a class="skip-link" href="#main-content">{copy.skip}</a>
-    <Nav currentPath={currentPath} locale={locale} />
-    <main id="main-content" transition:name="page-content" transition:animate={pageMotion}>
+    <a class="skip-link" href="#main">{copy.skip}</a>
+    <Nav locale={locale} page={page} />
+    <main id="main">
       <slot />
     </main>
     <Footer locale={locale} />
-
     <script>
       import '../scripts/site';
     </script>
@@ -78,19 +77,19 @@ const encodedJsonLd = jsonLd
 <style is:global>
   .skip-link {
     position: fixed;
-    z-index: 1001;
+    z-index: 200;
     top: var(--space-3);
     left: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    transform: translateY(calc(-100% - var(--space-8)));
-    border: var(--space-hairline) solid var(--color-accent-900);
-    background: var(--color-bg);
-    color: var(--color-accent-900);
-    font-family: var(--font-heading);
-    font-weight: var(--font-heading-weight);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-pill);
+    background: var(--color-ink);
+    color: var(--color-on-ink);
+    font-weight: 500;
     text-decoration: none;
-    transition: transform var(--motion-state) var(--motion-ease);
+    transform: translateY(-200%);
   }
 
-  .skip-link:focus-visible { transform: translateY(0); }
+  .skip-link:focus-visible {
+    transform: none;
+  }
 </style>

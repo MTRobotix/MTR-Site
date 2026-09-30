@@ -1,16 +1,20 @@
-# MTRobotics site
+# MTRobotix website
 
-Static Astro implementation of the MTRobotics handoff. It includes seven English routes plus seven `/vi` equivalents, persistent language switching, one active founder profile, quiet transitions, and localized form validation. The homepage adds a pointer-reactive wake field and a responsive 4/2/1 engineering register; mobile navigation nests Solutions in an accessible disclosure.
+Company site for MTRobotix (https://www.mtrobotix.com): MTR-Q vision inspection, AMR, robot arm. English and Vietnamese.
 
 ```sh
 npm install
-npm run dev
-npm run astro -- check
+npm run dev          # http://localhost:4321
+npx astro check
 npm run build
 ```
 
-Design tokens live in `src/styles/tokens.css`; typed page copy lives in `src/data`. Full HD is the visual baseline, with supporting type, controls, gutters, and hero depth scaling for 2K displays. The header and favicon use the owner-directed red `MT` / paper `R` mark; the utility strip keeps only the language control.
+| Change | File |
+| - | - |
+| All page copy (EN + VI) | `src/data/content.ts` |
+| Nav labels, company contact details, routes | `src/data/i18n.ts` |
+| Colours, spacing, fonts | `src/styles/tokens.css` |
+| Old-URL redirects, sitemap | `astro.config.mjs` |
 
-Vietnamese pages self-host Barlow Vietnamese glyph subsets. Phone and email appear only on Request a demo. The demo form posts to a Vercel function, which validates each request and emails a plain-text report through Resend to `mtrobotix@gmail.com`; the site keeps no database copy.
-
-For deployment, verify a sending domain in Resend and add `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, and `CONTACT_TO_EMAIL` in Vercel project settings. Use `.env.example` for local development, then redeploy after changing environment variables.
+Rules: `~/MTR/AGENTS.md` and `~/MTR/.agents/skills/mtrobotics-web/SKILL.md`.
+Push to `main` → Vercel deploys.

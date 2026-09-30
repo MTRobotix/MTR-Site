@@ -1,0 +1,31 @@
+---
+// MTRobotix wordmark, as on the MTR-Q one-pager: red "MT", navy "ROBOTIX", letter-spaced.
+interface Props {
+  size?: 'sm' | 'md';
+}
+const { size = 'md' } = Astro.props;
+---
+
+<span class:list={['wordmark', size]} aria-hidden="true"><span class="mt">MT</span>ROBOTIX</span>
+
+<style>
+  .wordmark {
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    white-space: nowrap;
+  }
+
+  .md {
+    font-size: 1rem;
+  }
+
+  .sm {
+    font-size: 0.85rem;
+  }
+
+  .mt {
+    color: var(--color-brand-red);
+  }
+</style>

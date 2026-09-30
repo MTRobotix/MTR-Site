@@ -1,0 +1,71 @@
+---
+import { stats } from '../data/content';
+import type { Locale } from '../data/i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<dl class="stats" data-reveal>
+  {
+    stats[locale].map((s) => (
+      <div class="stat">
+        <dt>{s.label}</dt>
+        <dd>{s.value}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-1);
+    padding: var(--space-5);
+    text-align: center;
+  }
+
+  .stat + .stat {
+    border-left: 1px solid var(--color-line);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-accent);
+    font-family: var(--font-heading);
+    font-size: var(--text-stat);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 720px) {
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stat:nth-child(3) {
+      border-left: 0;
+    }
+
+    .stat:nth-child(n + 3) {
+      border-top: 1px solid var(--color-line);
+    }
+  }
+</style>

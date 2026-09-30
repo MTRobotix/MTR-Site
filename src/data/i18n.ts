@@ -1,63 +1,73 @@
 export type Locale = 'en' | 'vi';
+export const LOCALES: Locale[] = ['en', 'vi'];
+
+export const SITE_URL = 'https://www.mtrobotix.com';
+
+/** Page keys → English paths (always with trailing slash, matching the sitemap). Vietnamese: same under /vi. */
+export const ROUTES = {
+  home: '/',
+  mtrq: '/mtr-q/',
+  amr: '/amr/',
+  arm: '/robot-arm/',
+  about: '/about/',
+  contact: '/contact/',
+} as const;
+export type RouteKey = keyof typeof ROUTES;
+
+export function localPath(locale: Locale, key: RouteKey): string {
+  const path = ROUTES[key];
+  if (locale === 'en') return path;
+  return path === '/' ? '/vi/' : `/vi${path}`;
+}
+
+/** Real company facts. Source: MTR-Q one-pager (2026). Change here only. */
+export const COMPANY = {
+  name: 'MTRobotix',
+  email: 'mtrobotix@gmail.com',
+  phones: [
+    { label: { en: 'Vietnam', vi: 'Việt Nam' }, display: '083 576 0735', tel: '+84835760735' },
+    { label: { en: 'Canada', vi: 'Canada' }, display: '+1 905 924 5498', tel: '+19059245498' },
+  ],
+  locations: [
+    { en: 'Ho Chi Minh City, Vietnam', vi: 'TP. Hồ Chí Minh, Việt Nam', short: 'HCMC, VN' },
+    { en: 'Toronto, Ontario, Canada', vi: 'Toronto, Ontario, Canada', short: 'Toronto, ON, CA' },
+  ],
+  linkedin: 'https://www.linkedin.com/in/thonghuynh1/',
+} as const;
 
 export const ui = {
   en: {
-    home: 'Home',
-    solutions: 'Solutions',
-    about: 'About us',
-    requestDemo: 'Request a demo',
-    support: 'Support',
-    company: 'Company',
-    contact: 'Contact',
+    nav: { mtrq: 'MTR-Q', amr: 'AMR', arm: 'Robot arm', about: 'About', contact: 'Contact us' },
+    homeLabel: 'MTRobotix home',
+    primaryNav: 'Main',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
-    primaryNav: 'Primary navigation',
-    mobileNav: 'Mobile navigation',
-    siteNav: 'Site navigation',
-    productSolutions: 'Product solutions',
-    homeLabel: 'MTRobotics home',
-    utilityLabel: 'MTRobotics locations and utilities',
-    specification: 'Specification',
-    measuredSpecifications: 'measured specifications',
-    technicalFigure: 'technical figure',
-    inAction: 'In action',
-    pauseLoop: 'Pause in-action loop',
-    playLoop: 'Play in-action loop',
-    skip: 'Skip to main content',
+    language: 'Language',
+    skip: 'Skip to content',
+    wip: 'Demo · Work in progress',
+    comingSoon: 'Details coming soon',
+    learnMore: 'Learn more',
+    footerTagline: 'Vision inspection and robotics for production lines.',
+    footerProducts: 'Products',
+    footerCompany: 'Company',
+    footerContact: 'Contact',
+    rights: 'All rights reserved.',
   },
   vi: {
-    home: 'Trang chủ',
-    solutions: 'Giải pháp',
-    about: 'Về chúng tôi',
-    requestDemo: 'Yêu cầu demo',
-    support: 'Hỗ trợ',
-    company: 'Công ty',
-    contact: 'Liên hệ',
+    nav: { mtrq: 'MTR-Q', amr: 'AMR', arm: 'Cánh tay robot', about: 'Giới thiệu', contact: 'Liên hệ' },
+    homeLabel: 'Trang chủ MTRobotix',
+    primaryNav: 'Chính',
     openMenu: 'Mở menu',
     closeMenu: 'Đóng menu',
-    primaryNav: 'Điều hướng chính',
-    mobileNav: 'Điều hướng di động',
-    siteNav: 'Điều hướng trang',
-    productSolutions: 'Các giải pháp sản phẩm',
-    homeLabel: 'Trang chủ MTRobotics',
-    utilityLabel: 'Địa điểm và tiện ích MTRobotics',
-    specification: 'Thông số kỹ thuật',
-    measuredSpecifications: 'thông số đo lường',
-    technicalFigure: 'hình kỹ thuật',
-    inAction: 'Đang vận hành',
-    pauseLoop: 'Tạm dừng video vận hành',
-    playLoop: 'Phát video vận hành',
-    skip: 'Bỏ qua đến nội dung chính',
+    language: 'Ngôn ngữ',
+    skip: 'Bỏ qua đến nội dung',
+    wip: 'Demo · Đang phát triển',
+    comingSoon: 'Thông tin chi tiết sắp có',
+    learnMore: 'Xem thêm',
+    footerTagline: 'Kiểm tra bằng thị giác máy và robot cho dây chuyền sản xuất.',
+    footerProducts: 'Sản phẩm',
+    footerCompany: 'Công ty',
+    footerContact: 'Liên hệ',
+    rights: 'Bảo lưu mọi quyền.',
   },
 } as const;
-
-export function localPath(locale: Locale, path: string) {
-  if (locale === 'en') return path;
-  if (path === '/') return '/vi/';
-  return `/vi${path}`;
-}
-
-export function alternatePath(locale: Locale, currentPath: string) {
-  if (locale === 'vi') return currentPath.replace(/^\/vi(?=\/|$)/, '') || '/';
-  return currentPath === '/' ? '/vi/' : `/vi${currentPath}`;
-}
