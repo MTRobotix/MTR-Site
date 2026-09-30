@@ -1,5 +1,5 @@
 ---
-import { COMPANY, localPath, ui, type Locale } from '../data/i18n';
+import { COMPANY, isShown, localPath, ui, type Locale } from '../data/i18n';
 import Wordmark from './Wordmark.astro';
 
 interface Props {
@@ -20,7 +20,7 @@ const year = new Date().getFullYear();
       <p class="footer-head">{copy.footerProducts}</p>
       <a href={localPath(locale, 'mtrq')}>{copy.nav.mtrq}</a>
       <a href={localPath(locale, 'amr')}>{copy.nav.amr}</a>
-      <a href={localPath(locale, 'arm')}>{copy.nav.arm}</a>
+      {isShown('arm') && <a href={localPath(locale, 'arm')}>{copy.nav.arm}</a>}
     </nav>
     <nav aria-label={copy.footerCompany}>
       <p class="footer-head">{copy.footerCompany}</p>

@@ -1,6 +1,6 @@
 ---
 import { Menu, X } from '@lucide/astro';
-import { localPath, ui, type Locale, type RouteKey } from '../data/i18n';
+import { isShown, localPath, ui, type Locale, type RouteKey } from '../data/i18n';
 import Wordmark from './Wordmark.astro';
 
 interface Props {
@@ -15,7 +15,7 @@ const links: { key: RouteKey; label: string }[] = [
   { key: 'amr', label: copy.nav.amr },
   { key: 'arm', label: copy.nav.arm },
   { key: 'about', label: copy.nav.about },
-];
+].filter((l) => isShown(l.key));
 ---
 
 <header class="site-header" data-site-header>

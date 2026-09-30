@@ -1,7 +1,7 @@
 ---
 import { ArrowRight } from '@lucide/astro';
 import { products } from '../data/content';
-import { localPath, ui, type Locale } from '../data/i18n';
+import { isShown, localPath, ui, type Locale } from '../data/i18n';
 
 interface Props {
   locale: Locale;
@@ -12,7 +12,7 @@ const copy = ui[locale];
 
 <ul class="cards">
   {
-    products[locale].map((p) => (
+    products[locale].filter((p) => isShown(p.key)).map((p) => (
       <li data-reveal>
         <a class="card" href={localPath(locale, p.key)}>
           <div class="card-media">
@@ -37,7 +37,8 @@ const copy = ui[locale];
   .cards {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Cards fill the row whether 2 or 3 products are shown. */
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
     gap: var(--space-5);
   }
 

@@ -21,6 +21,9 @@ export default defineConfig({
     '/vi/solutions/inspection': '/vi/mtr-q/',
     '/vi/solutions/amr-fleet': '/vi/amr/',
     '/vi/solutions/retrofit': '/vi/mtr-q/',
+    // Hidden for now (see HIDDEN in src/data/i18n.ts).
+    '/robot-arm': '/',
+    '/vi/robot-arm': '/vi/',
   },
   integrations: [
     sitemap({

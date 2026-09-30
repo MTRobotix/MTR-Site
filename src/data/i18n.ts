@@ -14,6 +14,14 @@ export const ROUTES = {
 } as const;
 export type RouteKey = keyof typeof ROUTES;
 
+/**
+ * Pages hidden from nav, footer, home cards and sitemap. Their URLs redirect to home (astro.config.mjs).
+ * To show one again: remove it here, restore src/pages/<page>.astro + src/pages/vi/<page>.astro,
+ * and delete its redirect.
+ */
+export const HIDDEN: RouteKey[] = ['arm'];
+export const isShown = (key: RouteKey) => !HIDDEN.includes(key);
+
 export function localPath(locale: Locale, key: RouteKey): string {
   const path = ROUTES[key];
   if (locale === 'en') return path;

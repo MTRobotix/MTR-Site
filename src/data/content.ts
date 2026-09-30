@@ -1,4 +1,5 @@
 // All page copy, English and Vietnamese side by side.
+// Robot arm copy (arm) is kept for later but the page is hidden: see HIDDEN in i18n.ts.
 // Facts: MTR-Q one-pager (/home/tom/Downloads/MTR-Q_OnePager-1.pdf) and the founder profile.
 // Never add a number or claim that is not in a source. Unknown → leave it out or mark TODO.
 import type { Locale } from './i18n';
