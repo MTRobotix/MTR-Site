@@ -19,7 +19,7 @@ never empty space, motion that is felt more than seen.
 3. **Attractive through restraint.** Quality comes from type, spacing, real product imagery and
    small precise motion — not from decoration, gradients, glows or effects.
 4. **Fast.** Static pages, self-hosted fonts, one small site script (`src/scripts/site.ts`) plus
-   the product animations, each its own small module. No UI frameworks,
+   the product animations and the home hero field, each its own small module. No UI frameworks,
    no animation libraries, no web-font CDNs.
 
 ## 2. Theme colours
@@ -103,6 +103,10 @@ Shadows only for hover and floating elements (`--shadow-sm`, `--shadow-md`).
   - **Page entrance:** hero copy and image rise in once, in reading order (`rise` keyframes).
     The home hero copy instead wipes in left to right (clip + ≤ 12px slide, `hero-wipe` in
     `Home.astro`), still once per load.
+  - **Home hero field:** `src/scripts/hero-pool.ts` (from the Portfolio site). Hidden dots the
+    cursor pushes aside, lit in `--color-accent`, crosshair cursor, normal cursor over controls.
+    Home hero only, desktop only (wider than 900px, mouse); stops when at rest; off under reduced
+    motion.
   - **Reveal on scroll:** `data-reveal`; list items set `--d` (0, 1, 2…) to stagger by `--stagger`.
   - **Page switch:** cross-document view transition, short cross-fade; the header stays put.
   - **Header:** border appears after scrolling; wordmark folds to `MTR` and back.

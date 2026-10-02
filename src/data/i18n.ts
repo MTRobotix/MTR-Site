@@ -38,7 +38,7 @@ export const COMPANY = {
   ],
   locations: [
     { en: 'Ho Chi Minh City, Vietnam', vi: 'TP. Hồ Chí Minh, Việt Nam', short: 'HCMC, VN' },
-    { en: 'Toronto, Ontario, Canada', vi: 'Toronto, Ontario, Canada', short: 'Toronto, ON, CA' },
+    { en: 'Toronto, ON, Canada', vi: 'Toronto, ON, Canada', short: 'Toronto, ON, CA' },
   ],
   linkedin: 'https://www.linkedin.com/in/thonghuynh1/',
 } as const;
