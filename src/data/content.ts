@@ -37,12 +37,12 @@ export const steps: L<{ title: string; body: string }[]> = {
 export const products: L<{ key: 'mtrq' | 'amr' | 'arm'; name: string; summary: string; status?: 'wip' | 'soon'; image: string; alt: string }[]> = {
   en: [
     { key: 'mtrq', name: 'MTR-Q', summary: 'Vision inspection, built into the line you already run.', image: '/images/mtr-q/mtr-q-cell.webp', alt: 'MTR-Q inspection cell with a camera mounted over the conveyor' },
-    { key: 'amr', name: 'AMR', summary: 'Autonomous mobile robot for moving material inside your site.', status: 'soon', image: '/images/amr/amr-render.webp', alt: 'Render of the MTRobotix autonomous mobile robot: light grey body, navy load deck, lidar on top, drive wheels in the sides' },
+    { key: 'amr', name: 'MTR-M', summary: 'Autonomous mobile robot for moving material inside your site.', status: 'soon', image: '/images/amr/amr-render.webp', alt: 'Render of MTR-M, the MTRobotix autonomous mobile robot: light grey body, navy load deck with the MTR logo, lidar on top, drive wheels in the sides' },
     { key: 'arm', name: 'Robot arm', summary: '6-DOF arm for pick-and-place alongside a conveyor.', status: 'wip', image: '/images/robot-arm/robot-arm-hero.jpg', alt: 'The 6-DOF robot arm' },
   ],
   vi: [
     { key: 'mtrq', name: 'MTR-Q', summary: 'Kiểm tra bằng thị giác máy, lắp ngay trên dây chuyền bạn đang chạy.', image: '/images/mtr-q/mtr-q-cell.webp', alt: 'Trạm kiểm tra MTR-Q với camera gắn phía trên băng tải' },
-    { key: 'amr', name: 'AMR', summary: 'Robot di động tự hành vận chuyển vật liệu trong nhà xưởng.', status: 'soon', image: '/images/amr/amr-render.webp', alt: 'Hình dựng 3D robot di động tự hành MTRobotix: thân xám nhạt, mặt chở hàng xanh navy, LiDAR phía trên, bánh xe hai bên' },
+    { key: 'amr', name: 'MTR-M', summary: 'Robot di động tự hành vận chuyển vật liệu trong nhà xưởng.', status: 'soon', image: '/images/amr/amr-render.webp', alt: 'Hình dựng 3D MTR-M, robot di động tự hành của MTRobotix: thân xám nhạt, mặt chở hàng xanh navy có logo MTR, LiDAR phía trên, bánh xe hai bên' },
     { key: 'arm', name: 'Cánh tay robot', summary: 'Cánh tay 6 bậc tự do gắp - đặt cạnh băng tải.', status: 'wip', image: '/images/robot-arm/robot-arm-hero.jpg', alt: 'Cánh tay robot 6 bậc tự do' },
   ],
 };
@@ -145,44 +145,58 @@ export const mtrq = {
 // TODO(owner): AMR page is placeholder content. Replace every field below with real copy and specs.
 export const amr = {
   en: {
-    title: 'AMR — Autonomous mobile robot | MTRobotix',
-    description: 'MTRobotix autonomous mobile robot. Details coming soon.',
+    title: 'MTR-M — Autonomous mobile robot | MTRobotix',
+    description: 'MTR-M, the MTRobotix autonomous mobile robot: point-to-point navigation, automatic mapping, replanning around obstacles, several robots on one map. 200 kg payload.',
     kicker: 'Product',
-    h1: 'Autonomous mobile robot',
-    lead: 'An AMR for moving material inside your site. Full details are coming soon.',
-    imageCaption: 'MTRobotix AMR platform.',
+    h1: 'MTR-M',
+    tagline: 'Autonomous mobile robot.',
+    lead: 'Moves material between points in your site on its own.',
+    imageAlt: 'Render of MTR-M: light grey body, navy load deck with the MTR logo, lidar on top, drive wheels in the sides',
+    imageCaption: 'MTR-M (render).',
     overviewTitle: 'Overview',
-    overview: 'Placeholder: describe what the AMR does, where it fits, and who it is for.',
+    overview: 'MTR-M maps your floor as it drives, plans a route to each point and replans when something blocks the way. Several robots share one map.',
+    features: ['Point-to-point navigation', 'Automatic mapping', 'Replans around obstacles', 'Several robots on one map'],
     specsTitle: 'Specifications',
     specs: [
-      { label: 'Payload', value: 'TBD' },
+      { label: 'Payload', value: '200 kg' },
       { label: 'Speed', value: 'TBD' },
       { label: 'Runtime', value: 'TBD' },
       { label: 'Navigation', value: 'TBD' },
       { label: 'Charging', value: 'TBD' },
     ],
-    ctaTitle: 'Interested in the AMR?',
+    fleetTitle: 'One map, many robots',
+    fleetLabel:
+      'Top view of a warehouse: two MTR-M robots follow their planned paths while their lidars build one shared map. A pallet drops into one robot’s aisle; the lidar marks it red and the robot takes an adjusted path around it without stopping.',
+    fleetCaption: 'Planned paths in blue. When a pallet blocks the aisle, the robot replans and keeps moving.',
+    ctaTitle: 'Interested in MTR-M?',
     ctaLead: 'Tell us what you need to move and where.',
     cta: 'Contact us',
   },
   vi: {
-    title: 'AMR — Robot di động tự hành | MTRobotix',
-    description: 'Robot di động tự hành của MTRobotix. Thông tin chi tiết sắp có.',
+    title: 'MTR-M — Robot di động tự hành | MTRobotix',
+    description: 'MTR-M, robot di động tự hành của MTRobotix: điều hướng điểm - điểm, tự động lập bản đồ, tự lập lại lộ trình khi gặp vật cản, nhiều robot trên một bản đồ. Tải trọng 200 kg.',
     kicker: 'Sản phẩm',
-    h1: 'Robot di động tự hành',
-    lead: 'AMR vận chuyển vật liệu trong nhà xưởng. Thông tin chi tiết sắp có.',
-    imageCaption: 'Nền tảng AMR của MTRobotix.',
+    h1: 'MTR-M',
+    tagline: 'Robot di động tự hành.',
+    lead: 'Tự vận chuyển vật liệu giữa các điểm trong nhà xưởng của bạn.',
+    imageAlt: 'Hình dựng 3D MTR-M: thân xám nhạt, mặt chở hàng xanh navy có logo MTR, LiDAR phía trên, bánh xe hai bên',
+    imageCaption: 'MTR-M (hình dựng 3D).',
     overviewTitle: 'Tổng quan',
-    overview: 'Nội dung tạm: mô tả AMR làm gì, phù hợp ở đâu và dành cho ai.',
+    overview: 'MTR-M tự lập bản đồ nhà xưởng khi di chuyển, lên lộ trình đến từng điểm và lập lại lộ trình khi có vật cản. Nhiều robot dùng chung một bản đồ.',
+    features: ['Điều hướng điểm - điểm', 'Tự động lập bản đồ', 'Tự lập lại lộ trình khi gặp vật cản', 'Nhiều robot trên cùng một bản đồ'],
     specsTitle: 'Thông số kỹ thuật',
     specs: [
-      { label: 'Tải trọng', value: 'Sắp có' },
+      { label: 'Tải trọng', value: '200 kg' },
       { label: 'Tốc độ', value: 'Sắp có' },
       { label: 'Thời gian hoạt động', value: 'Sắp có' },
       { label: 'Điều hướng', value: 'Sắp có' },
       { label: 'Sạc', value: 'Sắp có' },
     ],
-    ctaTitle: 'Bạn quan tâm đến AMR?',
+    fleetTitle: 'Một bản đồ, nhiều robot',
+    fleetLabel:
+      'Nhìn từ trên xuống nhà kho: hai robot MTR-M đi theo lộ trình dự kiến trong khi LiDAR của chúng cùng xây dựng một bản đồ chung. Một pallet rơi vào lối đi của một robot; LiDAR đánh dấu màu đỏ và robot đi vòng qua theo lộ trình mới mà không dừng lại.',
+    fleetCaption: 'Lộ trình dự kiến màu xanh. Khi pallet chặn lối đi, robot lập lại lộ trình và tiếp tục di chuyển.',
+    ctaTitle: 'Bạn quan tâm đến MTR-M?',
     ctaLead: 'Cho chúng tôi biết bạn cần vận chuyển gì và ở đâu.',
     cta: 'Liên hệ',
   },
@@ -232,7 +246,6 @@ export const arm = {
 };
 
 // Philosophy and story milestones: from the owner (Oct 2026). Milestones have no dates yet; add them when known.
-// TODO(owner): replace the MTR-Q milestone placeholder with a photo of the first prototype.
 export const about = {
   en: {
     title: 'About | MTRobotix',
@@ -242,19 +255,20 @@ export const about = {
     lead: 'MTR was established with one simple goal: excellent-quality products at an affordable price.',
     whereTitle: 'Where we are',
     storyTitle: 'Our story',
+    // Newest first: the line reads down from what is next to where it started.
     milestones: [
+      { label: 'Next', title: 'MTR-M', body: 'Autonomous mobile robot.', link: 'amr' as const, next: true },
+      {
+        label: 'First product',
+        title: 'MTR-Q',
+        body: 'Our first prototype: a state-of-the-art computer vision system.',
+        photo: { src: '/images/about/mtr-q-prototype.webp', alt: 'The first MTR-Q prototype: a conveyor with the camera bracket over the belt' },
+      },
       {
         label: 'Start',
         title: 'The team',
         body: 'MT Robotics & Automation comes from a team of excellent engineers with hands-on experience in industrial robotics and AI systems.',
       },
-      {
-        label: 'First product',
-        title: 'MTR-Q',
-        body: 'Our first prototype: a state-of-the-art computer vision system.',
-        photo: 'Photo coming soon',
-      },
-      { label: 'Next', title: 'Autonomous mobile robot', link: 'amr' as const },
     ],
     howTitle: 'How we work',
     founderKicker: 'Founder',
@@ -279,18 +293,18 @@ export const about = {
     whereTitle: 'Văn phòng',
     storyTitle: 'Câu chuyện của chúng tôi',
     milestones: [
+      { label: 'Tiếp theo', title: 'MTR-M', body: 'Robot di động tự hành.', link: 'amr' as const, next: true },
+      {
+        label: 'Sản phẩm đầu tiên',
+        title: 'MTR-Q',
+        body: 'Nguyên mẫu đầu tiên của chúng tôi: hệ thống thị giác máy tính hiện đại.',
+        photo: { src: '/images/about/mtr-q-prototype.webp', alt: 'Nguyên mẫu MTR-Q đầu tiên: băng tải với giá đỡ camera phía trên' },
+      },
       {
         label: 'Khởi đầu',
         title: 'Đội ngũ',
         body: 'MT Robotics & Automation bắt nguồn từ một đội ngũ kỹ sư xuất sắc với kinh nghiệm thực tế về robot công nghiệp và hệ thống AI.',
       },
-      {
-        label: 'Sản phẩm đầu tiên',
-        title: 'MTR-Q',
-        body: 'Nguyên mẫu đầu tiên của chúng tôi: hệ thống thị giác máy tính hiện đại.',
-        photo: 'Ảnh sắp có',
-      },
-      { label: 'Tiếp theo', title: 'Robot di động tự hành', link: 'amr' as const },
     ],
     howTitle: 'Cách chúng tôi làm việc',
     founderKicker: 'Nhà sáng lập',

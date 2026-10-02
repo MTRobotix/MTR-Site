@@ -8,7 +8,9 @@ Then convert to WebP (1600x1200) at public/images/amr/amr-render.webp.
 Units are metres. x = forward, y = left, z = up.
 """
 import math
+import os
 import sys
+import tempfile
 
 import bpy  # first: it makes bmesh and mathutils importable
 import bmesh
@@ -69,6 +71,25 @@ HUB = principled("hub", srgb("#8d939b"), rough=0.35, metal=1.0)
 RUBBER = grain(principled("rubber", srgb("#1a1b1e"), rough=0.85), scale=500, strength=0.2)
 LIGHT = principled("light_strip", srgb("#cfe2f7"), rough=0.3, **{"Emission Color": (*srgb("#9cc6f2"), 1), "Emission Strength": 2.2})
 BACKDROP = principled("backdrop", srgb("#f4f2ec"), rough=0.6, **{"Specular IOR Level": 0.2})
+# Logo colours as on the MTR-Q conveyor: red "MT", blue "R".
+LOGO_RED = principled("logo_red", srgb("#e5463d"), rough=0.45)
+LOGO_BLUE = principled("logo_blue", srgb("#5b9be0"), rough=0.45)
+
+
+def barlow_bold():
+    """The site's Barlow Bold, converted from WOFF2 (needs fontTools + brotli). Blender's default font otherwise."""
+    woff2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "public", "fonts", "barlow-700.woff2")
+    try:
+        from fontTools.ttLib import TTFont
+
+        f = TTFont(woff2)
+        f.flavor = None
+        out = os.path.join(tempfile.gettempdir(), "barlow-700.ttf")
+        f.save(out)
+        return bpy.data.fonts.load(out)
+    except Exception as e:  # noqa: BLE001
+        print("Barlow not available, using Blender's font:", e)
+        return None
 
 # ── Mesh helpers ───────────────────────────────────────────────────────────
 
@@ -169,6 +190,25 @@ for side in (1, -1):
 
 # Navy load deck, inset into the top, with a fine raised border.
 deck = prism("deck", rounded_rect(L - 0.05, W - 0.05, R - 0.022, -0.012, 0), Z_BODY1 - 0.001, Z_BODY1 + 0.003, DECK, bevel=0.0015, segments=3)
+
+# MTR logo on the rear half of the deck, reading front to back, upright for a viewer on the robot's left.
+logo_curve = bpy.data.curves.new("logo", "FONT")
+logo_curve.body = "MTR"
+font = barlow_bold()
+if font:
+    logo_curve.font = font
+logo_curve.size = 0.058
+logo_curve.space_character = 1.3
+logo_curve.align_x = "CENTER"
+logo_curve.align_y = "CENTER"
+logo_curve.extrude = 0.00015
+logo_curve.materials.append(LOGO_RED)
+logo_curve.materials.append(LOGO_BLUE)
+for i, ch in enumerate(logo_curve.body):
+    logo_curve.body_format[i].material_index = 1 if ch == "R" else 0
+logo = link(bpy.data.objects.new("logo", logo_curve))
+logo.rotation_euler = (0, 0, math.pi)
+logo.location = (-0.07, 0, Z_BODY1 + 0.0033)
 
 # Lidar: low puck on the front of the deck.
 LX = L / 2 - 0.07
