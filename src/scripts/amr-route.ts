@@ -11,14 +11,6 @@ type Seg = [number, number, number, number];
 const W = 960;
 const H = 540;
 const TAU = Math.PI * 2;
-const LOOP = 11.2;
-const STILL_T = 5.6; // reduced motion: after the replan, robot on its way around the pallet
-
-const T = {
-  draw: [0.3, 1.1] as const, // planned path draws in
-  drive: [1.2, 9.3] as const,
-  out: [10.2, 10.9] as const, // robot, pallet and path fade before the loop restarts
-};
 const SENSE = 240; // lidar range used to mark the pallet
 
 // Product colours of the robot (not site tokens): light body, charcoal bumper; the deck uses --color-ink.
@@ -29,10 +21,6 @@ const PALLET = '#c4a77d';
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const ease = (x: number) => {
-  const t = clamp01(x);
-  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-};
 const smooth = (a: number, b: number, x: number) => {
   const t = clamp01((x - a) / (b - a));
   return t * t * (3 - 2 * t);
@@ -147,7 +135,65 @@ const PLAN = makePath([P, [490, 252], [560, 266], [604, 322], [618, 400], [680, 
 const DETOUR = makePath([P, [455, 290], [495, 306], [548, 308], [600, 348], [618, 400], [680, 452], B]);
 
 const DIST = SHARED.total + DETOUR.total;
-const s = (t: number) => DIST * ease((t - T.drive[0]) / (T.drive[1] - T.drive[0]));
+const posAt = (d: number): Pose => (d <= SHARED.total ? SHARED.at(d / SHARED.total) : DETOUR.at((d - SHARED.total) / DETOUR.total));
+
+// ── Timing: fast cruise, slows past the pallet ────────────────────────────
+const DRIVE_START = 1.2;
+const V_MAX = 260; // px per second when cruising
+const RAMP = 90; // px to pull away from A and to settle into B
+const SLOW_MIN = 0.3; // share of cruising speed when closest to the pallet
+const SLOW_HALF = 150; // px before and after the pallet over which it slows down and speeds up again
+
+// Route distance at which the robot passes closest to the pallet.
+const D_PALLET = (() => {
+  const cx = (PALLET_BOX[0] + PALLET_BOX[2]) / 2;
+  const cy = (PALLET_BOX[1] + PALLET_BOX[3]) / 2;
+  let best = 0;
+  let bestDist = Infinity;
+  for (let d = SHARED.total; d <= DIST; d += 2) {
+    const p = posAt(d);
+    const dist = Math.hypot(p.x - cx, p.y - cy);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = d;
+    }
+  }
+  return best;
+})();
+
+function speed(d: number) {
+  const ramp = 0.2 + 0.8 * smooth(0, RAMP, Math.min(d, DIST - d));
+  const k = Math.min(1, Math.abs(d - D_PALLET) / SLOW_HALF);
+  const near = 1 - ((1 - SLOW_MIN) * (1 + Math.cos(Math.PI * k))) / 2;
+  return V_MAX * ramp * near;
+}
+
+// Time to reach each pixel of the route, so position at a given time is a lookup.
+const ARRIVE = new Float64Array(Math.ceil(DIST) + 1);
+for (let i = 1; i < ARRIVE.length; i++) ARRIVE[i] = ARRIVE[i - 1] + 1 / speed(i - 0.5);
+const DRIVE_TIME = ARRIVE[ARRIVE.length - 1];
+const DRIVE_END = DRIVE_START + DRIVE_TIME;
+
+const T = {
+  draw: [0.3, 1.1] as const, // planned path draws in
+  drive: [DRIVE_START, DRIVE_END] as const,
+  out: [DRIVE_END + 1.1, DRIVE_END + 1.8] as const, // robot, pallet and path fade before the loop restarts
+};
+const LOOP = T.out[1] + 0.3;
+
+function s(t: number) {
+  const dt = t - DRIVE_START;
+  if (dt <= 0) return 0;
+  if (dt >= DRIVE_TIME) return DIST;
+  let lo = 0;
+  let hi = ARRIVE.length - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (ARRIVE[mid] <= dt) lo = mid;
+    else hi = mid;
+  }
+  return Math.min(DIST, lo + (dt - ARRIVE[lo]) / (ARRIVE[hi] - ARRIVE[lo]));
+}
 
 // The pallet drops in while the robot is still coming down the cross-aisle; the replan follows shortly after.
 const T_OBS = (() => {
@@ -162,10 +208,9 @@ const T_OBS = (() => {
 })();
 const T_REPLAN = T_OBS + 0.5;
 
-function pose(t: number): Pose {
-  const d = s(t);
-  return d <= SHARED.total ? SHARED.at(d / SHARED.total) : DETOUR.at((d - SHARED.total) / DETOUR.total);
-}
+const pose = (t: number) => posAt(s(t));
+// Reduced motion: the robot alongside the pallet, on the adjusted path.
+const STILL_T = DRIVE_START + ARRIVE[Math.round(D_PALLET)];
 
 // ── Drawing ──────────────────────────────────────────────────────────────
 interface Colors {
