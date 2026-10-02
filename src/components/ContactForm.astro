@@ -9,10 +9,14 @@ interface Props {
 const { locale } = Astro.props;
 const c = contact[locale];
 const mailto = `mailto:${COMPANY.email}`;
+// FormSubmit relays the form to the inbox; the first submission sends a one-time activation email.
+const endpoint = `https://formsubmit.co/${COMPANY.email}`;
 ---
 
-<!-- Static site: submitting builds a pre-filled email instead of posting to a server. -->
-<form class="contact-form" action={mailto} method="post" enctype="text/plain" data-contact-form data-to={COMPANY.email} data-subject={c.formSubject}>
+<form class="contact-form" action={endpoint} method="post" data-contact-form data-endpoint={`https://formsubmit.co/ajax/${COMPANY.email}`}>
+  <input type="hidden" name="_subject" value={c.formSubject} />
+  <input type="hidden" name="_template" value="table" />
+  <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
   <div class="row">
     <div class="field">
       <label for="cf-name">{c.formName}</label>
@@ -32,24 +36,51 @@ const mailto = `mailto:${COMPANY.email}`;
     <textarea id="cf-message" name="message" rows="6" required aria-describedby="cf-message-hint"></textarea>
     <p id="cf-message-hint" class="hint">{c.formMessageHint}</p>
   </div>
-  <button type="submit" class="btn btn-primary">
-    {c.formSubmit}
+  <button type="submit" class="btn btn-primary" data-submit>
+    <span data-label>{c.formSubmit}</span>
     <Send size={16} stroke-width={1.5} aria-hidden="true" />
   </button>
+  <p class="status" role="status" aria-live="polite" data-status hidden></p>
   <p class="hint">{c.formNote} <a href={mailto}>{COMPANY.email}</a>.</p>
+  <template data-msg-sending>{c.formSending}</template>
+  <template data-msg-sent>{c.formSent}</template>
+  <template data-msg-error>{c.formError}</template>
 </form>
 
 <script>
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
-  form?.addEventListener('submit', (e) => {
+  const button = form?.querySelector<HTMLButtonElement>('[data-submit]');
+  const label = form?.querySelector<HTMLElement>('[data-label]');
+  const status = form?.querySelector<HTMLElement>('[data-status]');
+  const msg = (k: string) => form?.querySelector<HTMLTemplateElement>(`[data-msg-${k}]`)?.content.textContent ?? '';
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const data = new FormData(form);
-    const get = (k: string) => String(data.get(k) ?? '').trim();
-    const name = get('name');
-    const company = get('company');
-    const body = [get('message'), '', `— ${name}${company ? `, ${company}` : ''}`, get('email')].join('\n');
-    const subject = `${form.dataset.subject} ${name}${company ? ` (${company})` : ''}`;
-    window.location.href = `mailto:${form.dataset.to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    if (!button || !label || !status) return;
+    const idle = label.textContent;
+    button.disabled = true;
+    label.textContent = msg('sending');
+    status.hidden = true;
+    status.dataset.state = '';
+    try {
+      const res = await fetch(form.dataset.endpoint!, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(form),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || res.statusText);
+      form.reset();
+      status.textContent = msg('sent');
+      status.dataset.state = 'ok';
+    } catch {
+      status.textContent = msg('error');
+      status.dataset.state = 'error';
+    } finally {
+      status.hidden = false;
+      button.disabled = false;
+      label.textContent = idle;
+    }
   });
 </script>
 
@@ -108,6 +139,30 @@ const mailto = `mailto:${COMPANY.email}`;
   textarea:focus {
     border-color: var(--color-accent);
     background: var(--color-surface);
+  }
+
+  .honey {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .status {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+  }
+
+  .status[data-state='ok'] {
+    background: rgba(47, 125, 82, 0.1);
+    color: var(--color-pass);
+  }
+
+  .status[data-state='error'] {
+    background: rgba(229, 70, 61, 0.1);
+    color: #b3352d;
   }
 
   .hint {
