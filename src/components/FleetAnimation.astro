@@ -1,0 +1,27 @@
+---
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<div class="fleet frame">
+  <canvas role="img" aria-label={label} data-amr-fleet></canvas>
+</div>
+
+<script>
+  import { mountAmrFleet } from '../scripts/amr-fleet';
+  document.querySelectorAll<HTMLCanvasElement>('[data-amr-fleet]').forEach(mountAmrFleet);
+</script>
+
+<style>
+  .fleet {
+    aspect-ratio: 16 / 9;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
