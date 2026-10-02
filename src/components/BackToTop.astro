@@ -1,0 +1,90 @@
+---
+// Appears after the first screen. The ring fills with scroll progress. site.ts handles show/hide and the click.
+import { ArrowUp } from '@lucide/astro';
+
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<button type="button" class="to-top" aria-label={label} title={label} data-to-top>
+  <svg class="ring" viewBox="0 0 48 48" aria-hidden="true">
+    <circle class="ring-track" cx="24" cy="24" r="22"></circle>
+    <circle class="ring-fill" cx="24" cy="24" r="22"></circle>
+  </svg>
+  <span class="arrow"><ArrowUp size={20} stroke-width={1.5} aria-hidden="true" /></span>
+</button>
+
+<style>
+  .to-top {
+    position: fixed;
+    z-index: 90;
+    right: max(var(--space-page-gutter), env(safe-area-inset-right));
+    bottom: max(var(--space-5), env(safe-area-inset-bottom));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    color: var(--color-ink);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease),
+      visibility 0s linear var(--dur);
+  }
+
+  .to-top.is-shown {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease),
+      visibility 0s;
+  }
+
+  .arrow {
+    display: inline-flex;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+
+  .to-top:hover .arrow {
+    transform: translateY(-2px);
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .ring-track {
+    stroke: var(--color-line);
+  }
+
+  /* 2πr = 138.2 */
+  .ring-fill {
+    stroke: var(--color-ink);
+    stroke-linecap: round;
+    stroke-dasharray: 138.2;
+    stroke-dashoffset: calc(138.2 * (1 - var(--progress, 0)));
+  }
+
+  :global(body[data-menu-open='true']) .to-top {
+    display: none;
+  }
+</style>

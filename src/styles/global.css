@@ -335,16 +335,80 @@ figure {
   align-items: start;
 }
 
-/* Reveal on scroll: small fade + rise only. */
+/* Reveal on scroll: small fade + rise only. List items set --d (0, 1, 2…) to arrive one after another. */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transform: translateY(12px);
+  transition:
+    opacity var(--dur-slow) var(--ease) calc(var(--d, 0) * var(--stagger)),
+    transform var(--dur-slow) var(--ease) calc(var(--d, 0) * var(--stagger));
 }
 
 [data-reveal].is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* Page entrance: the hero copy and its image rise in once, in reading order. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.hero-copy > *,
+.page-hero-copy > *,
+.hero-media,
+.page-hero figure {
+  animation: rise var(--dur-slow) var(--ease) both;
+}
+
+.hero-copy > :nth-child(2),
+.page-hero-copy > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.hero-copy > :nth-child(3),
+.page-hero-copy > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.hero-copy > :nth-child(n + 4),
+.page-hero-copy > :nth-child(n + 4) {
+  animation-delay: 180ms;
+}
+
+.hero-media,
+.page-hero figure {
+  animation-delay: 140ms;
+}
+
+/* Switching pages (and EN ↔ VI): a short cross-fade; the header stays put. Browsers without support just navigate. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-old(root) {
+  animation: fade-out 160ms var(--ease) both;
+}
+
+::view-transition-new(root) {
+  animation: fade-in var(--dur) var(--ease) both;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @media (max-width: 900px) {

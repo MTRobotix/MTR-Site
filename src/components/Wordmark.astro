@@ -1,15 +1,21 @@
 ---
 // MTRobotix wordmark, as on the MTR-Q one-pager: red "MT", navy "ROBOTIX", letter-spaced.
+// collapsible: in the header, "OBOTIX" folds away once the page scrolls, leaving "MTR" (site.ts sets data-compact).
 interface Props {
   size?: 'sm' | 'md';
+  collapsible?: boolean;
 }
-const { size = 'md' } = Astro.props;
+const { size = 'md', collapsible = false } = Astro.props;
+const rest = 'OBOTIX'.split('');
 ---
 
-<span class:list={['wordmark', size]} aria-hidden="true"><span class="mt">MT</span>ROBOTIX</span>
+<span class:list={['wordmark', size, { collapsible }]} aria-hidden="true">
+  <span class="mt">MT</span>R<span class="rest"><span class="rest-inner">{rest.map((ch, i) => <span style={`--i:${i}`}>{ch}</span>)}</span></span>
+</span>
 
 <style>
   .wordmark {
+    display: inline-flex;
     color: var(--color-ink);
     font-family: var(--font-body);
     font-weight: 500;
@@ -27,5 +33,35 @@ const { size = 'md' } = Astro.props;
 
   .mt {
     color: var(--color-brand-red);
+  }
+
+  /* Width folds via grid 1fr → 0fr; letters leave right to left first, return left to right after. */
+  .rest {
+    display: inline-grid;
+    grid-template-columns: 1fr;
+    transition: grid-template-columns 360ms var(--ease);
+  }
+
+  .rest-inner {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .rest-inner span {
+    display: inline-block;
+    transition:
+      opacity 200ms var(--ease) calc(120ms + var(--i) * 35ms),
+      transform 260ms var(--ease) calc(120ms + var(--i) * 35ms);
+  }
+
+  :global([data-compact]) .collapsible .rest {
+    grid-template-columns: 0fr;
+    transition-delay: 160ms;
+  }
+
+  :global([data-compact]) .collapsible .rest-inner span {
+    opacity: 0;
+    transform: translateX(-0.35em);
+    transition-delay: calc((5 - var(--i)) * 30ms);
   }
 </style>
