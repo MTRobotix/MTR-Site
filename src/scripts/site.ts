@@ -1,9 +1,31 @@
-// The only client JS: header border on scroll, mobile menu, reveal-on-scroll.
+// Site-wide JS: header state on scroll (border, MTROBOTIX → MTR), mobile menu, reveal-on-scroll, back to top.
 
 const header = document.querySelector<HTMLElement>('[data-site-header]');
-const onScroll = () => header?.toggleAttribute('data-scrolled', window.scrollY > 8);
+const toTop = document.querySelector<HTMLButtonElement>('[data-to-top]');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let compact = false;
+const onScroll = () => {
+  const y = window.scrollY;
+  header?.toggleAttribute('data-scrolled', y > 8);
+  if (toTop) {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    toTop.classList.toggle('is-shown', y > window.innerHeight * 0.8);
+    toTop.style.setProperty('--progress', String(max > 0 ? Math.min(1, y / max) : 0));
+  }
+  // Two thresholds so the wordmark does not flicker while scrolling around one point.
+  if (!compact && y > 140) compact = true;
+  else if (compact && y < 60) compact = false;
+  header?.toggleAttribute('data-compact', compact);
+};
 onScroll();
 window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('resize', onScroll, { passive: true });
+
+toTop?.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  // Keyboard users land at the top too, not on a button that is about to hide.
+  document.querySelector<HTMLElement>('.brand')?.focus({ preventScroll: true });
+});
 
 // Mobile menu
 const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
@@ -27,7 +49,7 @@ window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => e.matc
 
 // Reveal on scroll
 const reveal = document.querySelectorAll<HTMLElement>('[data-reveal]');
-if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+if (!('IntersectionObserver' in window) || reduceMotion.matches) {
   reveal.forEach((el) => el.classList.add('is-visible'));
 } else {
   const io = new IntersectionObserver(

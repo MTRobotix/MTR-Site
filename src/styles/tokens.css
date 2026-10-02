@@ -108,6 +108,10 @@
   --ease: cubic-bezier(0.22, 0.8, 0.32, 1);
   --dur-fast: 150ms;
   --dur: 260ms;
+  /* Entrances and reveals: one step slower than UI feedback. */
+  --dur-slow: 520ms;
+  /* Gap between items of a staggered list (cards, steps). */
+  --stagger: 80ms;
 
   --hit: 2.75rem;
 }

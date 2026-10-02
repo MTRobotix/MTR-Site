@@ -1,3 +1,7 @@
+## Design rules
+
+Read `.claude/skills/mtrobotix-web/SKILL.md` before changing any page, component, style, animation, image or copy, and follow it: theme tokens, Barlow type, minimal layout without extra spacing, simple motion, no filler wording, EN + VI copy, no invented facts.
+
 ## Development
 
 When starting the dev server, use background mode:

@@ -11,7 +11,7 @@ const { locale } = Astro.props;
 <ol class="steps">
   {
     steps[locale].map((s, i) => (
-      <li class="step" data-reveal>
+      <li class="step" data-reveal style={`--d:${i}`}>
         <span class="step-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
         <h3>{s.title}</h3>
         <p>{s.body}</p>

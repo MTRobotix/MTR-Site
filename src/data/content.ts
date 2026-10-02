@@ -37,12 +37,12 @@ export const steps: L<{ title: string; body: string }[]> = {
 export const products: L<{ key: 'mtrq' | 'amr' | 'arm'; name: string; summary: string; status?: 'wip' | 'soon'; image: string; alt: string }[]> = {
   en: [
     { key: 'mtrq', name: 'MTR-Q', summary: 'Vision inspection, built into the line you already run.', image: '/images/mtr-q/mtr-q-cell.webp', alt: 'MTR-Q inspection cell with a camera mounted over the conveyor' },
-    { key: 'amr', name: 'AMR', summary: 'Autonomous mobile robot for moving material inside your site.', status: 'soon', image: '/images/sensq/sensq-platform.jpg', alt: 'MTRobotix autonomous mobile robot with LiDAR' },
+    { key: 'amr', name: 'AMR', summary: 'Autonomous mobile robot for moving material inside your site.', status: 'soon', image: '/images/amr/amr-render.webp', alt: 'Render of the MTRobotix autonomous mobile robot: light grey body, navy load deck, lidar on top, drive wheels in the sides' },
     { key: 'arm', name: 'Robot arm', summary: '6-DOF arm for pick-and-place alongside a conveyor.', status: 'wip', image: '/images/robot-arm/robot-arm-hero.jpg', alt: 'The 6-DOF robot arm' },
   ],
   vi: [
     { key: 'mtrq', name: 'MTR-Q', summary: 'Kiểm tra bằng thị giác máy, lắp ngay trên dây chuyền bạn đang chạy.', image: '/images/mtr-q/mtr-q-cell.webp', alt: 'Trạm kiểm tra MTR-Q với camera gắn phía trên băng tải' },
-    { key: 'amr', name: 'AMR', summary: 'Robot di động tự hành vận chuyển vật liệu trong nhà xưởng.', status: 'soon', image: '/images/sensq/sensq-platform.jpg', alt: 'Robot di động tự hành của MTRobotix với cảm biến LiDAR' },
+    { key: 'amr', name: 'AMR', summary: 'Robot di động tự hành vận chuyển vật liệu trong nhà xưởng.', status: 'soon', image: '/images/amr/amr-render.webp', alt: 'Hình dựng 3D robot di động tự hành MTRobotix: thân xám nhạt, mặt chở hàng xanh navy, LiDAR phía trên, bánh xe hai bên' },
     { key: 'arm', name: 'Cánh tay robot', summary: 'Cánh tay 6 bậc tự do gắp - đặt cạnh băng tải.', status: 'wip', image: '/images/robot-arm/robot-arm-hero.jpg', alt: 'Cánh tay robot 6 bậc tự do' },
   ],
 };
@@ -51,7 +51,6 @@ export const home = {
   en: {
     title: 'MTRobotix — Vision inspection built into your line',
     description: 'MTRobotix builds MTR-Q, vision inspection that flags defects in real time on the line you already run. HCMC, Vietnam and Toronto, Canada.',
-    kicker: 'MTRobotix · Vision inspection',
     h1: 'Introducing MTR-Q',
     lead: 'Vision inspection, live on your line in hours. The fastest deployment you’ll see.',
     ctaPrimary: 'See MTR-Q',
@@ -59,7 +58,7 @@ export const home = {
     cellAlt: 'MTR-Q inspection cell — camera mounted over the conveyor.',
     solutionKicker: 'Our solution',
     solutionTitle: 'MTR-Q checks every unit, right on the line',
-    solutionPoints: ['Fits your line with no downtime.', 'Real-time inspection with sub-mm accuracy.', 'Deploys in hours.'],
+    solutionPoints: ['Fits your line with 0 downtime.', 'Real-time inspection.', 'Anomaly and <1mm defect detection.', 'Deploys in hours.'],
     animationLabel: 'Animation of the MTR-Q line: a camera over the conveyor checks each part, marking good parts green and defects red. An optional pusher add-on moves defects into a reject tray.',
     productsKicker: 'Products',
     productsTitle: 'What we build',
@@ -71,7 +70,6 @@ export const home = {
   vi: {
     title: 'MTRobotix — Kiểm tra bằng thị giác máy ngay trên dây chuyền',
     description: 'MTRobotix phát triển MTR-Q, hệ thống kiểm tra bằng thị giác máy phát hiện lỗi theo thời gian thực trên dây chuyền hiện có. TP. HCM, Việt Nam và Toronto, Canada.',
-    kicker: 'MTRobotix · Kiểm tra bằng thị giác máy',
     h1: 'Giới thiệu MTR-Q',
     lead: 'Kiểm tra bằng thị giác máy, chạy trên dây chuyền của bạn chỉ sau vài giờ. Triển khai nhanh nhất bạn từng thấy.',
     ctaPrimary: 'Xem MTR-Q',
@@ -80,8 +78,9 @@ export const home = {
     solutionKicker: 'Giải pháp',
     solutionTitle: 'MTR-Q kiểm tra từng sản phẩm, ngay trên dây chuyền',
     solutionPoints: [
-      'Lắp vào dây chuyền của bạn, không cần dừng máy.',
-      'Kiểm tra theo thời gian thực với độ chính xác dưới 1 mm.',
+      'Lắp vào dây chuyền của bạn với 0 thời gian dừng máy.',
+      'Kiểm tra theo thời gian thực.',
+      'Phát hiện bất thường và lỗi nhỏ hơn 1 mm.',
       'Triển khai trong vài giờ.',
     ],
     animationLabel: 'Hình động dây chuyền MTR-Q: camera phía trên băng tải kiểm tra từng sản phẩm, sản phẩm đạt hiện màu xanh, sản phẩm lỗi hiện màu đỏ. Bộ đẩy tùy chọn đưa sản phẩm lỗi vào khay loại.',
@@ -232,24 +231,35 @@ export const arm = {
   },
 };
 
-// TODO(owner): story is drafted only from facts already on the site (founder background, products).
-// Replace with the real founding story: when and why MTRobotix started.
+// Philosophy and story milestones: from the owner (Oct 2026). Milestones have no dates yet; add them when known.
+// TODO(owner): replace the MTR-Q milestone placeholder with a photo of the first prototype.
 export const about = {
   en: {
     title: 'About | MTRobotix',
     description: 'MTRobotix builds vision inspection and robotics for production lines, from hardware to software. HCMC, Vietnam and Toronto, Canada.',
-    kicker: 'About',
-    h1: 'We build inspection and robotics for the line you already run.',
-    lead: 'MTRobotix designs the hardware, trains the models and writes the software that ties them together — so a system fits your line instead of the other way round.',
+    kicker: 'Philosophy',
+    h1: 'Bring technology closer to customers.',
+    lead: 'MTR was established with one simple goal: excellent-quality products at an affordable price.',
     whereTitle: 'Where we are',
     storyTitle: 'Our story',
-    story: [
-      'MTRobotix comes from hands-on robotics work: computer vision, autonomous mobile robots and automation, built from the hardware up.',
-      'Our first product, MTR-Q, brings that work to the production line: vision inspection that fits the line you already run. An autonomous mobile robot is next.',
+    milestones: [
+      {
+        label: 'Start',
+        title: 'The team',
+        body: 'MT Robotics & Automation comes from a team of excellent engineers with hands-on experience in industrial robotics and AI systems.',
+      },
+      {
+        label: 'First product',
+        title: 'MTR-Q',
+        body: 'Our first prototype: a state-of-the-art computer vision system.',
+        photo: 'Photo coming soon',
+      },
+      { label: 'Next', title: 'Autonomous mobile robot', link: 'amr' as const },
     ],
     howTitle: 'How we work',
     founderKicker: 'Founder',
     founderName: 'Thong Huynh',
+    founderPhotoAlt: 'Thong Huynh, founder of MTRobotix',
     founderRole: 'Founder, robotics engineer',
     founderBody: 'Robotics engineer working across computer vision, autonomous mobile robots and automation.',
     education: 'B.Eng. Mechatronics Engineering, Ontario Tech University',
@@ -263,18 +273,29 @@ export const about = {
   vi: {
     title: 'Giới thiệu | MTRobotix',
     description: 'MTRobotix phát triển hệ thống kiểm tra bằng thị giác máy và robot cho dây chuyền sản xuất, từ phần cứng đến phần mềm. TP. HCM, Việt Nam và Toronto, Canada.',
-    kicker: 'Giới thiệu',
-    h1: 'Chúng tôi xây dựng hệ thống kiểm tra và robot cho dây chuyền bạn đang chạy.',
-    lead: 'MTRobotix thiết kế phần cứng, huấn luyện mô hình và viết phần mềm kết nối tất cả — để hệ thống phù hợp với dây chuyền của bạn, không phải ngược lại.',
+    kicker: 'Triết lý',
+    h1: 'Đưa công nghệ đến gần hơn với khách hàng.',
+    lead: 'MTR được thành lập với một mục tiêu đơn giản: sản phẩm chất lượng xuất sắc với giá thành hợp lý.',
     whereTitle: 'Văn phòng',
     storyTitle: 'Câu chuyện của chúng tôi',
-    story: [
-      'MTRobotix bắt nguồn từ công việc thực tế trong lĩnh vực robot: thị giác máy tính, robot di động tự hành và tự động hóa, xây dựng từ phần cứng trở lên.',
-      'Sản phẩm đầu tiên, MTR-Q, đưa kinh nghiệm đó vào dây chuyền sản xuất: hệ thống kiểm tra bằng thị giác máy lắp ngay trên dây chuyền bạn đang chạy. Tiếp theo là robot di động tự hành.',
+    milestones: [
+      {
+        label: 'Khởi đầu',
+        title: 'Đội ngũ',
+        body: 'MT Robotics & Automation bắt nguồn từ một đội ngũ kỹ sư xuất sắc với kinh nghiệm thực tế về robot công nghiệp và hệ thống AI.',
+      },
+      {
+        label: 'Sản phẩm đầu tiên',
+        title: 'MTR-Q',
+        body: 'Nguyên mẫu đầu tiên của chúng tôi: hệ thống thị giác máy tính hiện đại.',
+        photo: 'Ảnh sắp có',
+      },
+      { label: 'Tiếp theo', title: 'Robot di động tự hành', link: 'amr' as const },
     ],
     howTitle: 'Cách chúng tôi làm việc',
     founderKicker: 'Nhà sáng lập',
     founderName: 'Thong Huynh',
+    founderPhotoAlt: 'Thong Huynh, nhà sáng lập MTRobotix',
     founderRole: 'Nhà sáng lập, kỹ sư robot',
     founderBody: 'Kỹ sư robot làm việc trong lĩnh vực thị giác máy tính, robot di động tự hành và tự động hóa.',
     education: 'Kỹ sư Cơ điện tử (B.Eng.), Đại học Ontario Tech',
