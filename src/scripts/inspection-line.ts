@@ -2,6 +2,7 @@
 // 3D view of the line (camera on its stand) → turn down into the camera's view from above
 // → the reject add-on (pusher + tray) slides in and removes defects → back to 3D.
 // Plain orthographic projection; everything is derived from the loop time, so it never drifts.
+// The belt runs fast in 3D and slows down in the camera view; parts and slats share one belt position.
 
 type P2 = [number, number];
 type P3 = [number, number, number];
@@ -12,9 +13,11 @@ interface Face {
 }
 
 export const LOOP = 16;
-const SPEED = 112.5; // belt units per second; 18 parts per loop keeps the loop seamless
-const GAP = 100 / SPEED;
-const PHASE = -0.733; // stream offset so pushes land while the add-on is in place
+// Belt travel per loop must be a whole number of part spacings, defect patterns and slats.
+const LOOP_DIST = 1800;
+const SPACING = 100;
+const SLOW = 0.4; // camera-view belt speed relative to the 3D view
+const PUSH = { lead: 0.15, push: 0.36, slide: 0.25, back: 0.5, hold: 2.2, fade: 0.5 };
 const BX = 300;
 const BY = 60;
 const BH = 14;
@@ -56,15 +59,50 @@ export function storyAt(t: number) {
   return { v: 1 - ease((m - 14.4) / 1.6), a: 1 - ease((m - 14.4) / 0.6), z: 1 };
 }
 
+// Cumulative belt position over one loop, sampled finely so lookups both ways are cheap.
+const STEPS = 1600;
+const BELT = new Float64Array(STEPS + 1);
+{
+  const dt = LOOP / STEPS;
+  const rel = (t: number) => lerp(1, SLOW, storyAt(t).v);
+  for (let i = 0; i < STEPS; i++) BELT[i + 1] = BELT[i] + ((rel(i * dt) + rel((i + 1) * dt)) / 2) * dt;
+  const k = LOOP_DIST / BELT[STEPS];
+  for (let i = 0; i <= STEPS; i++) BELT[i] *= k;
+}
+
+function beltAt(t: number) {
+  const n = Math.floor(t / LOOP);
+  const f = ((t - n * LOOP) / LOOP) * STEPS;
+  const i = Math.min(STEPS - 1, Math.floor(f));
+  return n * LOOP_DIST + lerp(BELT[i], BELT[i + 1], f - i);
+}
+
+function timeAt(d: number) {
+  const n = Math.floor(d / LOOP_DIST);
+  const r = d - n * LOOP_DIST;
+  let lo = 0;
+  let hi = STEPS;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (BELT[mid] <= r) lo = mid;
+    else hi = mid;
+  }
+  return n * LOOP + ((lo + (r - BELT[lo]) / (BELT[lo + 1] - BELT[lo])) / STEPS) * LOOP;
+}
+
+// Two defects close together (parts 1 and 3 of every 6), placed so both reach the pusher while it is in.
+const isDefect = (k: number) => mod(k, 6) === 1 || mod(k, 6) === 3;
+const PHASE = mod(beltAt(10) - (PUSH_X + BX) - SPACING, 600) - 600;
+
 const pushOK = (th: number) => {
   const m = mod(th, LOOP);
-  return m >= 9.52 && m <= 13.65;
+  return m >= 9.4 + PUSH.lead && m <= 14.4 - PUSH.push - PUSH.back;
 };
 
 function headAt(d: number) {
-  if (d < 0) return lerp(HEAD_REST, -HS, (d + 0.12) / 0.12);
-  if (d < 0.28) return -HS + 79 * ease(d / 0.28);
-  return lerp(62, HEAD_REST, ease((d - 0.28) / 0.47));
+  if (d < 0) return lerp(HEAD_REST, -HS, (d + PUSH.lead) / PUSH.lead);
+  if (d < PUSH.push) return -HS + 79 * ease(d / PUSH.push);
+  return lerp(62, HEAD_REST, ease((d - PUSH.push) / PUSH.back));
 }
 
 function box(x0: number, x1: number, y0: number, y1: number, z0: number, z1: number): Face[] {
@@ -213,33 +251,34 @@ interface Part {
   flaw: boolean;
 }
 
-function partsAt(tl: number, a: number, c: Colors) {
+function partsAt(tl: number, run: number, a: number, c: Colors) {
   const parts: Part[] = [];
   let head = HEAD_REST;
-  for (let s = Math.floor((tl - 7 - PHASE) / GAP); s <= Math.floor((tl - PHASE) / GAP); s++) {
-    const ts = s * GAP + PHASE;
-    const age = tl - ts;
-    if (age < 0) continue;
-    const defect = mod(s, 3) === 2;
-    const th = ts + (PUSH_X + BX) / SPEED;
+  const last = Math.floor((run - PHASE) / SPACING);
+  // Pushed parts linger in the tray while the belt moves on, so look back further than the belt length.
+  for (let k = last - 10; k <= last; k++) {
+    const start = k * SPACING + PHASE;
+    const defect = isDefect(k);
+    const th = timeAt(start + PUSH_X + BX);
+    const d = tl - th;
     const pushed = defect && pushOK(th);
-    let x = -BX + age * SPEED;
+    let x = -BX + (run - start);
     let y = 0;
     let z = 0;
     let alpha: number;
-    if (pushed && tl >= th - 0.12 && tl < th + 0.75) head = headAt(tl - th);
-    if (pushed && tl >= th) {
-      const d = tl - th;
-      if (d > 2.5) continue;
+    if (pushed && d >= -PUSH.lead && d < PUSH.push + PUSH.back) head = headAt(d);
+    if (pushed && d >= 0) {
+      if (d > PUSH.hold + PUSH.fade) continue;
+      const drop = smooth(PUSH.push, PUSH.push + PUSH.slide, d);
       x = PUSH_X;
-      y = 79 * ease(d / 0.28) + 14 * smooth(0.28, 0.5, d) + (1 - a) * ADDON_SLIDE;
-      z = -6 * smooth(0.28, 0.5, d);
-      alpha = (1 - smooth(2, 2.5, d)) * a;
+      y = 79 * ease(d / PUSH.push) + 14 * drop + (1 - a) * ADDON_SLIDE;
+      z = -6 * drop;
+      alpha = (1 - smooth(PUSH.hold, PUSH.hold + PUSH.fade, d)) * a;
     } else {
       if (x > BX) continue;
       alpha = smooth(-BX, -BX + 30, x) * (1 - smooth(BX - 30, BX, x));
     }
-    const since = tl - (ts + BX / SPEED);
+    const since = tl - timeAt(start + BX);
     parts.push({ x, y, z, alpha, color: mix(c.part, defect ? c.fail : c.pass, clamp01(since / 0.15)), since, flaw: defect });
   }
   return { parts, head };
@@ -314,7 +353,8 @@ function render(
   const cam = cameraAt(v, z, W, H, fit);
   const rigA = 1 - smooth(0.1, 0.55, v);
   const lensA = smooth(0.6, 1, v);
-  const { parts, head } = partsAt(tl, a, c);
+  const run = beltAt(tl);
+  const { parts, head } = partsAt(tl, run, a, c);
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
@@ -334,12 +374,11 @@ function render(
 
   faces(ctx, cam, SLAB, (n) => rgb(n[2] > 0.5 ? c.soft : mix(c.line, c.strong, Math.abs(n[0]) * 0.6)), rgb(c.strong));
 
-  // Belt slats, moving with the belt.
-  ctx.strokeStyle = rgb(c.strong, 0.55);
-  ctx.lineWidth = dpr;
+  // Belt slats, moving with the belt. Wide and faint: thin lines shimmer as they cross the pixel grid.
+  ctx.strokeStyle = rgb(c.strong, 0.35);
+  ctx.lineWidth = Math.max(2, 1.5 * dpr);
   ctx.beginPath();
-  const run = (tl * SPEED) % 40;
-  for (let x = -BX + run; x < BX; x += 40) {
+  for (let x = -BX + (run % 40); x < BX; x += 40) {
     const p0 = cam.proj([x, -BY + 5, 0.2]);
     const p1 = cam.proj([x, BY - 5, 0.2]);
     ctx.moveTo(p0[0], p0[1]);
@@ -463,8 +502,15 @@ export function mountInspectionLine(canvas: HTMLCanvasElement) {
   let raf = 0;
   const layer = document.createElement('canvas').getContext('2d');
   if (!layer) return;
+  let colors = readColors(canvas);
 
-  const draw = () => W && H && render(ctx, layer, W, H, dpr, still ? STILL_T : t, readColors(canvas), fit);
+  const draw = () => W && H && render(ctx, layer, W, H, dpr, still ? STILL_T : t, colors, fit);
+  const recolor = () => {
+    colors = readColors(canvas);
+    draw();
+  };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor);
+  new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   const frame = (now: number) => {
     if (last) t += Math.min(0.1, (now - last) / 1000);
     last = now;
@@ -488,7 +534,7 @@ export function mountInspectionLine(canvas: HTMLCanvasElement) {
     canvas.width = layer.canvas.width = W;
     canvas.height = layer.canvas.height = H;
     fit = computeFit(W, H);
-    draw();
+    recolor();
   }).observe(canvas);
   new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { threshold: 0.15 }).observe(canvas);
 
