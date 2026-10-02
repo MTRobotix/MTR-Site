@@ -1,7 +1,6 @@
 ---
 import { ArrowRight } from '@lucide/astro';
 import Base from '../layouts/Base.astro';
-import Stats from '../components/Stats.astro';
 import Steps from '../components/Steps.astro';
 import ProductCards from '../components/ProductCards.astro';
 import ContactBlock from '../components/ContactBlock.astro';
@@ -22,7 +21,6 @@ const c = home[locale];
     <span class="pool-reticle" data-pool-reticle aria-hidden="true"><i></i></span>
     <div class="shell hero-grid">
       <div class="hero-copy">
-        <p class="kicker">{c.kicker}</p>
         <h1>{c.h1}</h1>
         <p class="lead">{c.lead}</p>
         <div class="btn-row">
@@ -30,7 +28,9 @@ const c = home[locale];
           <a class="btn" href={localPath(locale, 'contact')}>{c.ctaSecondary}</a>
         </div>
       </div>
-      <InspectionAnimation label={c.animationLabel} />
+      <figure class="frame hero-media">
+        <img src="/images/mtr-q/mtr-q-cell.webp" alt={c.cellAlt} width="1800" height="1440" fetchpriority="high" />
+      </figure>
     </div>
   </section>
 
@@ -47,17 +47,16 @@ const c = home[locale];
             {ui[locale].learnMore} <ArrowRight size={16} stroke-width={1.5} aria-hidden="true" />
           </a>
         </div>
-        <figure class="frame" data-reveal>
-          <img src="/images/mtr-q/mtr-q-cell.webp" alt={c.cellAlt} width="1800" height="1440" loading="lazy" />
-        </figure>
+        <div data-reveal style="--d:1">
+          <InspectionAnimation label={c.animationLabel} />
+        </div>
       </div>
-      <Stats locale={locale} />
     </div>
   </section>
 
   <section class="section">
     <div class="shell">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
         <p class="kicker">{c.productsKicker}</p>
         <h2>{c.productsTitle}</h2>
       </div>
@@ -67,7 +66,7 @@ const c = home[locale];
 
   <section class="section section-soft">
     <div class="shell">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
         <p class="kicker">{c.stepsKicker}</p>
         <h2>{c.stepsTitle}</h2>
       </div>
@@ -207,51 +206,28 @@ const c = home[locale];
     gap: var(--space-5);
   }
 
-  .hero-copy .kicker {
-    margin-bottom: 0;
-  }
-
-  /* Load-only intro: each line wipes in left to right, then the animation fades up.
-     backwards fill: no clip lingers after the reveal (keeps focus rings and descenders intact). */
+  /* Home hero entrance (overrides the shared rise): each line wipes in left to right, once per load.
+     backwards fill so no clip lingers afterwards (keeps focus rings and descenders intact). */
   .hero-copy > * {
-    animation: hero-wipe 900ms var(--ease) backwards;
+    animation: hero-wipe var(--dur-slow) var(--ease) backwards;
   }
 
   .hero-copy > :nth-child(2) {
-    animation-delay: 120ms;
+    animation-delay: calc(var(--stagger) * 1.5);
   }
 
   .hero-copy > :nth-child(3) {
-    animation-delay: 260ms;
-  }
-
-  .hero-copy > :nth-child(4) {
-    animation-delay: 400ms;
-  }
-
-  .hero-grid > :global(.inspection) {
-    animation: hero-rise 900ms var(--ease) 450ms backwards;
+    animation-delay: calc(var(--stagger) * 3);
   }
 
   @keyframes hero-wipe {
     from {
       clip-path: inset(-20% 100% -20% 0);
-      transform: translateX(-28px);
+      transform: translateX(-12px);
       opacity: 0;
-    }
-    60% {
-      opacity: 1;
     }
     to {
       clip-path: inset(-20% -10% -20% 0);
-      transform: none;
-    }
-  }
-
-  @keyframes hero-rise {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
     }
   }
 
@@ -260,7 +236,6 @@ const c = home[locale];
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
     gap: var(--space-7);
     align-items: center;
-    margin-bottom: var(--space-7);
   }
 
   .solution-copy {

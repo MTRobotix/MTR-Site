@@ -12,8 +12,8 @@ const copy = ui[locale];
 
 <ul class="cards">
   {
-    products[locale].filter((p) => isShown(p.key)).map((p) => (
-      <li data-reveal>
+    products[locale].filter((p) => isShown(p.key)).map((p, i) => (
+      <li data-reveal style={`--d:${i}`}>
         <a class="card" href={localPath(locale, p.key)}>
           <div class="card-media">
             <img src={p.image} alt={p.alt} loading="lazy" width="800" height="600" />

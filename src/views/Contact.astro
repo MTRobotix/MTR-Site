@@ -25,16 +25,16 @@ const c = contact[locale];
 
   <section class="section">
     <div class="shell contact-grid">
-      <div class="panel">
+      <div class="panel" data-reveal>
         <h2 class="block-title">{c.formTitle}</h2>
         <ContactForm locale={locale} />
       </div>
       <div class="side">
-        <div class="panel">
+        <div class="panel" data-reveal style="--d:1">
           <ContactBlock locale={locale} />
           <a class="btn" href={COMPANY.linkedin} rel="noopener" target="_blank">{c.linkedinLabel}</a>
         </div>
-        <div class="panel">
+        <div class="panel" data-reveal style="--d:2">
           <h2 class="block-title">{c.includeTitle}</h2>
           <ul class="ticks">
             {c.include.map((i) => <li>{i}</li>)}

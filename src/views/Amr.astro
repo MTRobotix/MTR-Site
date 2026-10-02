@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import CtaBand from '../components/CtaBand.astro';
+import RouteAnimation from '../components/RouteAnimation.astro';
 import { amr } from '../data/content';
 import { ui, type Locale } from '../data/i18n';
 
@@ -11,31 +12,45 @@ const { locale } = Astro.props;
 const c = amr[locale];
 ---
 
-<Base title={c.title} description={c.description} locale={locale} page="amr" image="/images/sensq/sensq-platform.jpg">
+<Base title={c.title} description={c.description} locale={locale} page="amr" image="/images/amr/amr-render.jpg">
   <section class="page-hero">
     <div class="shell page-hero-grid">
       <div class="page-hero-copy">
         <p class="kicker">{c.kicker}</p>
         <span class="badge badge-soon">{ui[locale].comingSoon}</span>
         <h1>{c.h1}</h1>
+        <p class="tagline">{c.tagline}</p>
         <p class="lead">{c.lead}</p>
       </div>
       <figure>
         <div class="frame">
-          <img src="/images/sensq/sensq-platform.jpg" alt={c.imageCaption} fetchpriority="high" />
+          <img src="/images/amr/amr-render.webp" alt={c.imageAlt} width="1600" height="1200" fetchpriority="high" />
         </div>
         <figcaption class="caption">{c.imageCaption}</figcaption>
       </figure>
     </div>
   </section>
 
+  <section class="section section-soft">
+    <div class="shell">
+      <h2 class="block-title" data-reveal>{c.routeTitle}</h2>
+      <figure data-reveal style="--d:1">
+        <RouteAnimation label={c.routeLabel} />
+        <figcaption class="caption">{c.routeCaption}</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <section class="section">
     <div class="shell two-col">
-      <div data-reveal>
+      <div class="overview" data-reveal>
         <h2 class="block-title">{c.overviewTitle}</h2>
         <p class="lead">{c.overview}</p>
+        <ul class="ticks">
+          {c.features.map((f) => <li>{f}</li>)}
+        </ul>
       </div>
-      <div data-reveal>
+      <div data-reveal style="--d:1">
         <h2 class="block-title">{c.specsTitle}</h2>
         <dl class="facts">
           {
@@ -53,3 +68,15 @@ const c = amr[locale];
 
   <CtaBand locale={locale} title={c.ctaTitle} lead={c.ctaLead} cta={c.cta} />
 </Base>
+
+<style>
+  .overview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .overview .block-title {
+    margin-bottom: 0;
+  }
+</style>

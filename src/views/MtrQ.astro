@@ -68,7 +68,7 @@ const c = mtrq[locale];
           {c.why.map((w) => <li>{w}</li>)}
         </ul>
       </div>
-      <figure data-reveal>
+      <figure data-reveal style="--d:1">
         <h2 class="block-title">{c.practiceTitle}</h2>
         <div class="frame">
           <img src="/images/mtr-q/mtr-q-output.webp" alt={c.practiceAlt} width="1172" height="968" loading="lazy" />
@@ -80,7 +80,7 @@ const c = mtrq[locale];
 
   <section class="section section-soft">
     <div class="shell">
-      <h2 class="block-title">{c.stepsTitle}</h2>
+      <h2 class="block-title" data-reveal>{c.stepsTitle}</h2>
       <Steps locale={locale} />
     </div>
   </section>

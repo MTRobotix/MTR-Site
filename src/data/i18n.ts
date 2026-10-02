@@ -33,7 +33,7 @@ export const COMPANY = {
   name: 'MTRobotix',
   email: 'mtrobotix@gmail.com',
   phones: [
-    { label: { en: 'Vietnam', vi: 'Việt Nam' }, display: '(+84) 835760735', tel: '+84835760735' },
+    { label: { en: 'Vietnam', vi: 'Việt Nam' }, display: '+84 835760735', tel: '+84835760735' },
     { label: { en: 'Canada', vi: 'Canada' }, display: '+1 905 924 5498', tel: '+19059245498' },
   ],
   locations: [
@@ -45,13 +45,14 @@ export const COMPANY = {
 
 export const ui = {
   en: {
-    nav: { home: 'Home', mtrq: 'MTR-Q', amr: 'AMR', arm: 'Robot arm', about: 'About', contact: 'Contact us' },
+    nav: { home: 'Home', mtrq: 'MTR-Q', amr: 'MTR-M', arm: 'Robot arm', about: 'About', contact: 'Contact us' },
     homeLabel: 'MTRobotix home',
     primaryNav: 'Main',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
     language: 'Language',
     skip: 'Skip to content',
+    backToTop: 'Back to top',
     wip: 'Demo · Work in progress',
     comingSoon: 'Details coming soon',
     learnMore: 'Learn more',
@@ -61,13 +62,14 @@ export const ui = {
     rights: 'All rights reserved.',
   },
   vi: {
-    nav: { home: 'Trang chủ', mtrq: 'MTR-Q', amr: 'AMR', arm: 'Cánh tay robot', about: 'Giới thiệu', contact: 'Liên hệ' },
+    nav: { home: 'Trang chủ', mtrq: 'MTR-Q', amr: 'MTR-M', arm: 'Cánh tay robot', about: 'Giới thiệu', contact: 'Liên hệ' },
     homeLabel: 'Trang chủ MTRobotix',
     primaryNav: 'Chính',
     openMenu: 'Mở menu',
     closeMenu: 'Đóng menu',
     language: 'Ngôn ngữ',
     skip: 'Bỏ qua đến nội dung',
+    backToTop: 'Lên đầu trang',
     wip: 'Demo · Đang phát triển',
     comingSoon: 'Thông tin chi tiết sắp có',
     learnMore: 'Xem thêm',
