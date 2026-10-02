@@ -164,9 +164,8 @@ export const amr = {
       { label: 'Navigation', value: 'TBD' },
       { label: 'Charging', value: 'TBD' },
     ],
-    routeTitle: 'From A to B, around obstacles',
     routeLabel:
-      'Top view of a warehouse: MTR-M drives from station A to station B along its planned path. A pallet drops into the aisle; the lidar marks it red and the robot takes an adjusted path around it without stopping.',
+      'Top view of a warehouse: MTR-M drives from station A, top left, to station B, bottom right, along its planned path through the middle aisle. A pallet drops onto the path; the lidar marks it red and the robot takes an adjusted path around it without stopping.',
     routeCaption: 'Planned path in blue. When a pallet blocks the aisle, the robot replans and keeps moving.',
     ctaTitle: 'Interested in MTR-M?',
     ctaLead: 'Tell us what you need to move and where.',
@@ -192,9 +191,8 @@ export const amr = {
       { label: 'Điều hướng', value: 'Sắp có' },
       { label: 'Sạc', value: 'Sắp có' },
     ],
-    routeTitle: 'Từ A đến B, vượt qua vật cản',
     routeLabel:
-      'Nhìn từ trên xuống nhà kho: MTR-M di chuyển từ trạm A đến trạm B theo lộ trình dự kiến. Một pallet rơi vào lối đi; LiDAR đánh dấu màu đỏ và robot đi vòng qua theo lộ trình mới mà không dừng lại.',
+      'Nhìn từ trên xuống nhà kho: MTR-M di chuyển từ trạm A ở góc trên bên trái đến trạm B ở góc dưới bên phải, theo lộ trình dự kiến qua lối đi giữa. Một pallet rơi vào lộ trình; LiDAR đánh dấu màu đỏ và robot đi vòng qua theo lộ trình mới mà không dừng lại.',
     routeCaption: 'Lộ trình dự kiến màu xanh. Khi pallet chặn lối đi, robot lập lại lộ trình và tiếp tục di chuyển.',
     ctaTitle: 'Bạn quan tâm đến MTR-M?',
     ctaLead: 'Cho chúng tôi biết bạn cần vận chuyển gì và ở đâu.',

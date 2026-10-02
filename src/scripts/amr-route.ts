@@ -1,7 +1,7 @@
 // MTR-M route animation on a canvas, top view. The floor plan is always visible. One loop:
-// the planned path from station A to station B draws in → the robot drives → a pallet drops into the
-// aisle → the lidar marks it red, the old path fades and the adjusted path draws in while the robot keeps
-// moving → the robot arrives at B, holds, fades and starts again from A.
+// the planned path from station A (top left) to station B (bottom right) draws in → the robot drives down
+// into the middle aisle → a pallet drops onto its path → the lidar marks it red, the old path fades and the
+// adjusted path draws in while the robot keeps moving → it leaves the aisle, arrives at B, fades, restarts.
 
 type P2 = [number, number];
 type Pose = { x: number; y: number; a: number };
@@ -11,13 +11,13 @@ type Seg = [number, number, number, number];
 const W = 960;
 const H = 540;
 const TAU = Math.PI * 2;
-const LOOP = 10.4;
-const STILL_T = 6.2; // reduced motion: after the replan, robot on its way around the pallet
+const LOOP = 11.2;
+const STILL_T = 5.6; // reduced motion: after the replan, robot on its way around the pallet
 
 const T = {
   draw: [0.3, 1.1] as const, // planned path draws in
-  drive: [1.2, 8.6] as const,
-  out: [9.4, 10.1] as const, // robot, pallet and path fade before the loop restarts
+  drive: [1.2, 9.3] as const,
+  out: [10.2, 10.9] as const, // robot, pallet and path fade before the loop restarts
 };
 const SENSE = 240; // lidar range used to mark the pallet
 
@@ -48,9 +48,9 @@ const RACKS: Rect[] = [
   [410, 340, 570, 400],
   [650, 340, 810, 400],
 ];
-const PALLET_BOX: Rect = [497, 232, 543, 278];
-const A: P2 = [95, 270];
-const B: P2 = [868, 270];
+const PALLET_BOX: Rect = [470, 230, 510, 270];
+const A: P2 = [100, 85];
+const B: P2 = [865, 455];
 
 const segsOf = ([x1, y1, x2, y2]: Rect): Seg[] => [
   [x1, y1, x2, y1],
@@ -138,23 +138,24 @@ function makePath(pts: P2[]): Path {
   return { total, at, points };
 }
 
-// The route: A to P is shared; from P the first plan runs straight through where the pallet lands,
-// the adjusted plan bends around it.
-const P: P2 = [400, 270];
-const SHARED = makePath([A, [250, 270], P]);
-const PLAN = makePath([P, [520, 270], [700, 270], B]);
-const DETOUR = makePath([P, [450, 276], [520, 314], [590, 278], [660, 270], B]);
+// The route: top aisle → down the first cross-aisle → middle aisle → down the second cross-aisle → bottom
+// aisle. A to P is shared; from P the first plan runs straight through where the pallet lands, the adjusted
+// plan dips below it and rejoins before the second cross-aisle.
+const P: P2 = [425, 268];
+const SHARED = makePath([A, [250, 85], [358, 118], [372, 200], [400, 255], P]);
+const PLAN = makePath([P, [490, 252], [560, 266], [604, 322], [618, 400], [680, 452], B]);
+const DETOUR = makePath([P, [455, 290], [495, 306], [548, 308], [600, 348], [618, 400], [680, 452], B]);
 
 const DIST = SHARED.total + DETOUR.total;
 const s = (t: number) => DIST * ease((t - T.drive[0]) / (T.drive[1] - T.drive[0]));
 
-// The pallet drops in while the robot is still ~170 px short of P; the replan follows half a second later.
+// The pallet drops in while the robot is still coming down the cross-aisle; the replan follows shortly after.
 const T_OBS = (() => {
   let lo: number = T.drive[0];
   let hi: number = T.drive[1];
   for (let i = 0; i < 40; i++) {
     const mid = (lo + hi) / 2;
-    if (s(mid) < SHARED.total - 170) lo = mid;
+    if (s(mid) < SHARED.total - 230) lo = mid;
     else hi = mid;
   }
   return lo;
@@ -211,7 +212,7 @@ function floor(ctx: CanvasRenderingContext2D, c: Colors) {
   }
 }
 
-function station(ctx: CanvasRenderingContext2D, [x, y]: P2, label: string, active: number, c: Colors) {
+function station(ctx: CanvasRenderingContext2D, [x, y]: P2, label: string, active: number, c: Colors, labelDy = 48) {
   ctx.beginPath();
   ctx.arc(x, y, 28, 0, TAU);
   ctx.fillStyle = c.soft;
@@ -225,7 +226,7 @@ function station(ctx: CanvasRenderingContext2D, [x, y]: P2, label: string, activ
   ctx.font = '600 17px "Barlow Condensed", system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(label, x, y + 48);
+  ctx.fillText(label, x, y + labelDy);
 }
 
 function polyline(ctx: CanvasRenderingContext2D, pts: P2[]) {
@@ -249,7 +250,7 @@ function robot(ctx: CanvasRenderingContext2D, p: Pose, c: Colors) {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(p.a);
-  ctx.scale(1.25, 1.25);
+  ctx.scale(1.1, 1.1);
   const L = 40;
   const Bw = 29;
   const r = 7;
@@ -302,7 +303,7 @@ function createScene() {
 
     floor(ctx, c);
     station(ctx, A, 'A', t < T.drive[0] + 0.4 ? 1 : 0, c);
-    station(ctx, B, 'B', t > T.drive[1] - 0.2 ? 1 : 0, c);
+    station(ctx, B, 'B', t > T.drive[1] - 0.2 ? 1 : 0, c, -46);
 
     // Pallet: drops in on the planned line; its lidar marks stay red.
     if (t >= T_OBS) {
