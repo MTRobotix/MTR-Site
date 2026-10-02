@@ -33,7 +33,7 @@ export const COMPANY = {
   name: 'MTRobotix',
   email: 'mtrobotix@gmail.com',
   phones: [
-    { label: { en: 'Vietnam', vi: 'Việt Nam' }, display: '(+84) 835760735', tel: '+84835760735' },
+    { label: { en: 'Vietnam', vi: 'Việt Nam' }, display: '+84 835760735', tel: '+84835760735' },
     { label: { en: 'Canada', vi: 'Canada' }, display: '+1 905 924 5498', tel: '+19059245498' },
   ],
   locations: [
@@ -52,6 +52,7 @@ export const ui = {
     closeMenu: 'Close menu',
     language: 'Language',
     skip: 'Skip to content',
+    backToTop: 'Back to top',
     wip: 'Demo · Work in progress',
     comingSoon: 'Details coming soon',
     learnMore: 'Learn more',
@@ -69,6 +70,7 @@ export const ui = {
     closeMenu: 'Đóng menu',
     language: 'Ngôn ngữ',
     skip: 'Bỏ qua đến nội dung',
+    backToTop: 'Lên đầu trang',
     wip: 'Demo · Đang phát triển',
     comingSoon: 'Thông tin chi tiết sắp có',
     learnMore: 'Xem thêm',
