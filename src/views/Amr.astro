@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import CtaBand from '../components/CtaBand.astro';
 import RouteAnimation from '../components/RouteAnimation.astro';
+import SpecTable from '../components/SpecTable.astro';
 import { amr } from '../data/content';
 import { ui, type Locale } from '../data/i18n';
 
@@ -26,38 +27,30 @@ const c = amr[locale];
         <div class="frame">
           <img src="/images/amr/amr-render.webp" alt={c.imageAlt} width="1600" height="1200" fetchpriority="high" />
         </div>
-        <figcaption class="caption">{c.imageCaption}</figcaption>
       </figure>
     </div>
   </section>
 
   <section class="section">
     <div class="shell">
+      <div class="overview" data-reveal>
+        <div>
+          <h2 class="block-title">{c.overviewTitle}</h2>
+          <p class="lead">{c.overview}</p>
+        </div>
+        <ul class="ticks">
+          {c.features.map((f) => <li>{f}</li>)}
+        </ul>
+      </div>
       <div class="amr-grid">
         <figure data-reveal>
           <RouteAnimation label={c.routeLabel} />
           <figcaption class="caption">{c.routeCaption}</figcaption>
         </figure>
-        <div class="overview" data-reveal style="--d:1">
-          <h2 class="block-title">{c.overviewTitle}</h2>
-          <p class="lead">{c.overview}</p>
-          <ul class="ticks">
-            {c.features.map((f) => <li>{f}</li>)}
-          </ul>
+        <div data-reveal style="--d:1">
+          <h2 class="block-title">{c.specsTitle}</h2>
+          <SpecTable head={c.specsHead} rows={c.specs.map((s) => ({ name: s.label, detail: s.value }))} />
         </div>
-      </div>
-      <div class="specs" data-reveal style="--d:2">
-        <h2 class="block-title">{c.specsTitle}</h2>
-        <dl class="spec-strip">
-          {
-            c.specs.map((s) => (
-              <div>
-                <dt>{s.label}</dt>
-                <dd>{s.value}</dd>
-              </div>
-            ))
-          }
-        </dl>
       </div>
     </div>
   </section>
@@ -66,83 +59,39 @@ const c = amr[locale];
 </Base>
 
 <style>
-  /* Animation and overview side by side, specs as one strip under them: the whole block fits one laptop screen. */
+  /* Overview on top; animation beside the specs table below it. The whole block fits one laptop screen. */
+  .overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: end;
+    margin-bottom: var(--space-7);
+  }
+
+  .overview .block-title {
+    margin-bottom: var(--space-3);
+  }
+
   .amr-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     gap: var(--space-7);
-    align-items: center;
-    margin-bottom: var(--space-7);
+    align-items: start;
   }
 
-  .overview {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .overview .block-title {
-    margin-bottom: 0;
-  }
-
-  .specs .block-title {
+  .amr-grid .block-title {
     margin-bottom: var(--space-4);
   }
 
-  .spec-strip {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    margin: 0;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-  }
-
-  .spec-strip > div {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-4) var(--space-5);
-  }
-
-  .spec-strip > div + div {
-    border-left: 1px solid var(--color-line);
-  }
-
-  .spec-strip dt {
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-  }
-
-  .spec-strip dd {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: var(--text-h3);
-    font-weight: 600;
-    line-height: 1.1;
-  }
-
   @media (max-width: 900px) {
+    .overview,
     .amr-grid {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--space-6);
+    }
+
+    .overview {
       margin-bottom: var(--space-6);
-    }
-
-    .spec-strip {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .spec-strip > div + div {
-      border-left: 0;
-    }
-
-    .spec-strip > div:nth-child(even) {
-      border-left: 1px solid var(--color-line);
-    }
-
-    .spec-strip > div:nth-child(n + 3) {
-      border-top: 1px solid var(--color-line);
     }
   }
 </style>
