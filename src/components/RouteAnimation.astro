@@ -1,0 +1,27 @@
+---
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<div class="route frame">
+  <canvas role="img" aria-label={label} data-amr-route></canvas>
+</div>
+
+<script>
+  import { mountAmrRoute } from '../scripts/amr-route';
+  document.querySelectorAll<HTMLCanvasElement>('[data-amr-route]').forEach(mountAmrRoute);
+</script>
+
+<style>
+  .route {
+    aspect-ratio: 16 / 9;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
