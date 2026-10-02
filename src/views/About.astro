@@ -23,19 +23,12 @@ const c = about[locale];
     </div>
   </section>
 
-  <section class="section where">
-    <div class="shell where-row" data-reveal>
-      <h2 class="kicker">{c.whereTitle}</h2>
-      <ul class="places">
-        {
-          COMPANY.locations.map((l) => (
-            <li>
-              <MapPin size={16} stroke-width={1.5} aria-hidden="true" />
-              {l[locale]}
-            </li>
-          ))
-        }
-      </ul>
+  <section class="section">
+    <div class="shell two-col">
+      <h2 data-reveal>{c.storyTitle}</h2>
+      <div class="story" data-reveal>
+        {c.story.map((p) => <p>{p}</p>)}
+      </div>
     </div>
   </section>
 
@@ -72,6 +65,22 @@ const c = about[locale];
       </div>
     </div>
   </section>
+
+  <section class="section where">
+    <div class="shell where-row" data-reveal>
+      <h2 class="kicker">{c.whereTitle}</h2>
+      <ul class="places">
+        {
+          COMPANY.locations.map((l) => (
+            <li>
+              <MapPin size={16} stroke-width={1.5} aria-hidden="true" />
+              {l[locale]}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 </Base>
 
 <style>
@@ -79,9 +88,17 @@ const c = about[locale];
     max-width: 52rem;
   }
 
+  .story {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-lead);
+    line-height: 1.5;
+  }
+
   .section.where {
     padding-block: var(--space-5);
-    border-top: 1px solid var(--color-line);
   }
 
   .where-row {
