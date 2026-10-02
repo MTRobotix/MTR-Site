@@ -10,12 +10,14 @@ interface Props {
 
 const { locale, page } = Astro.props;
 const copy = ui[locale];
-const links: { key: RouteKey; label: string }[] = [
+const allLinks: { key: RouteKey; label: string }[] = [
+  { key: 'home', label: copy.nav.home },
   { key: 'mtrq', label: copy.nav.mtrq },
   { key: 'amr', label: copy.nav.amr },
   { key: 'arm', label: copy.nav.arm },
   { key: 'about', label: copy.nav.about },
-].filter((l) => isShown(l.key));
+];
+const links = allLinks.filter((l) => isShown(l.key));
 ---
 
 <header class="site-header" data-site-header>
