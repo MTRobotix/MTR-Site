@@ -65,7 +65,7 @@ export const home = {
       'Trained on your defects, not generic examples.',
       'Runs on-site — no cloud delay.',
     ],
-    solutionCaption: 'Each part is checked as it passes the camera: green passes, red is flagged.',
+    animationLabel: 'Animation of the MTR-Q line: a camera over the conveyor checks each part, marking good parts green and defects red. An optional pusher add-on moves defects into a reject tray.',
     productsKicker: 'Products',
     productsTitle: 'What we build',
     stepsKicker: 'Getting started',
@@ -90,7 +90,7 @@ export const home = {
       'Huấn luyện trên chính các lỗi của bạn, không dùng ví dụ chung chung.',
       'Chạy tại chỗ — không phụ thuộc cloud.',
     ],
-    solutionCaption: 'Từng sản phẩm được kiểm tra khi đi qua camera: xanh là đạt, đỏ là lỗi.',
+    animationLabel: 'Hình động dây chuyền MTR-Q: camera phía trên băng tải kiểm tra từng sản phẩm, sản phẩm đạt hiện màu xanh, sản phẩm lỗi hiện màu đỏ. Bộ đẩy tùy chọn đưa sản phẩm lỗi vào khay loại.',
     productsKicker: 'Sản phẩm',
     productsTitle: 'Sản phẩm của chúng tôi',
     stepsKicker: 'Bắt đầu',
@@ -238,6 +238,8 @@ export const arm = {
   },
 };
 
+// TODO(owner): story is drafted only from facts already on the site (founder background, products).
+// Replace with the real founding story: when and why MTRobotix started.
 export const about = {
   en: {
     title: 'About | MTRobotix',
@@ -246,6 +248,11 @@ export const about = {
     h1: 'We build inspection and robotics for the line you already run.',
     lead: 'MTRobotix designs the hardware, trains the models and writes the software that ties them together — so a system fits your line instead of the other way round.',
     whereTitle: 'Where we are',
+    storyTitle: 'Our story',
+    story: [
+      'MTRobotix comes from hands-on robotics work: computer vision, autonomous mobile robots and automation, built from the hardware up.',
+      'Our first product, MTR-Q, brings that work to the production line: vision inspection that fits the line you already run. An autonomous mobile robot is next.',
+    ],
     howTitle: 'How we work',
     founderKicker: 'Founder',
     founderName: 'Thong Huynh',
@@ -266,6 +273,11 @@ export const about = {
     h1: 'Chúng tôi xây dựng hệ thống kiểm tra và robot cho dây chuyền bạn đang chạy.',
     lead: 'MTRobotix thiết kế phần cứng, huấn luyện mô hình và viết phần mềm kết nối tất cả — để hệ thống phù hợp với dây chuyền của bạn, không phải ngược lại.',
     whereTitle: 'Văn phòng',
+    storyTitle: 'Câu chuyện của chúng tôi',
+    story: [
+      'MTRobotix bắt nguồn từ công việc thực tế trong lĩnh vực robot: thị giác máy tính, robot di động tự hành và tự động hóa, xây dựng từ phần cứng trở lên.',
+      'Sản phẩm đầu tiên, MTR-Q, đưa kinh nghiệm đó vào dây chuyền sản xuất: hệ thống kiểm tra bằng thị giác máy lắp ngay trên dây chuyền bạn đang chạy. Tiếp theo là robot di động tự hành.',
+    ],
     howTitle: 'Cách chúng tôi làm việc',
     founderKicker: 'Nhà sáng lập',
     founderName: 'Thong Huynh',

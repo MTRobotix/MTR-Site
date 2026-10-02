@@ -68,9 +68,7 @@
   --color-wip-soft: rgba(138, 90, 18, 0.1);
   /* Pass/defect read-out (MTR-Q inspection diagram). */
   --color-pass: #2f7d52;
-  --color-pass-soft: rgba(47, 125, 82, 0.12);
   --color-fail: var(--color-brand-red);
-  --color-fail-soft: rgba(229, 70, 61, 0.12);
   --shadow-color: rgba(30, 32, 36, 0.08);
 
   --font-heading: 'Barlow Condensed', system-ui, sans-serif;

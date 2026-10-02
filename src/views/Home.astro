@@ -50,10 +50,9 @@ const c = home[locale];
             {ui[locale].learnMore} <ArrowRight size={16} stroke-width={1.5} aria-hidden="true" />
           </a>
         </div>
-        <figure data-reveal>
-          <InspectionAnimation />
-          <figcaption class="caption">{c.solutionCaption}</figcaption>
-        </figure>
+        <div data-reveal>
+          <InspectionAnimation label={c.animationLabel} />
+        </div>
       </div>
       <Stats locale={locale} />
     </div>
