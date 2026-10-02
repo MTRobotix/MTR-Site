@@ -16,5 +16,5 @@ npm run build
 | Colours, spacing, fonts | `src/styles/tokens.css` |
 | Old-URL redirects, sitemap | `astro.config.mjs` |
 
-Rules: `~/MTR/AGENTS.md` and `~/MTR/.agents/skills/mtrobotics-web/SKILL.md`.
+Design rules (colours, type, layout, motion, copy): `.claude/skills/mtrobotix-web/SKILL.md`. Company-wide rules: `~/MTR/AGENTS.md`.
 Push to `main` → Vercel deploys.
