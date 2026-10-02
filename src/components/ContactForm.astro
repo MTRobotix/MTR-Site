@@ -1,6 +1,6 @@
 ---
 import { Send } from '@lucide/astro';
-import { COMPANY, type Locale } from '../data/i18n';
+import { COMPANY, SITE_URL, localPath, type Locale } from '../data/i18n';
 import { contact } from '../data/content';
 
 interface Props {
@@ -10,12 +10,17 @@ const { locale } = Astro.props;
 const c = contact[locale];
 const mailto = `mailto:${COMPANY.email}`;
 // FormSubmit relays the form to the inbox; the first submission sends a one-time activation email.
+// The script posts JSON to the AJAX endpoint; if that fails, the form posts normally and FormSubmit
+// sends the visitor back to `_next`, where `?sent=1` shows the thank-you message.
 const endpoint = `https://formsubmit.co/${COMPANY.email}`;
+const next = new URL(`${localPath(locale, 'contact')}?sent=1`, SITE_URL).href;
 ---
 
 <form class="contact-form" action={endpoint} method="post" data-contact-form data-endpoint={`https://formsubmit.co/ajax/${COMPANY.email}`}>
   <input type="hidden" name="_subject" value={c.formSubject} />
   <input type="hidden" name="_template" value="table" />
+  <input type="hidden" name="_captcha" value="false" />
+  <input type="hidden" name="_next" value={next} />
   <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
   <div class="row">
     <div class="field">
@@ -54,6 +59,22 @@ const endpoint = `https://formsubmit.co/${COMPANY.email}`;
   const status = form?.querySelector<HTMLElement>('[data-status]');
   const msg = (k: string) => form?.querySelector<HTMLTemplateElement>(`[data-msg-${k}]`)?.content.textContent ?? '';
 
+  const show = (state: 'ok' | 'error') => {
+    if (!status) return;
+    status.textContent = msg(state === 'ok' ? 'sent' : 'error');
+    status.dataset.state = state;
+    status.hidden = false;
+  };
+
+  // Back from FormSubmit's normal post (see `_next`).
+  const params = new URLSearchParams(location.search);
+  if (form && params.has('sent')) {
+    show('ok');
+    params.delete('sent');
+    const query = params.toString();
+    history.replaceState(history.state, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
+  }
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!button || !label || !status) return;
@@ -61,25 +82,28 @@ const endpoint = `https://formsubmit.co/${COMPANY.email}`;
     button.disabled = true;
     label.textContent = msg('sending');
     status.hidden = true;
-    status.dataset.state = '';
     try {
       const res = await fetch(form.dataset.endpoint!, {
         method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: new FormData(form),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || res.statusText);
       form.reset();
-      status.textContent = msg('sent');
-      status.dataset.state = 'ok';
-    } catch {
-      status.textContent = msg('error');
-      status.dataset.state = 'error';
-    } finally {
-      status.hidden = false;
+      show('ok');
       button.disabled = false;
       label.textContent = idle;
+    } catch {
+      // AJAX refused (form not activated yet, blocked request, network): post the form normally.
+      // FormSubmit handles it on its own page and returns the visitor to `_next`.
+      try {
+        HTMLFormElement.prototype.submit.call(form);
+      } catch {
+        show('error');
+        button.disabled = false;
+        label.textContent = idle;
+      }
     }
   });
 </script>

@@ -15,9 +15,7 @@ const c = home[locale];
 ---
 
 <Base title={c.title} description={c.description} locale={locale} page="home">
-  <section class="hero" data-hero-pool>
-    <div class="pool-field" aria-hidden="true"><canvas data-pool-canvas></canvas></div>
-    <span class="pool-reticle" data-pool-reticle aria-hidden="true"><i></i></span>
+  <section class="hero">
     <div class="shell hero-grid">
       <div class="hero-copy">
         <h1>{c.h1}</h1>
@@ -76,110 +74,9 @@ const c = home[locale];
   </section>
 </Base>
 
-<script>
-  import { mountHeroPool } from '../scripts/hero-pool';
-  document.querySelectorAll<HTMLElement>('[data-hero-pool]').forEach(mountHeroPool);
-</script>
-
 <style>
   .hero {
-    /* --hero-dot-rest must equal --color-bg (#faf9f6) or resting dots show as a grid. */
-    --hero-dot-rest: 250, 249, 246;
-    --hero-dot-active: 47, 93, 138;
-    --hero-reticle: rgba(23, 24, 26, 0.6);
-
-    position: relative;
-    overflow: hidden;
     padding-block: var(--space-7) var(--space-8);
-    /* Vertical drags still scroll the page; sideways drags play with the field on touch. */
-    touch-action: pan-y;
-  }
-
-  .hero[data-pointer-active] {
-    cursor: none;
-  }
-
-  .hero a,
-  .hero button {
-    cursor: pointer;
-  }
-
-  .pool-field {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .pool-field canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .hero > .shell {
-    position: relative;
-    z-index: 3;
-  }
-
-  /* Crosshair reticle that replaces the pointer inside the hero. */
-  .pool-reticle {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 5;
-    width: 27px;
-    height: 27px;
-    border: 1px solid var(--hero-reticle);
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(-100%, -100%);
-    transition: opacity var(--dur-fast) var(--ease);
-  }
-
-  .hero[data-pointer-active] .pool-reticle {
-    opacity: 1;
-  }
-
-  .pool-reticle::before,
-  .pool-reticle::after {
-    content: '';
-    position: absolute;
-    background: var(--hero-reticle);
-  }
-
-  .pool-reticle::before {
-    top: 50%;
-    left: 7px;
-    width: calc(100% - 14px);
-    height: 1px;
-  }
-
-  .pool-reticle::after {
-    top: 7px;
-    left: 50%;
-    width: 1px;
-    height: calc(100% - 14px);
-  }
-
-  .pool-reticle i {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 7px;
-    height: 7px;
-    background: var(--color-bg);
-    transform: translate(-50%, -50%);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero[data-pointer-active] {
-      cursor: auto;
-    }
-
-    .pool-reticle {
-      display: none;
-    }
   }
 
   .hero-grid {
