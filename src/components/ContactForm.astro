@@ -1,0 +1,123 @@
+---
+import { Send } from '@lucide/astro';
+import { COMPANY, type Locale } from '../data/i18n';
+import { contact } from '../data/content';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const c = contact[locale];
+const mailto = `mailto:${COMPANY.email}`;
+---
+
+<!-- Static site: submitting builds a pre-filled email instead of posting to a server. -->
+<form class="contact-form" action={mailto} method="post" enctype="text/plain" data-contact-form data-to={COMPANY.email} data-subject={c.formSubject}>
+  <div class="row">
+    <div class="field">
+      <label for="cf-name">{c.formName}</label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required />
+    </div>
+    <div class="field">
+      <label for="cf-company">{c.formCompany}</label>
+      <input id="cf-company" name="company" type="text" autocomplete="organization" />
+    </div>
+  </div>
+  <div class="field">
+    <label for="cf-email">{c.formEmail}</label>
+    <input id="cf-email" name="email" type="email" autocomplete="email" required />
+  </div>
+  <div class="field">
+    <label for="cf-message">{c.formMessage}</label>
+    <textarea id="cf-message" name="message" rows="6" required aria-describedby="cf-message-hint"></textarea>
+    <p id="cf-message-hint" class="hint">{c.formMessageHint}</p>
+  </div>
+  <button type="submit" class="btn btn-primary">
+    {c.formSubmit}
+    <Send size={16} stroke-width={1.5} aria-hidden="true" />
+  </button>
+  <p class="hint">{c.formNote} <a href={mailto}>{COMPANY.email}</a>.</p>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const get = (k: string) => String(data.get(k) ?? '').trim();
+    const name = get('name');
+    const company = get('company');
+    const body = [get('message'), '', `— ${name}${company ? `, ${company}` : ''}`, get('email')].join('\n');
+    const subject = `${form.dataset.subject} ${name}${company ? ` (${company})` : ''}`;
+    window.location.href = `mailto:${form.dataset.to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  });
+</script>
+
+<style>
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+    width: 100%;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+    width: 100%;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    min-height: var(--hit);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+  }
+
+  textarea {
+    padding-block: var(--space-3);
+    resize: vertical;
+  }
+
+  input:hover,
+  textarea:hover {
+    border-color: var(--color-text-faint);
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: var(--color-accent);
+    background: var(--color-surface);
+  }
+
+  .hint {
+    color: var(--color-text-faint);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 560px) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

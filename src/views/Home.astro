@@ -1,11 +1,13 @@
 ---
+import { ArrowRight } from '@lucide/astro';
 import Base from '../layouts/Base.astro';
 import Stats from '../components/Stats.astro';
 import Steps from '../components/Steps.astro';
 import ProductCards from '../components/ProductCards.astro';
 import ContactBlock from '../components/ContactBlock.astro';
+import InspectionAnimation from '../components/InspectionAnimation.astro';
 import { home } from '../data/content';
-import { localPath, type Locale } from '../data/i18n';
+import { localPath, ui, type Locale } from '../data/i18n';
 
 interface Props {
   locale: Locale;
@@ -32,7 +34,27 @@ const c = home[locale];
         </div>
       </figure>
     </div>
+  </section>
+
+  <section class="section section-soft">
     <div class="shell">
+      <div class="solution">
+        <div class="solution-copy" data-reveal>
+          <p class="kicker">{c.solutionKicker}</p>
+          <h2>{c.solutionTitle}</h2>
+          <p class="lead">{c.solutionLead}</p>
+          <ul class="ticks">
+            {c.solutionPoints.map((p) => <li>{p}</li>)}
+          </ul>
+          <a class="text-link" href={localPath(locale, 'mtrq')}>
+            {ui[locale].learnMore} <ArrowRight size={16} stroke-width={1.5} aria-hidden="true" />
+          </a>
+        </div>
+        <figure data-reveal>
+          <InspectionAnimation />
+          <figcaption class="caption">{c.solutionCaption}</figcaption>
+        </figure>
+      </div>
       <Stats locale={locale} />
     </div>
   </section>
@@ -80,7 +102,6 @@ const c = home[locale];
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     gap: var(--space-7);
     align-items: center;
-    margin-bottom: var(--space-7);
   }
 
   .hero-copy {
@@ -97,12 +118,31 @@ const c = home[locale];
     margin: 0;
   }
 
+  .solution {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: var(--space-7);
+    align-items: center;
+    margin-bottom: var(--space-7);
+  }
+
+  .solution-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .solution-copy .kicker {
+    margin-bottom: 0;
+  }
+
   @media (max-width: 900px) {
     .hero {
       padding-top: var(--space-5);
     }
 
-    .hero-grid {
+    .hero-grid,
+    .solution {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--space-6);
     }
