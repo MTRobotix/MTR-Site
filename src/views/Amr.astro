@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import CtaBand from '../components/CtaBand.astro';
-import FleetAnimation from '../components/FleetAnimation.astro';
+import RouteAnimation from '../components/RouteAnimation.astro';
 import { amr } from '../data/content';
 import { ui, type Locale } from '../data/i18n';
 
@@ -31,6 +31,16 @@ const c = amr[locale];
     </div>
   </section>
 
+  <section class="section section-soft">
+    <div class="shell">
+      <h2 class="block-title" data-reveal>{c.routeTitle}</h2>
+      <figure data-reveal style="--d:1">
+        <RouteAnimation label={c.routeLabel} />
+        <figcaption class="caption">{c.routeCaption}</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <section class="section">
     <div class="shell two-col">
       <div class="overview" data-reveal>
@@ -53,16 +63,6 @@ const c = amr[locale];
           }
         </dl>
       </div>
-    </div>
-  </section>
-
-  <section class="section section-soft">
-    <div class="shell">
-      <h2 class="block-title" data-reveal>{c.fleetTitle}</h2>
-      <figure data-reveal style="--d:1">
-        <FleetAnimation label={c.fleetLabel} />
-        <figcaption class="caption">{c.fleetCaption}</figcaption>
-      </figure>
     </div>
   </section>
 

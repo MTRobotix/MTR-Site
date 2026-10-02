@@ -164,10 +164,10 @@ export const amr = {
       { label: 'Navigation', value: 'TBD' },
       { label: 'Charging', value: 'TBD' },
     ],
-    fleetTitle: 'One map, many robots',
-    fleetLabel:
-      'Top view of a warehouse: two MTR-M robots follow their planned paths while their lidars build one shared map. A pallet drops into one robot’s aisle; the lidar marks it red and the robot takes an adjusted path around it without stopping.',
-    fleetCaption: 'Planned paths in blue. When a pallet blocks the aisle, the robot replans and keeps moving.',
+    routeTitle: 'From A to B, around obstacles',
+    routeLabel:
+      'Top view of a warehouse: MTR-M drives from station A to station B along its planned path. A pallet drops into the aisle; the lidar marks it red and the robot takes an adjusted path around it without stopping.',
+    routeCaption: 'Planned path in blue. When a pallet blocks the aisle, the robot replans and keeps moving.',
     ctaTitle: 'Interested in MTR-M?',
     ctaLead: 'Tell us what you need to move and where.',
     cta: 'Contact us',
@@ -192,10 +192,10 @@ export const amr = {
       { label: 'Điều hướng', value: 'Sắp có' },
       { label: 'Sạc', value: 'Sắp có' },
     ],
-    fleetTitle: 'Một bản đồ, nhiều robot',
-    fleetLabel:
-      'Nhìn từ trên xuống nhà kho: hai robot MTR-M đi theo lộ trình dự kiến trong khi LiDAR của chúng cùng xây dựng một bản đồ chung. Một pallet rơi vào lối đi của một robot; LiDAR đánh dấu màu đỏ và robot đi vòng qua theo lộ trình mới mà không dừng lại.',
-    fleetCaption: 'Lộ trình dự kiến màu xanh. Khi pallet chặn lối đi, robot lập lại lộ trình và tiếp tục di chuyển.',
+    routeTitle: 'Từ A đến B, vượt qua vật cản',
+    routeLabel:
+      'Nhìn từ trên xuống nhà kho: MTR-M di chuyển từ trạm A đến trạm B theo lộ trình dự kiến. Một pallet rơi vào lối đi; LiDAR đánh dấu màu đỏ và robot đi vòng qua theo lộ trình mới mà không dừng lại.',
+    routeCaption: 'Lộ trình dự kiến màu xanh. Khi pallet chặn lối đi, robot lập lại lộ trình và tiếp tục di chuyển.',
     ctaTitle: 'Bạn quan tâm đến MTR-M?',
     ctaLead: 'Cho chúng tôi biết bạn cần vận chuyển gì và ở đâu.',
     cta: 'Liên hệ',

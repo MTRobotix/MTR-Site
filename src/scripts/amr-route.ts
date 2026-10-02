@@ -1,8 +1,7 @@
-// MTR-M fleet animation on a canvas, top view. One loop tells the story:
-// planned paths draw in → two robots drive and their lidars build one shared map → a pallet drops into
-// robot 1's aisle → the lidar marks it red, the old path fades and the adjusted path draws in while the
-// robot keeps moving → both arrive, the full map holds, everything fades and the loop restarts.
-// Everything is derived from the loop time except the map, which is rebuilt from the sweeps each loop.
+// MTR-M route animation on a canvas, top view. The floor plan is always visible. One loop:
+// the planned path from station A to station B draws in → the robot drives → a pallet drops into the
+// aisle → the lidar marks it red, the old path fades and the adjusted path draws in while the robot keeps
+// moving → the robot arrives at B, holds, fades and starts again from A.
 
 type P2 = [number, number];
 type Pose = { x: number; y: number; a: number };
@@ -12,19 +11,17 @@ type Seg = [number, number, number, number];
 const W = 960;
 const H = 540;
 const TAU = Math.PI * 2;
-const LOOP = 16;
-const STILL_T = 7.4; // reduced motion: mid-route, after the replan, map half built
+const LOOP = 10.4;
+const STILL_T = 6.2; // reduced motion: after the replan, robot on its way around the pallet
 
 const T = {
-  draw: [0.2, 1.1] as const, // planned paths draw in
-  r1: [1.1, 11.2] as const, // robot 1 drives
-  r2: [1.3, 11.6] as const, // robot 2 drives
-  fade: [14.6, 15.6] as const,
+  draw: [0.3, 1.1] as const, // planned path draws in
+  drive: [1.2, 8.6] as const,
+  out: [9.4, 10.1] as const, // robot, pallet and path fade before the loop restarts
 };
-const RANGE = 240;
-const SPIN = 1.5; // lidar turns per second, slowed down to be readable
+const SENSE = 240; // lidar range used to mark the pallet
 
-// Product colours of the robot (not site tokens): light body, charcoal bumper, navy deck from --color-ink.
+// Product colours of the robot (not site tokens): light body, charcoal bumper; the deck uses --color-ink.
 const BODY = '#d9d6ce';
 const BUMPER = '#2a2d32';
 const LIDAR = '#121418';
@@ -52,6 +49,9 @@ const RACKS: Rect[] = [
   [650, 340, 810, 400],
 ];
 const PALLET_BOX: Rect = [497, 232, 543, 278];
+const A: P2 = [95, 270];
+const B: P2 = [868, 270];
+
 const segsOf = ([x1, y1, x2, y2]: Rect): Seg[] => [
   [x1, y1, x2, y1],
   [x2, y1, x2, y2],
@@ -59,14 +59,14 @@ const segsOf = ([x1, y1, x2, y2]: Rect): Seg[] => [
   [x1, y2, x1, y1],
 ];
 const STATIC_SEGS = [WALLS, ...RACKS].flatMap(segsOf);
-const PALLET_SEGS = segsOf(PALLET_BOX);
+const SEGS = [...STATIC_SEGS, ...segsOf(PALLET_BOX)];
 
-function cast(ox: number, oy: number, a: number, segs: Seg[], max: number) {
+function cast(ox: number, oy: number, a: number, max: number) {
   const dx = Math.cos(a);
   const dy = Math.sin(a);
   let best = max;
   let hit = -1;
-  segs.forEach(([x1, y1, x2, y2], i) => {
+  SEGS.forEach(([x1, y1, x2, y2], i) => {
     const ex = x2 - x1;
     const ey = y2 - y1;
     const den = dx * ey - dy * ex;
@@ -78,7 +78,7 @@ function cast(ox: number, oy: number, a: number, segs: Seg[], max: number) {
       hit = i;
     }
   });
-  return { hit, x: ox + dx * best, y: oy + dy * best };
+  return { pallet: hit >= STATIC_SEGS.length, x: ox + dx * best, y: oy + dy * best };
 }
 
 // ── Paths: Catmull-Rom through waypoints, resampled by arc length so speed is even ──
@@ -131,46 +131,40 @@ function makePath(pts: P2[]): Path {
     const a = at(u0);
     const b = at(u1);
     const out: P2[] = [[a.x, a.y]];
-    const i0 = index(u0).hi;
-    const i1 = index(u1).lo;
-    for (let i = i0; i <= i1; i++) out.push(raw[i]);
+    for (let i = index(u0).hi; i <= index(u1).lo; i++) out.push(raw[i]);
     out.push([b.x, b.y]);
     return out;
   };
   return { total, at, points };
 }
 
-// Robot 1: centre aisle, left to right. It replans at P, where the pallet blocks the straight line.
-const P1: P2 = [400, 270];
-const R1_SHARED = makePath([[95, 270], [250, 270], P1]);
-const R1_PLAN = makePath([P1, [520, 270], [640, 270], [755, 270]]);
-const R1_DETOUR = makePath([P1, [450, 276], [520, 314], [590, 278], [650, 270], [755, 270]]);
-// Robot 2: top aisle, down the right side, back along the bottom aisle.
-const R2 = makePath([[95, 85], [470, 85], [830, 88], [870, 160], [870, 380], [830, 452], [600, 455], [460, 455]]);
+// The route: A to P is shared; from P the first plan runs straight through where the pallet lands,
+// the adjusted plan bends around it.
+const P: P2 = [400, 270];
+const SHARED = makePath([A, [250, 270], P]);
+const PLAN = makePath([P, [520, 270], [700, 270], B]);
+const DETOUR = makePath([P, [450, 276], [520, 314], [590, 278], [660, 270], B]);
 
-const D1 = R1_SHARED.total + R1_DETOUR.total;
-const s1 = (t: number) => D1 * ease((t - T.r1[0]) / (T.r1[1] - T.r1[0]));
-const s2 = (t: number) => R2.total * ease((t - T.r2[0]) / (T.r2[1] - T.r2[0]));
+const DIST = SHARED.total + DETOUR.total;
+const s = (t: number) => DIST * ease((t - T.drive[0]) / (T.drive[1] - T.drive[0]));
 
-// The pallet drops in while robot 1 is still ~170 px short of P; the replan follows half a second later.
+// The pallet drops in while the robot is still ~170 px short of P; the replan follows half a second later.
 const T_OBS = (() => {
-  let lo: number = T.r1[0];
-  let hi: number = T.r1[1];
+  let lo: number = T.drive[0];
+  let hi: number = T.drive[1];
   for (let i = 0; i < 40; i++) {
     const mid = (lo + hi) / 2;
-    if (s1(mid) < R1_SHARED.total - 170) lo = mid;
+    if (s(mid) < SHARED.total - 170) lo = mid;
     else hi = mid;
   }
   return lo;
 })();
 const T_REPLAN = T_OBS + 0.5;
 
-function pose1(t: number): Pose {
-  const s = s1(t);
-  return s <= R1_SHARED.total ? R1_SHARED.at(s / R1_SHARED.total) : R1_DETOUR.at((s - R1_SHARED.total) / R1_DETOUR.total);
+function pose(t: number): Pose {
+  const d = s(t);
+  return d <= SHARED.total ? SHARED.at(d / SHARED.total) : DETOUR.at((d - SHARED.total) / DETOUR.total);
 }
-
-const pose2 = (t: number) => R2.at(s2(t) / R2.total);
 
 // ── Drawing ──────────────────────────────────────────────────────────────
 interface Colors {
@@ -178,6 +172,8 @@ interface Colors {
   surface: string;
   soft: string;
   line: string;
+  strong: string;
+  muted: string;
   accent: string;
   fail: string;
 }
@@ -190,61 +186,51 @@ function readColors(el: Element): Colors {
     surface: get('--color-surface', '#ffffff'),
     soft: get('--color-bg-soft', '#f2f1ec'),
     line: get('--color-line', '#e6e4dc'),
+    strong: get('--color-line-strong', '#c9c5ba'),
+    muted: get('--color-text-muted', '#5b5d63'),
     accent: get('--color-accent', '#2f5d8a'),
     fail: get('--color-fail', '#e5463d'),
   };
 }
 
-function polyline(ctx: CanvasRenderingContext2D, pts: P2[]) {
+function floor(ctx: CanvasRenderingContext2D, c: Colors) {
+  const [x1, y1, x2, y2] = WALLS;
   ctx.beginPath();
-  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  ctx.roundRect(x1, y1, x2 - x1, y2 - y1, 6);
+  ctx.strokeStyle = c.strong;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  for (const [rx1, ry1, rx2, ry2] of RACKS) {
+    ctx.beginPath();
+    ctx.roundRect(rx1, ry1, rx2 - rx1, ry2 - ry1, 4);
+    ctx.fillStyle = c.soft;
+    ctx.fill();
+    ctx.strokeStyle = c.line;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
 }
 
-function robot(ctx: CanvasRenderingContext2D, p: Pose, c: Colors) {
-  ctx.save();
-  ctx.translate(p.x, p.y);
-  ctx.rotate(p.a);
-  ctx.scale(1.2, 1.2);
-  const L = 40;
-  const B = 29;
-  const r = 7;
-  ctx.shadowColor = 'rgba(30, 32, 36, 0.2)';
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetY = 3;
+function station(ctx: CanvasRenderingContext2D, [x, y]: P2, label: string, active: number, c: Colors) {
   ctx.beginPath();
-  ctx.roundRect(-L / 2 - 1.5, -B / 2 - 1.5, L + 3, B + 3, r + 1.5);
-  ctx.fillStyle = BUMPER;
+  ctx.arc(x, y, 28, 0, TAU);
+  ctx.fillStyle = c.soft;
   ctx.fill();
-  ctx.shadowColor = 'transparent';
-  ctx.beginPath();
-  ctx.roundRect(-L / 2, -B / 2, L, B, r);
-  ctx.fillStyle = BODY;
-  ctx.fill();
-  ctx.beginPath();
-  ctx.roundRect(-L / 2 + 4, -B / 2 + 4, L - 10, B - 8, r - 3);
-  ctx.fillStyle = c.ink;
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(L / 2 - 10, 0, 5.5, 0, TAU);
-  ctx.fillStyle = LIDAR;
-  ctx.fill();
-  ctx.restore();
-}
-
-function goal(ctx: CanvasRenderingContext2D, [x, y]: P2, c: Colors, alpha: number) {
-  ctx.globalAlpha = alpha;
-  ctx.beginPath();
-  ctx.arc(x, y, 22, 0, TAU);
   ctx.setLineDash([3, 4]);
-  ctx.strokeStyle = c.accent;
+  ctx.strokeStyle = active > 0 ? c.accent : c.strong;
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.setLineDash([]);
+  ctx.fillStyle = c.muted;
+  ctx.font = '600 17px "Barlow Condensed", system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, x, y + 48);
+}
+
+function polyline(ctx: CanvasRenderingContext2D, pts: P2[]) {
   ctx.beginPath();
-  ctx.arc(x, y, 3, 0, TAU);
-  ctx.fillStyle = c.accent;
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
 }
 
 function dashed(ctx: CanvasRenderingContext2D, pts: P2[], color: string, alpha: number) {
@@ -259,128 +245,128 @@ function dashed(ctx: CanvasRenderingContext2D, pts: P2[], color: string, alpha: 
   ctx.globalAlpha = 1;
 }
 
-// ── Scene ────────────────────────────────────────────────────────────────
-type Point = { x: number; y: number; born: number; pallet: boolean };
+function robot(ctx: CanvasRenderingContext2D, p: Pose, c: Colors) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.a);
+  ctx.scale(1.25, 1.25);
+  const L = 40;
+  const Bw = 29;
+  const r = 7;
+  ctx.shadowColor = 'rgba(30, 32, 36, 0.2)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 3;
+  ctx.beginPath();
+  ctx.roundRect(-L / 2 - 1.5, -Bw / 2 - 1.5, L + 3, Bw + 3, r + 1.5);
+  ctx.fillStyle = BUMPER;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.beginPath();
+  ctx.roundRect(-L / 2, -Bw / 2, L, Bw, r);
+  ctx.fillStyle = BODY;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect(-L / 2 + 4, -Bw / 2 + 4, L - 10, Bw - 8, r - 3);
+  ctx.fillStyle = c.ink;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(L / 2 - 10, 0, 5.5, 0, TAU);
+  ctx.fillStyle = LIDAR;
+  ctx.fill();
+  ctx.restore();
+}
 
+// ── Scene ────────────────────────────────────────────────────────────────
 function createScene() {
-  let map = new Map<string, Point>();
+  // Lidar marks on the pallet: collected from the moment it lands, cleared each loop.
+  let marks = new Map<string, P2>();
   let lastT = -1;
 
-  const sweep = (from: number, to: number, p: Pose, phase: number, palletIn: boolean, born: number) => {
-    const segs = palletIn ? [...STATIC_SEGS, ...PALLET_SEGS] : STATIC_SEGS;
-    for (let a = from; a < to; a += Math.PI / 180) {
-      const h = cast(p.x, p.y, a + phase, segs, RANGE);
-      if (h.hit < 0) continue;
-      const pallet = h.hit >= STATIC_SEGS.length;
-      const key = `${pallet ? 'p' : 's'}${Math.round(h.x / 4)},${Math.round(h.y / 4)}`;
-      if (!map.has(key)) map.set(key, { x: h.x, y: h.y, born, pallet });
-    }
-  };
-
-  // Advances the shared map from the previous frame time to t (both robots' sweeps).
-  const scan = (t: number) => {
-    if (t < lastT || lastT < 0) {
-      map = new Map();
-      lastT = Math.max(0, t - 1 / 60);
-    }
-    const step = 1 / 60;
-    for (let u = lastT; u < t; u += step) {
-      const v = Math.min(t, u + step);
-      if (v > T.fade[0]) break;
-      sweep(u * SPIN * TAU, v * SPIN * TAU, pose1(v), 0, v >= T_OBS, v);
-      sweep(u * SPIN * TAU, v * SPIN * TAU, pose2(v), Math.PI, v >= T_OBS, v);
-    }
+  const sense = (t: number) => {
+    if (t < lastT) marks = new Map();
     lastT = t;
+    if (t < T_OBS + 0.2 || t > T.out[0]) return;
+    const p = pose(t);
+    for (let i = 0; i < 180; i++) {
+      const h = cast(p.x, p.y, (i / 180) * TAU, SENSE);
+      if (h.pallet) marks.set(`${Math.round(h.x / 3)},${Math.round(h.y / 3)}`, [h.x, h.y]);
+    }
   };
 
   const draw = (ctx: CanvasRenderingContext2D, time: number, c: Colors) => {
     const t = time % LOOP;
-    scan(t);
-    const fade = 1 - smooth(T.fade[0], T.fade[1], t);
-    const show = smooth(T.draw[0], T.draw[1], t);
+    sense(t);
+    const out = 1 - smooth(T.out[0], T.out[1], t);
+    const shown = smooth(T.draw[0], T.draw[1], t);
+    const p = pose(t);
 
-    // Map points: fresh hits flash in the accent, settle to ink; the pallet stays red.
-    ctx.globalAlpha = fade;
-    for (const p of map.values()) {
-      ctx.fillStyle = p.pallet ? c.fail : t - p.born < 0.35 ? c.accent : c.ink;
-      const s = p.pallet ? 3 : 2.4;
-      ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
-    }
+    floor(ctx, c);
+    station(ctx, A, 'A', t < T.drive[0] + 0.4 ? 1 : 0, c);
+    station(ctx, B, 'B', t > T.drive[1] - 0.2 ? 1 : 0, c);
 
-    // Pallet: drops in on robot 1's planned line.
+    // Pallet: drops in on the planned line; its lidar marks stay red.
     if (t >= T_OBS) {
       const k = smooth(T_OBS, T_OBS + 0.35, t);
       const [x1, y1, x2, y2] = PALLET_BOX;
-      const cx = (x1 + x2) / 2;
-      const cy = (y1 + y2) / 2;
       const sc = lerp(1.25, 1, k);
-      ctx.globalAlpha = k * fade;
+      const w = (x2 - x1) * sc;
+      const h = (y2 - y1) * sc;
+      ctx.globalAlpha = k * out;
       ctx.beginPath();
-      ctx.roundRect(cx - ((x2 - x1) / 2) * sc, cy - ((y2 - y1) / 2) * sc, (x2 - x1) * sc, (y2 - y1) * sc, 3);
+      ctx.roundRect((x1 + x2) / 2 - w / 2, (y1 + y2) / 2 - h / 2, w, h, 3);
       ctx.fillStyle = PALLET;
       ctx.fill();
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.18)';
       ctx.lineWidth = 1;
       ctx.stroke();
-      ctx.globalAlpha = fade;
+      ctx.fillStyle = c.fail;
+      for (const [x, y] of marks.values()) ctx.fillRect(x - 1.6, y - 1.6, 3.2, 3.2);
+      ctx.globalAlpha = 1;
     }
 
-    // Goals and planned paths (only the part still ahead of each robot).
-    goal(ctx, [755, 270], c, show * fade);
-    goal(ctx, [460, 455], c, show * fade);
-    const a1 = s1(t);
-    const sh = R1_SHARED.total;
-    // The first plan draws in as one line: the shared part up to P, then straight on to the goal.
-    const drawn = show * (sh + R1_PLAN.total);
-    const ahead1 = R1_SHARED.points(Math.min(1, a1 / sh), Math.min(1, drawn / sh));
+    // Planned path, only the part still ahead of the robot.
+    const d = s(t);
+    const sh = SHARED.total;
+    const drawn = shown * (sh + PLAN.total);
+    const ahead = SHARED.points(Math.min(1, d / sh), Math.min(1, drawn / sh));
     if (t < T_REPLAN + 0.6) {
-      // Original plan runs straight through where the pallet lands; it turns red and fades on replan.
+      // First plan runs straight through where the pallet lands; it turns red and fades on replan.
       const k = smooth(T_REPLAN, T_REPLAN + 0.6, t);
-      const from = a1 > sh ? (a1 - sh) / R1_PLAN.total : 0;
-      const to = Math.max(0, drawn - sh) / R1_PLAN.total;
-      dashed(ctx, [...ahead1, ...R1_PLAN.points(from, to)], t >= T_REPLAN ? c.fail : c.accent, (1 - k) * fade);
+      const from = d > sh ? (d - sh) / PLAN.total : 0;
+      const to = Math.max(0, drawn - sh) / PLAN.total;
+      dashed(ctx, [...ahead, ...PLAN.points(from, to)], t >= T_REPLAN ? c.fail : c.accent, (1 - k) * out);
     }
     if (t >= T_REPLAN) {
       const k = smooth(T_REPLAN, T_REPLAN + 0.7, t);
-      const from = a1 > sh ? (a1 - sh) / R1_DETOUR.total : 0;
-      dashed(ctx, [...ahead1, ...R1_DETOUR.points(from, k)], c.accent, fade);
+      const from = d > sh ? (d - sh) / DETOUR.total : 0;
+      dashed(ctx, [...ahead, ...DETOUR.points(from, k)], c.accent, out);
     }
-    dashed(ctx, R2.points(s2(t) / R2.total, show), c.accent, fade);
 
-    // Lidar wedges, then the robots on top.
-    for (const [p, phase] of [
-      [pose1(t), 0],
-      [pose2(t), Math.PI],
-    ] as [Pose, number][]) {
-      if (t > T.fade[0]) break;
-      const beam = t * SPIN * TAU + phase;
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, RANGE);
-      g.addColorStop(0, 'rgba(47, 93, 138, 0.16)');
-      g.addColorStop(1, 'rgba(47, 93, 138, 0)');
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      ctx.arc(p.x, p.y, RANGE, beam - 0.45, beam);
-      ctx.closePath();
-      ctx.fillStyle = g;
-      ctx.fill();
-    }
-    robot(ctx, pose1(t), c);
-    robot(ctx, pose2(t), c);
+    // Sensing halo: soft and still, so the robot reads as aware of its surroundings without a spinning beam.
+    ctx.globalAlpha = out;
+    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 110);
+    g.addColorStop(0, 'rgba(47, 93, 138, 0.1)');
+    g.addColorStop(1, 'rgba(47, 93, 138, 0)');
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 110, 0, TAU);
+    ctx.fillStyle = g;
+    ctx.fill();
+    robot(ctx, p, c);
     ctx.globalAlpha = 1;
   };
 
   return {
     draw,
-    // Still frame: build the map the robots would have seen by then.
+    // Still frame: collect the pallet marks the robot would have by then.
     prime(t: number) {
-      lastT = 0;
-      map = new Map();
-      scan(t);
+      marks = new Map();
+      lastT = -1;
+      for (let u = T_OBS; u <= t; u += 1 / 30) sense(u);
     },
   };
 }
 
-export function mountAmrFleet(canvas: HTMLCanvasElement) {
+export function mountAmrRoute(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
