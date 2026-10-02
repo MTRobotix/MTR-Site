@@ -28,11 +28,7 @@ const c = home[locale];
           <a class="btn" href={localPath(locale, 'contact')}>{c.ctaSecondary}</a>
         </div>
       </div>
-      <figure class="hero-media">
-        <div class="frame">
-          <img src="/images/mtr-q/mtr-q-cell.webp" alt={c.heroCaption} width="1800" height="1440" fetchpriority="high" />
-        </div>
-      </figure>
+      <InspectionAnimation label={c.animationLabel} />
     </div>
   </section>
 
@@ -42,7 +38,6 @@ const c = home[locale];
         <div class="solution-copy" data-reveal>
           <p class="kicker">{c.solutionKicker}</p>
           <h2>{c.solutionTitle}</h2>
-          <p class="lead">{c.solutionLead}</p>
           <ul class="ticks">
             {c.solutionPoints.map((p) => <li>{p}</li>)}
           </ul>
@@ -50,9 +45,9 @@ const c = home[locale];
             {ui[locale].learnMore} <ArrowRight size={16} stroke-width={1.5} aria-hidden="true" />
           </a>
         </div>
-        <div data-reveal>
-          <InspectionAnimation label={c.animationLabel} />
-        </div>
+        <figure class="frame" data-reveal>
+          <img src="/images/mtr-q/mtr-q-cell.webp" alt={c.cellAlt} width="1800" height="1440" loading="lazy" />
+        </figure>
       </div>
       <Stats locale={locale} />
     </div>
@@ -111,10 +106,6 @@ const c = home[locale];
 
   .hero-copy .kicker {
     margin-bottom: 0;
-  }
-
-  .hero-media {
-    margin: 0;
   }
 
   .solution {

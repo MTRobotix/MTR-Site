@@ -12,11 +12,13 @@ interface Face {
   pts: P3[];
 }
 
-export const LOOP = 16;
-// Belt travel per loop must be a whole number of part spacings, defect patterns and slats.
-const LOOP_DIST = 1800;
-const SPACING = 100;
-const SLOW = 0.4; // camera-view belt speed relative to the 3D view
+// Phase starts in seconds: 3D → turn → camera view → add-on pops in → rejects → back to 3D.
+const T = { turn: 2.5, top: 3.4, pop: 5.4, reject: 5.75, back: 8.75, end: 9.65 };
+export const LOOP = T.end;
+// Belt travel per loop must be a whole number of defect patterns (6 parts) and slats (40).
+const LOOP_DIST = 1440;
+const SPACING = 120;
+const SLOW = 0.7; // camera-view belt speed relative to the 3D view
 const PUSH = { lead: 0.15, push: 0.36, slide: 0.25, back: 0.5, hold: 2.2, fade: 0.5 };
 const BX = 300;
 const BY = 60;
@@ -31,7 +33,7 @@ const ISO_TILT = (55 * Math.PI) / 180;
 // Camera view frames the belt tightly, then widens to make room for the add-on.
 const TOP_FRAME: P2 = [360, 225];
 const ADDON_FRAME: P2 = [440, 275];
-const STILL_T = 2.9;
+const STILL_T = 0.6; // reduced motion: 3D view, a defect just flagged under the camera
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -44,19 +46,29 @@ const smooth = (a: number, b: number, x: number) => {
   const t = clamp01((x - a) / (b - a));
   return t * t * (3 - 2 * t);
 };
+const easeOut = (x: number) => 1 - (1 - clamp01(x)) ** 3;
+const outBack = (x: number) => {
+  const t = clamp01(x) - 1;
+  return 1 + 2.70158 * t * t * t + 1.70158 * t * t;
+};
 
-/** v: 0 = 3D view, 1 = camera view from above. a: reject add-on presence. z: top-view framing (0 tight, 1 wide). */
+/**
+ * v: 0 = 3D view, 1 = camera view from above. a: reject add-on opacity.
+ * z: top-view framing (0 tight, 1 wide). slide: how far the add-on sits off its spot (overshoots on entry).
+ */
 export function storyAt(t: number) {
   const m = mod(t, LOOP);
-  if (m < 3.5) return { v: 0, a: 0, z: 0 };
-  if (m < 5.1) return { v: ease((m - 3.5) / 1.6), a: 0, z: 0 };
-  if (m < 8.6) return { v: 1, a: 0, z: 0 };
-  if (m < 9.4) {
-    const a = ease((m - 8.6) / 0.8);
-    return { v: 1, a, z: a };
+  if (m < T.turn) return { v: 0, a: 0, z: 0, slide: 1 };
+  if (m < T.top) return { v: ease((m - T.turn) / (T.top - T.turn)), a: 0, z: 0, slide: 1 };
+  if (m < T.pop) return { v: 1, a: 0, z: 0, slide: 1 };
+  if (m < T.reject) {
+    const p = (m - T.pop) / (T.reject - T.pop);
+    return { v: 1, a: easeOut(p * 1.5), z: ease(p), slide: 1 - outBack(p) };
   }
-  if (m < 14.4) return { v: 1, a: 1, z: 1 };
-  return { v: 1 - ease((m - 14.4) / 1.6), a: 1 - ease((m - 14.4) / 0.6), z: 1 };
+  if (m < T.back) return { v: 1, a: 1, z: 1, slide: 0 };
+  const p = (m - T.back) / (T.end - T.back);
+  const a = 1 - ease(p / 0.45);
+  return { v: 1 - ease(p), a, z: 1, slide: 1 - a };
 }
 
 // Cumulative belt position over one loop, sampled finely so lookups both ways are cheap.
@@ -90,13 +102,15 @@ function timeAt(d: number) {
   return n * LOOP + ((lo + (r - BELT[lo]) / (BELT[lo + 1] - BELT[lo])) / STEPS) * LOOP;
 }
 
-// Two defects close together (parts 1 and 3 of every 6), placed so both reach the pusher while it is in.
+// Two defects close together (parts 1 and 3 of every 6). The first reaches the pusher the moment
+// the add-on lands, so it pushes right away; the second follows while the add-on is still in.
 const isDefect = (k: number) => mod(k, 6) === 1 || mod(k, 6) === 3;
-const PHASE = mod(beltAt(10) - (PUSH_X + BX) - SPACING, 600) - 600;
+const FIRST_PUSH = T.reject + PUSH.lead + 0.02;
+const PHASE = mod(beltAt(FIRST_PUSH) - (PUSH_X + BX) - SPACING, 6 * SPACING) - 6 * SPACING;
 
 const pushOK = (th: number) => {
   const m = mod(th, LOOP);
-  return m >= 9.4 + PUSH.lead && m <= 14.4 - PUSH.push - PUSH.back;
+  return m >= T.reject + PUSH.lead && m <= T.back - PUSH.push - PUSH.back;
 };
 
 function headAt(d: number) {
@@ -251,7 +265,7 @@ interface Part {
   flaw: boolean;
 }
 
-function partsAt(tl: number, run: number, a: number, c: Colors) {
+function partsAt(tl: number, run: number, a: number, slide: number, c: Colors) {
   const parts: Part[] = [];
   let head = HEAD_REST;
   const last = Math.floor((run - PHASE) / SPACING);
@@ -271,7 +285,7 @@ function partsAt(tl: number, run: number, a: number, c: Colors) {
       if (d > PUSH.hold + PUSH.fade) continue;
       const drop = smooth(PUSH.push, PUSH.push + PUSH.slide, d);
       x = PUSH_X;
-      y = 79 * ease(d / PUSH.push) + 14 * drop + (1 - a) * ADDON_SLIDE;
+      y = 79 * ease(d / PUSH.push) + 14 * drop + slide * ADDON_SLIDE;
       z = -6 * drop;
       alpha = (1 - smooth(PUSH.hold, PUSH.hold + PUSH.fade, d)) * a;
     } else {
@@ -349,12 +363,12 @@ function render(
   fit: Fit,
 ) {
   const tl = mod(t, LOOP);
-  const { v, a, z } = storyAt(tl);
+  const { v, a, z, slide } = storyAt(tl);
   const cam = cameraAt(v, z, W, H, fit);
   const rigA = 1 - smooth(0.1, 0.55, v);
   const lensA = smooth(0.6, 1, v);
   const run = beltAt(tl);
-  const { parts, head } = partsAt(tl, run, a, c);
+  const { parts, head } = partsAt(tl, run, a, slide, c);
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
@@ -398,7 +412,7 @@ function render(
 
   // Reject add-on: tray slides in from below, pusher from above.
   fade(ctx, layer, a, (g) => {
-    const ty = (1 - a) * ADDON_SLIDE;
+    const ty = slide * ADDON_SLIDE;
     const { x0, x1, y0, y1, z0, z1 } = TRAY;
     path(g, ([[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]] as P3[]).map((p) => cam.proj([p[0], p[1] + ty, p[2]])));
     g.fillStyle = rgb(c.soft);
@@ -419,7 +433,7 @@ function render(
       g.stroke();
     }
 
-    const py = -(1 - a) * ADDON_SLIDE;
+    const py = -slide * ADDON_SLIDE;
     faces(g, cam, shift(PUSH_BODY, 0, py), inkFill, rgb(c.ink));
     if (head - 8 > -80) faces(g, cam, shift(box(127, 133, -80, head - 8, 9, 17), 0, py), metal, metalEdge);
     faces(g, cam, shift(box(112, 148, head - 8, head, 2, 24), 0, py), inkFill, rgb(c.ink));
