@@ -294,6 +294,13 @@ figure {
   font-size: var(--text-h3);
 }
 
+/* Blocks stacked inside one section (a table, then a figure): spacing by gap, not margins. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
 /* Label / value rows (specs, facts, experience). */
 .facts {
   margin: 0;
