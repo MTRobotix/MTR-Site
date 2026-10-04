@@ -37,10 +37,53 @@ const c = mtrq[locale];
 
   <section class="section">
     <div class="shell">
-      <h2 class="block-title">{c.specsTitle}</h2>
-      <div data-reveal>
-        <SpecTable head={[c.specsCapability, c.specsDetail]} rows={c.specs} />
+      <div class="section-head" data-reveal>
+        <span class="badge">{c.previewBadge}</span>
+        <h2>{c.dashboardTitle}</h2>
+        <p class="lead">{c.dashboardLead}</p>
       </div>
+      <figure data-reveal>
+        <div class="frame">
+          <img src="/images/mtr-q/mtr-q-dashboard.webp" alt={c.dashboardAlt} width="1440" height="1010" loading="lazy" />
+        </div>
+        <figcaption class="caption">{c.dashboardCaption}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <h2 class="block-title">{c.specsTitle}</h2>
+      <div class="stack">
+        <div data-reveal>
+          <SpecTable head={[c.specsCapability, c.specsDetail]} rows={c.specs} />
+        </div>
+        <figure data-reveal>
+          <div class="frame">
+            <img src="/images/mtr-q/mtr-q-measurements.webp" alt={c.measureAlt} width="1440" height="1080" loading="lazy" />
+          </div>
+          <figcaption class="caption">{c.measureCaption}</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-soft">
+    <div class="shell two-col">
+      <div class="section-head" data-reveal>
+        <span class="badge">{c.previewBadge}</span>
+        <h2>{c.monitoringTitle}</h2>
+        <p class="lead">{c.monitoringLead}</p>
+        <ul class="ticks">
+          {c.monitoringPoints.map((p) => <li>{p}</li>)}
+        </ul>
+      </div>
+      <figure data-reveal style="--d:1">
+        <div class="frame">
+          <img src="/images/mtr-q/mtr-q-monitoring.webp" alt={c.monitoringAlt} width="800" height="600" loading="lazy" />
+        </div>
+        <figcaption class="caption">{c.monitoringCaption}</figcaption>
+      </figure>
     </div>
   </section>
 
