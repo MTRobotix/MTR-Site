@@ -14,13 +14,13 @@ export default defineConfig({
   // URLs from the previous site keep working for existing links and search results.
   redirects: {
     '/request-a-demo': '/contact/',
-    '/solutions/inspection': '/mtr-q/',
+    '/solutions/inspection': '/metriq/',
     '/solutions/amr-fleet': '/amr/',
-    '/solutions/retrofit': '/mtr-q/',
+    '/solutions/retrofit': '/metriq/',
     '/vi/request-a-demo': '/vi/contact/',
-    '/vi/solutions/inspection': '/vi/mtr-q/',
+    '/vi/solutions/inspection': '/vi/metriq/',
     '/vi/solutions/amr-fleet': '/vi/amr/',
-    '/vi/solutions/retrofit': '/vi/mtr-q/',
+    '/vi/solutions/retrofit': '/vi/metriq/',
     // Hidden for now (see HIDDEN in src/data/i18n.ts).
     '/robot-arm': '/',
     '/vi/robot-arm': '/vi/',
@@ -28,7 +28,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       i18n: { defaultLocale: 'en', locales: { en: 'en', vi: 'vi' } },
-      filter: (page) => !/\/(request-a-demo|solutions\/[^/]+)\/?$/.test(page),
+      filter: (page) => !/\/(request-a-demo|solutions\/[^/]+|mtr-q)\/?$/.test(page),
     }),
   ],
 });

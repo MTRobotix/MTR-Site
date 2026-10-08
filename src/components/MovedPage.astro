@@ -1,0 +1,28 @@
+---
+// Old URL kept alive after a rename: forwards at once and points search engines at the new page.
+// A page (not an astro.config redirect) so both /old and /old/ resolve on Vercel.
+import { SITE_URL } from '../data/i18n';
+
+interface Props {
+  to: string;
+  lang: string;
+}
+const { to, lang } = Astro.props;
+const href = new URL(to, SITE_URL).href;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0;url=${to}`} />
+    <link rel="canonical" href={href} />
+    <title>MetriQ | MTRobotix</title>
+    <script is:inline define:vars={{ to }}>location.replace(to + location.hash);</script>
+  </head>
+  <body>
+    <a href={to}>MetriQ</a>
+  </body>
+</html>

@@ -6,7 +6,7 @@ export const SITE_URL = 'https://www.mtrobotix.com';
 /** Page keys → English paths (always with trailing slash, matching the sitemap). Vietnamese: same under /vi. */
 export const ROUTES = {
   home: '/',
-  mtrq: '/mtr-q/',
+  metriq: '/metriq/',
   amr: '/amr/',
   arm: '/robot-arm/',
   about: '/about/',
@@ -45,7 +45,7 @@ export const COMPANY = {
 
 export const ui = {
   en: {
-    nav: { home: 'Home', mtrq: 'MTR-Q', amr: 'MTR-M', arm: 'Robot arm', about: 'About', contact: 'Contact us' },
+    nav: { home: 'Home', metriq: 'MetriQ', amr: 'MTR-M', arm: 'Robot arm', about: 'About', contact: 'Contact us' },
     homeLabel: 'MTRobotix home',
     primaryNav: 'Main',
     openMenu: 'Open menu',
@@ -62,7 +62,7 @@ export const ui = {
     rights: 'All rights reserved.',
   },
   vi: {
-    nav: { home: 'Trang chủ', mtrq: 'MTR-Q', amr: 'MTR-M', arm: 'Cánh tay robot', about: 'Giới thiệu', contact: 'Liên hệ' },
+    nav: { home: 'Trang chủ', metriq: 'MetriQ', amr: 'MTR-M', arm: 'Cánh tay robot', about: 'Giới thiệu', contact: 'Liên hệ' },
     homeLabel: 'Trang chủ MTRobotix',
     primaryNav: 'Chính',
     openMenu: 'Mở menu',

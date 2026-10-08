@@ -66,7 +66,7 @@
   --color-accent-soft: rgba(47, 93, 138, 0.08);
   --color-wip: #8a5a12;
   --color-wip-soft: rgba(138, 90, 18, 0.1);
-  /* Pass/defect read-out (MTR-Q inspection diagram). */
+  /* Pass/defect read-out (MetriQ inspection diagram). */
   --color-pass: #2f7d52;
   --color-fail: var(--color-brand-red);
   --shadow-color: rgba(30, 32, 36, 0.08);

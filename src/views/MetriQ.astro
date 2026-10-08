@@ -4,17 +4,17 @@ import Stats from '../components/Stats.astro';
 import Steps from '../components/Steps.astro';
 import CtaBand from '../components/CtaBand.astro';
 import SpecTable from '../components/SpecTable.astro';
-import { mtrq } from '../data/content';
+import { metriq } from '../data/content';
 import type { Locale } from '../data/i18n';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const c = mtrq[locale];
+const c = metriq[locale];
 ---
 
-<Base title={c.title} description={c.description} locale={locale} page="mtrq">
+<Base title={c.title} description={c.description} locale={locale} page="metriq">
   <section class="page-hero">
     <div class="shell page-hero-grid">
       <div class="page-hero-copy">
@@ -25,7 +25,7 @@ const c = mtrq[locale];
       </div>
       <figure>
         <div class="frame">
-          <img src="/images/mtr-q/mtr-q-cell.webp" alt={c.heroCaption} width="1800" height="1440" fetchpriority="high" />
+          <img src="/images/metriq/metriq-cell.webp" alt={c.heroCaption} width="1800" height="1440" fetchpriority="high" />
         </div>
         <figcaption class="caption">{c.heroCaption}</figcaption>
       </figure>
@@ -43,7 +43,7 @@ const c = mtrq[locale];
       </div>
       <figure data-reveal>
         <div class="frame">
-          <img src="/images/mtr-q/mtr-q-dashboard.webp" alt={c.dashboardAlt} width="1440" height="1010" loading="lazy" />
+          <img src="/images/metriq/metriq-dashboard.webp" alt={c.dashboardAlt} width="1440" height="1010" loading="lazy" />
         </div>
         <figcaption class="caption">{c.dashboardCaption}</figcaption>
       </figure>
@@ -70,7 +70,7 @@ const c = mtrq[locale];
       </div>
       <figure data-reveal>
         <div class="frame">
-          <img src="/images/mtr-q/mtr-q-monitoring.webp" alt={c.monitoringAlt} width="1440" height="1080" loading="lazy" />
+          <img src="/images/metriq/metriq-monitoring.webp" alt={c.monitoringAlt} width="1440" height="1080" loading="lazy" />
         </div>
         <figcaption class="caption">{c.monitoringCaption}</figcaption>
       </figure>
@@ -88,7 +88,7 @@ const c = mtrq[locale];
       <figure data-reveal style="--d:1">
         <h2 class="block-title">{c.practiceTitle}</h2>
         <div class="frame">
-          <img src="/images/mtr-q/mtr-q-output.webp" alt={c.practiceAlt} width="1172" height="968" loading="lazy" />
+          <img src="/images/metriq/metriq-output.webp" alt={c.practiceAlt} width="1172" height="968" loading="lazy" />
         </div>
         <figcaption class="caption">{c.practiceCaption}</figcaption>
       </figure>

@@ -111,7 +111,7 @@ Shadows only for hover and floating elements (`--shadow-sm`, `--shadow-md`).
   - **Page switch:** cross-document view transition, short cross-fade; the header stays put.
   - **Header:** border appears after scrolling; wordmark folds to `MTR` and back.
   - **Hover:** colour/border change, cards lift 2px.
-- Product animations (MTR-Q line, AMR) loop calmly, explain one idea each, pause when off screen,
+- Product animations (MetriQ line, AMR) loop calmly, explain one idea each, pause when off screen,
   and show a still frame under reduced motion.
 - `prefers-reduced-motion: reduce` turns all of it off. Every new motion must respect it.
 
@@ -137,7 +137,7 @@ Shadows only for hover and floating elements (`--shadow-sm`, `--shadow-md`).
   unknown → leave it out.
 - Every string exists in **English and Vietnamese**, in `src/data/content.ts` or `src/data/i18n.ts`.
   Never hard-code copy in a component.
-- Buttons: verb first ("See MTR-Q", "Contact us"). Sentence case.
+- Buttons: verb first ("See MetriQ", "Contact us"). Sentence case.
 
 ## 9. Accessibility (must pass)
 

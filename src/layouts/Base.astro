@@ -13,7 +13,7 @@ interface Props {
   image?: string;
 }
 
-const { title, description, locale, page, image = '/images/mtr-q/og-image.jpg' } = Astro.props;
+const { title, description, locale, page, image = '/images/metriq/og-image.jpg' } = Astro.props;
 const copy = ui[locale];
 const url = (l: Locale) => new URL(localPath(l, page), SITE_URL).href;
 const canonical = url(locale);

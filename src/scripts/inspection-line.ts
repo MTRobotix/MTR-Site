@@ -1,4 +1,4 @@
-// MTR-Q inspection line on a canvas. One loop tells the story:
+// MetriQ inspection line on a canvas. One loop tells the story:
 // 3D view of the line (camera on its stand) → turn down into the camera's view from above
 // → the reject add-on (pusher + tray) slides in and removes defects → back to 3D.
 // Plain orthographic projection; everything is derived from the loop time, so it never drifts.

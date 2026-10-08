@@ -1,6 +1,6 @@
 # MTRobotix website
 
-Company site for MTRobotix (https://www.mtrobotix.com): MTR-Q vision inspection, AMR, robot arm. English and Vietnamese.
+Company site for MTRobotix (https://www.mtrobotix.com): MetriQ vision inspection, AMR, robot arm. English and Vietnamese.
 
 ```sh
 npm install

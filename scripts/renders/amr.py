@@ -71,7 +71,7 @@ HUB = principled("hub", srgb("#8d939b"), rough=0.35, metal=1.0)
 RUBBER = grain(principled("rubber", srgb("#1a1b1e"), rough=0.85), scale=500, strength=0.2)
 LIGHT = principled("light_strip", srgb("#cfe2f7"), rough=0.3, **{"Emission Color": (*srgb("#9cc6f2"), 1), "Emission Strength": 2.2})
 BACKDROP = principled("backdrop", srgb("#f4f2ec"), rough=0.6, **{"Specular IOR Level": 0.2})
-# Logo colours as on the MTR-Q conveyor: red "MT", blue "R".
+# Logo colours as on the MetriQ conveyor: red "MT", blue "R".
 LOGO_RED = principled("logo_red", srgb("#e5463d"), rough=0.45)
 LOGO_BLUE = principled("logo_blue", srgb("#5b9be0"), rough=0.45)
 
