@@ -49,8 +49,8 @@ export const products: L<{ key: 'metriq' | 'amr' | 'arm'; name: string; summary:
 
 export const home = {
   en: {
-    title: 'MTRobotix — Vision inspection built into your line',
-    description: 'MTRobotix builds MetriQ, vision inspection that flags defects in real time on the line you already run. HCMC, Vietnam and Toronto, Canada.',
+    title: 'MTRobotix — AI vision inspection, live on your line in hours',
+    description: 'MetriQ catches defects on every unit in real time. Installed in hours on the line you already run, with zero downtime. By MTRobotix, Vietnam and Canada.',
     h1: 'Introducing MetriQ',
     lead: 'Vision inspection, live on your line in hours. The fastest deployment you’ll see.',
     ctaPrimary: 'See MetriQ',
@@ -66,8 +66,8 @@ export const home = {
     contactLead: 'Tell us your product and line speed.',
   },
   vi: {
-    title: 'MTRobotix — Kiểm tra bằng thị giác máy ngay trên dây chuyền',
-    description: 'MTRobotix phát triển MetriQ, hệ thống kiểm tra bằng thị giác máy phát hiện lỗi theo thời gian thực trên dây chuyền hiện có. TP. HCM, Việt Nam và Toronto, Canada.',
+    title: 'MTRobotix — Kiểm tra bằng thị giác AI, chạy trên dây chuyền sau vài giờ',
+    description: 'MetriQ phát hiện lỗi trên từng sản phẩm theo thời gian thực. Lắp đặt trong vài giờ trên dây chuyền hiện có, không dừng sản xuất. MTRobotix, Việt Nam và Canada.',
     h1: 'Giới thiệu MetriQ',
     lead: 'Kiểm tra bằng thị giác máy, chạy trên dây chuyền của bạn chỉ sau vài giờ. Triển khai nhanh nhất bạn từng thấy.',
     ctaPrimary: 'Xem MetriQ',
