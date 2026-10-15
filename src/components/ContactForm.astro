@@ -9,38 +9,47 @@ interface Props {
 const { locale } = Astro.props;
 const c = contact[locale];
 const mailto = `mailto:${COMPANY.email}`;
-// FormSubmit relays the form to the inbox; the first submission sends a one-time activation email.
-// The script posts JSON to the AJAX endpoint; if that fails, the form posts normally and FormSubmit
-// sends the visitor back to `_next`, where `?sent=1` shows the thank-you message.
-const endpoint = `https://formsubmit.co/${COMPANY.email}`;
+// The form posts to our own endpoint (src/pages/api/contact.ts), which runs the spam checks on the server
+// and hands clean messages to FormSubmit. Only if that endpoint cannot be reached does the script post
+// straight to FormSubmit, so a message is never lost to an outage.
+const fallback = `https://formsubmit.co/${COMPANY.email}`;
 const next = new URL(`${localPath(locale, 'contact')}?sent=1`, SITE_URL).href;
+// Optional Cloudflare Turnstile (an invisible check). Set PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY in Vercel to turn it on.
+const turnstile = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
-<form class="contact-form" action={endpoint} method="post" data-contact-form data-endpoint={`https://formsubmit.co/ajax/${COMPANY.email}`}>
-  <input type="hidden" name="_subject" value={c.formSubject} />
-  <input type="hidden" name="_template" value="table" />
-  <input type="hidden" name="_captcha" value="false" />
-  <input type="hidden" name="_next" value={next} />
+<form
+  class="contact-form"
+  id="contact-form"
+  action="/api/contact"
+  method="post"
+  data-contact-form
+  data-fallback={fallback}
+  data-subject={c.formSubject}
+  data-next={next}
+>
+  <input type="hidden" name="locale" value={locale} />
   <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
   <div class="row">
     <div class="field">
       <label for="cf-name">{c.formName}</label>
-      <input id="cf-name" name="name" type="text" autocomplete="name" required />
+      <input id="cf-name" name="name" type="text" autocomplete="name" maxlength="100" required />
     </div>
     <div class="field">
       <label for="cf-company">{c.formCompany}</label>
-      <input id="cf-company" name="company" type="text" autocomplete="organization" />
+      <input id="cf-company" name="company" type="text" autocomplete="organization" maxlength="120" />
     </div>
   </div>
   <div class="field">
     <label for="cf-email">{c.formEmail}</label>
-    <input id="cf-email" name="email" type="email" autocomplete="email" required />
+    <input id="cf-email" name="email" type="email" autocomplete="email" maxlength="254" required />
   </div>
   <div class="field">
     <label for="cf-message">{c.formMessage}</label>
-    <textarea id="cf-message" name="message" rows="6" required aria-describedby="cf-message-hint"></textarea>
+    <textarea id="cf-message" name="message" rows="6" minlength="10" maxlength="5000" required aria-describedby="cf-message-hint"></textarea>
     <p id="cf-message-hint" class="hint">{c.formMessageHint}</p>
   </div>
+  {turnstile && <div class="cf-turnstile" data-sitekey={turnstile} data-size="flexible" data-theme="light"></div>}
   <button type="submit" class="btn btn-primary" data-submit>
     <span data-label>{c.formSubmit}</span>
     <Send size={16} stroke-width={1.5} aria-hidden="true" />
@@ -50,7 +59,12 @@ const next = new URL(`${localPath(locale, 'contact')}?sent=1`, SITE_URL).href;
   <template data-msg-sending>{c.formSending}</template>
   <template data-msg-sent>{c.formSent}</template>
   <template data-msg-error>{c.formError}</template>
+  <template data-msg-email>{c.formErrorEmail}</template>
+  <template data-msg-invalid>{c.formErrorInvalid}</template>
+  <template data-msg-spam>{c.formErrorSpam}</template>
+  <template data-msg-rate>{c.formErrorRate}</template>
 </form>
+{turnstile && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
 
 <script>
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
@@ -58,22 +72,44 @@ const next = new URL(`${localPath(locale, 'contact')}?sent=1`, SITE_URL).href;
   const label = form?.querySelector<HTMLElement>('[data-label]');
   const status = form?.querySelector<HTMLElement>('[data-status]');
   const msg = (k: string) => form?.querySelector<HTMLTemplateElement>(`[data-msg-${k}]`)?.content.textContent ?? '';
+  // People take a few seconds to fill the form; the server drops sends that come faster.
+  const shownAt = performance.now();
 
-  const show = (state: 'ok' | 'error') => {
+  const show = (key: string, ok = false) => {
     if (!status) return;
-    status.textContent = msg(state === 'ok' ? 'sent' : 'error');
-    status.dataset.state = state;
+    status.textContent = msg(key) || msg('error');
+    status.dataset.state = ok ? 'ok' : 'error';
     status.hidden = false;
   };
 
-  // Back from FormSubmit's normal post (see `_next`).
+  // Back from a send without JavaScript, or from the FormSubmit fallback.
   const params = new URLSearchParams(location.search);
-  if (form && params.has('sent')) {
-    show('ok');
+  if (form && (params.has('sent') || params.has('error'))) {
+    if (params.has('sent')) show('sent', true);
+    else show(params.get('error') ?? 'error');
     params.delete('sent');
+    params.delete('error');
     const query = params.toString();
     history.replaceState(history.state, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
   }
+
+  /** Our endpoint is down: post straight to FormSubmit so the message still arrives. */
+  const fallback = () => {
+    if (!form) return;
+    const add = (name: string, value: string) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.append(input);
+    };
+    add('_subject', form.dataset.subject ?? '');
+    add('_next', form.dataset.next ?? '');
+    add('_template', 'table');
+    add('_captcha', 'true');
+    form.action = form.dataset.fallback!;
+    HTMLFormElement.prototype.submit.call(form);
+  };
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -82,29 +118,32 @@ const next = new URL(`${localPath(locale, 'contact')}?sent=1`, SITE_URL).href;
     button.disabled = true;
     label.textContent = msg('sending');
     status.hidden = true;
-    try {
-      const res = await fetch(form.dataset.endpoint!, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(Object.fromEntries(new FormData(form))),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || res.statusText);
-      form.reset();
-      show('ok');
+    const done = () => {
       button.disabled = false;
       label.textContent = idle;
+    };
+    let res: Response;
+    try {
+      res = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ ...Object.fromEntries(new FormData(form)), elapsed: Math.round(performance.now() - shownAt) }),
+      });
     } catch {
-      // AJAX refused (form not activated yet, blocked request, network): post the form normally.
-      // FormSubmit handles it on its own page and returns the visitor to `_next`.
-      try {
-        HTMLFormElement.prototype.submit.call(form);
-      } catch {
-        show('error');
-        button.disabled = false;
-        label.textContent = idle;
-      }
+      return fallback();
     }
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      form.reset();
+      show('sent', true);
+      return done();
+    }
+    // The server refused it on purpose: say why. Anything else (relay down, server error): fall back.
+    if (res.status === 400 || res.status === 429) {
+      show(data.reason ?? 'error');
+      return done();
+    }
+    fallback();
   });
 </script>
 

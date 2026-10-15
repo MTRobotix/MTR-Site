@@ -397,6 +397,10 @@ export const contact = {
     formSending: 'Sending…',
     formSent: 'Thanks — your message is on its way. We’ll reply by email.',
     formError: 'Your message didn’t go through. Please try again, or email us directly.',
+    formErrorEmail: 'That email address can’t receive mail. Check it and send again.',
+    formErrorInvalid: 'Fill in your name, email and a message of at least 10 characters.',
+    formErrorSpam: 'Your message looks like spam to our filter, so it was not sent. Please email us directly.',
+    formErrorRate: 'Too many messages from your connection. Wait 10 minutes, or email us directly.',
   },
   vi: {
     title: 'Liên hệ | MTRobotix',
@@ -422,5 +426,9 @@ export const contact = {
     formSending: 'Đang gửi…',
     formSent: 'Cảm ơn bạn — tin nhắn đã được gửi. Chúng tôi sẽ phản hồi qua email.',
     formError: 'Chưa gửi được tin nhắn. Vui lòng thử lại hoặc email trực tiếp cho chúng tôi.',
+    formErrorEmail: 'Địa chỉ email này không nhận được thư. Vui lòng kiểm tra và gửi lại.',
+    formErrorInvalid: 'Vui lòng nhập họ tên, email và nội dung ít nhất 10 ký tự.',
+    formErrorSpam: 'Bộ lọc nhận diện tin nhắn này là thư rác nên chưa gửi. Vui lòng email trực tiếp cho chúng tôi.',
+    formErrorRate: 'Có quá nhiều tin nhắn từ kết nối của bạn. Vui lòng đợi 10 phút hoặc email trực tiếp cho chúng tôi.',
   },
 };
