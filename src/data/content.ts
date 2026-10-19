@@ -327,12 +327,6 @@ export const about = {
     founderRole: 'Founder, robotics engineer',
     founderBody: 'Robotics engineer working across computer vision, autonomous mobile robots and automation.',
     education: 'B.Eng. Mechatronics Engineering, Ontario Tech University',
-    journeyTitle: 'Journey',
-    journey: [
-      { org: 'ABI Ltd.', role: 'Robotics Software Engineer', period: 'May 2026 – present' },
-      { org: 'MARS Lab', role: 'Research Assistant', period: 'May 2025 – May 2026' },
-      { org: 'Ontario Tech RoboMaster', role: 'Design Team Lead', period: 'Sep 2024 – present' },
-    ],
   },
   vi: {
     title: 'Giới thiệu | MTRobotix',
@@ -363,12 +357,6 @@ export const about = {
     founderRole: 'Nhà sáng lập, kỹ sư robot',
     founderBody: 'Kỹ sư robot làm việc trong lĩnh vực thị giác máy tính, robot di động tự hành và tự động hóa.',
     education: 'Kỹ sư Cơ điện tử (B.Eng.), Đại học Ontario Tech',
-    journeyTitle: 'Hành trình',
-    journey: [
-      { org: 'ABI Ltd.', role: 'Kỹ sư Phần mềm Robot', period: 'Tháng 5/2026 – nay' },
-      { org: 'MARS Lab', role: 'Trợ lý nghiên cứu', period: 'Tháng 5/2025 – Tháng 5/2026' },
-      { org: 'Ontario Tech RoboMaster', role: 'Trưởng nhóm thiết kế', period: 'Tháng 9/2024 – nay' },
-    ],
   },
 };
 

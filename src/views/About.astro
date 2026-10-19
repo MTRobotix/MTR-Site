@@ -58,33 +58,16 @@ const c = about[locale];
   </section>
 
   <section class="section">
-    <div class="shell two-col">
+    <div class="shell">
       <div class="founder" data-reveal>
-        <div class="founder-head">
-          <img class="founder-photo" src="/images/about/founder.webp" alt={c.founderPhotoAlt} width="480" height="480" loading="lazy" />
-          <div>
-            <p class="kicker">{c.founderKicker}</p>
-            <h2>{c.founderName}</h2>
-            <p class="role">{c.founderRole}</p>
-          </div>
+        <img class="founder-photo" src="/images/about/founder.webp" alt={c.founderPhotoAlt} width="480" height="480" loading="lazy" />
+        <div class="founder-name">
+          <p class="kicker">{c.founderKicker}</p>
+          <h2>{c.founderName}</h2>
+          <p class="role">{c.founderRole}</p>
         </div>
         <p>{c.founderBody}</p>
         <p class="edu">{c.education}</p>
-      </div>
-      <div data-reveal style="--d:1">
-        <h3 class="block-title">{c.journeyTitle}</h3>
-        <dl class="facts">
-          {
-            c.journey.map((e) => (
-              <div>
-                <dt>{e.org}</dt>
-                <dd>
-                  {e.role} <span class="period">· {e.period}</span>
-                </dd>
-              </div>
-            ))
-          }
-        </dl>
       </div>
     </div>
   </section>
@@ -207,26 +190,24 @@ const c = about[locale];
     color: var(--color-accent);
   }
 
+  /* Founder profile, centred: photo, name, one line, education. */
   .founder {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .founder-head {
-    display: flex;
     align-items: center;
-    gap: var(--space-5);
+    gap: var(--space-3);
+    max-width: var(--measure);
+    margin-inline: auto;
+    text-align: center;
   }
 
-  .founder-head > div {
+  .founder-name {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
   }
 
   .founder-photo {
-    flex: none;
     width: 9.5rem;
     height: 9.5rem;
     border: 1px solid var(--color-line);
@@ -239,8 +220,7 @@ const c = about[locale];
   }
 
   .role,
-  .edu,
-  .period {
+  .edu {
     color: var(--color-text-muted);
   }
 </style>
