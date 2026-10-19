@@ -21,6 +21,9 @@ never empty space, motion that is felt more than seen.
 4. **Fast.** Static pages, self-hosted fonts, one small site script (`src/scripts/site.ts`) plus
    the product animations and the home hero field, each its own small module. No UI frameworks,
    no animation libraries, no web-font CDNs.
+   The only third-party-style script is Vercel Web Analytics (`/_vercel/insights/script.js`,
+   same origin, cookieless, production only, in `Base.astro`). `?analytics=off` on any page stops
+   counting that browser (our own visits); `?analytics=on` undoes it. No other trackers.
 
 ## 2. Theme colours
 
