@@ -1,6 +1,5 @@
 ---
 import { COMPANY, isShown, localPath, ui, type Locale } from '../data/i18n';
-import Wordmark from './Wordmark.astro';
 
 interface Props {
   locale: Locale;
@@ -13,7 +12,7 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
   <div class="shell footer-grid">
     <div class="footer-brand">
-      <Wordmark size="sm" />
+      <img class="footer-logo" src="/logo-lockup.svg" alt={COMPANY.name} width="200" height="45" loading="lazy" />
     </div>
     <nav aria-label={copy.footerProducts}>
       <p class="footer-head">{copy.footerProducts}</p>
@@ -57,6 +56,12 @@ const year = new Date().getFullYear();
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+  }
+
+  /* Primary logo from the SOP logo kit (logo-lockup.svg); 200px keeps it above the kit's 120px minimum. */
+  .footer-logo {
+    width: 200px;
+    height: auto;
   }
 
   .footer-head {

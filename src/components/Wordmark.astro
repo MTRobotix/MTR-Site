@@ -1,6 +1,9 @@
 ---
 // MTRobotix wordmark, as on the MTR-Q one-pager: red "MT", navy "ROBOTIX", letter-spaced.
-// collapsible: in the header, "OBOTIX" folds away once the page scrolls, leaving "MTR" (site.ts sets data-compact).
+// collapsible: in the header, once the page scrolls (site.ts sets data-compact), "OBOTIX" folds away and the halftone
+// mark slides in, leaving mark + "MTR".
+import Mark from './Mark.astro';
+
 interface Props {
   size?: 'sm' | 'md';
   collapsible?: boolean;
@@ -10,12 +13,22 @@ const rest = 'OBOTIX'.split('');
 ---
 
 <span class:list={['wordmark', size, { collapsible }]} aria-hidden="true">
+  {
+    collapsible && (
+      <span class="logo">
+        <span class="logo-inner">
+          <Mark />
+        </span>
+      </span>
+    )
+  }
   <span class="mt">MT</span>R<span class="rest"><span class="rest-inner">{rest.map((ch, i) => <span style={`--i:${i}`}>{ch}</span>)}</span></span>
 </span>
 
 <style>
   .wordmark {
     display: inline-flex;
+    align-items: center;
     color: var(--color-ink);
     font-family: var(--font-body);
     font-weight: 500;
@@ -52,6 +65,42 @@ const rest = 'OBOTIX'.split('');
     transition:
       opacity 200ms var(--ease) calc(120ms + var(--i) * 35ms),
       transform 260ms var(--ease) calc(120ms + var(--i) * 35ms);
+  }
+
+  /* The mark's column opens from 0fr as the letters fold; it fades in once there is room and leaves first on the way back. */
+  .logo {
+    display: inline-grid;
+    grid-template-columns: 0fr;
+    transition: grid-template-columns 360ms var(--ease) 100ms;
+  }
+
+  .logo-inner {
+    display: flex;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .logo-inner :global(.mark) {
+    flex: none;
+    margin-right: 0.6rem;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition:
+      opacity 160ms var(--ease),
+      transform 200ms var(--ease);
+  }
+
+  :global([data-compact]) .collapsible .logo {
+    grid-template-columns: 1fr;
+    transition-delay: 160ms;
+  }
+
+  :global([data-compact]) .collapsible .logo-inner :global(.mark) {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 260ms var(--ease) 260ms,
+      transform 320ms var(--ease) 260ms;
   }
 
   :global([data-compact]) .collapsible .rest {
