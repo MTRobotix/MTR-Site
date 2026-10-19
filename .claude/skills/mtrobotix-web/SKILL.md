@@ -36,8 +36,8 @@ that a token carries. New token → add it there with a one-line comment saying 
 | `--color-text-muted` | `#5b5d63` | Leads, labels, secondary text |
 | `--color-text-faint` | `#8b8d92` | Captions, step numbers |
 | `--color-line` / `--color-line-strong` | `#e6e4dc` / `#c9c5ba` | Hairlines, borders |
-| `--color-ink` | `#1d2d3d` | Brand navy: primary buttons, wordmark "ROBOTIX", active underline |
-| `--color-brand-red` | `#e5463d` | Only the "MT" of the wordmark, and defect red in diagrams |
+| `--color-ink` | `#1d2d3d` | Brand navy: primary buttons, wordmark "ROBOTIX", logo dots, active underline |
+| `--color-brand-red` | `#e5463d` | Only the "MT" of the wordmark, the logo's largest dots, and defect red in diagrams |
 | `--color-accent` | `#2f5d8a` | Links, stat values, list ticks, focus ring |
 | `--color-pass` | `#2f7d52` | "Good part" in inspection diagrams only |
 | `--color-wip` | `#8a5a12` | "Work in progress" badge only |
@@ -56,7 +56,12 @@ that a token carries. New token → add it there with a one-line comment saying 
 - Body text max width `--measure` (62ch).
 - Small uppercase labels (`.kicker`) are the only all-caps text, besides the wordmark.
 - Wordmark: `MT` red + `ROBOTIX` navy, letter-spaced 0.28em (`Wordmark.astro`). In the header it
-  folds to `MTR` once the page scrolls. Never restyle, recolour or re-letter it.
+  folds to the mark + `MTR` once the page scrolls. Never restyle, recolour or re-letter it.
+- Logo: the halftone mark (concept 41). Source of truth is the SOP logo kit
+  (`MTR-SOP/content/business/logo-kit.md`). Header: coarse 7×7 mark (`Mark.astro`), only in the
+  scrolled header. Footer: the primary lockup `public/logo-lockup.svg`, copied from the kit, at
+  least 120px wide. Favicons and `public/logo.png`: the white app icon (`public/favicon.svg`, PNGs
+  rendered from it). Never redraw, recolour or rearrange it; update from the kit.
 
 ## 4. Layout and spacing
 
@@ -109,7 +114,7 @@ Shadows only for hover and floating elements (`--shadow-sm`, `--shadow-md`).
     motion.
   - **Reveal on scroll:** `data-reveal`; list items set `--d` (0, 1, 2…) to stagger by `--stagger`.
   - **Page switch:** cross-document view transition, short cross-fade; the header stays put.
-  - **Header:** border appears after scrolling; wordmark folds to `MTR` and back.
+  - **Header:** border appears after scrolling; wordmark folds to the mark + `MTR` and back.
   - **Hover:** colour/border change, cards lift 2px.
 - Product animations (MetriQ line, AMR) loop calmly, explain one idea each, pause when off screen,
   and show a still frame under reduced motion.
