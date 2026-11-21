@@ -31,7 +31,7 @@ export function localPath(locale: Locale, key: RouteKey): string {
 /** Real company facts. Source: MTR-Q one-pager (2026). Change here only. */
 export const COMPANY = {
   name: 'MTRobotix',
-  email: 'mtrobotix@gmail.com',
+  email: 'info@mtrobotix.com',
   phones: [
     { label: { en: 'Vietnam', vi: 'Việt Nam' }, display: '+84 835760735', tel: '+84835760735' },
     { label: { en: 'Canada', vi: 'Canada' }, display: '+1 905 924 5498', tel: '+19059245498' },
